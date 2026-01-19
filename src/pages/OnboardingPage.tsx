@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
 import { RistLogo } from '@/components/icons/RistLogo';
-import { ArrowRight, FileText, Sparkles } from '@/components/ui/icons';
+import { ArrowRight, FileText, Sparkles, Upload, X } from '@/components/ui/icons';
 import type { JobDescription } from '@/types';
 
 export default function OnboardingPage() {
@@ -11,9 +11,54 @@ export default function OnboardingPage() {
   const [company, setCompany] = useState('');
   const [jobDescContent, setJobDescContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { userName, completeOnboarding } = useApp();
   const navigate = useNavigate();
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFileName(file.name);
+
+    // Handle text-based files
+    if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+      const text = await file.text();
+      setJobDescContent(text);
+    } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      // For PDF files, we'd need server-side parsing
+      // For now, show a message that they should paste the content
+      setJobDescContent('');
+      setUploadedFileName(null);
+      alert('PDF parsing requires server integration. Please paste the job description text directly for now.');
+    } else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
+      // For Word docs, we'd need server-side parsing
+      setJobDescContent('');
+      setUploadedFileName(null);
+      alert('Word document parsing requires server integration. Please paste the job description text directly for now.');
+    } else {
+      // Try to read as text
+      try {
+        const text = await file.text();
+        setJobDescContent(text);
+      } catch {
+        setUploadedFileName(null);
+        alert('Unable to read this file format. Please paste the job description text directly.');
+      }
+    }
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const clearUploadedFile = () => {
+    setUploadedFileName(null);
+    setJobDescContent('');
+  };
 
   const extractResponsibilities = (content: string): string[] => {
     // Simple extraction - split by newlines and filter meaningful lines
@@ -164,14 +209,66 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            {/* File Upload Option */}
+            <div className="space-y-3">
               <label className="block text-sm font-medium text-foreground">
-                Paste your job description
+                Upload or paste your job description
               </label>
+              
+              {/* Upload area */}
+              <div className="relative">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt,.md,.pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="job-desc-upload"
+                />
+                
+                {uploadedFileName ? (
+                  <div className="flex items-center gap-3 p-4 rounded-lg border border-primary/30 bg-primary/5">
+                    <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="flex-1 text-sm text-foreground truncate">{uploadedFileName}</span>
+                    <button
+                      type="button"
+                      onClick={clearUploadedFile}
+                      className="p-1 rounded-full hover:bg-muted transition-colors"
+                    >
+                      <X className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="job-desc-upload"
+                    className="flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    <Upload className="w-6 h-6 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Click to upload a file
+                    </span>
+                    <span className="text-xs text-muted-foreground/70">
+                      .txt, .md supported • PDF & Word coming soon
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">or paste below</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
+              {/* Text area */}
               <textarea
                 value={jobDescContent}
-                onChange={(e) => setJobDescContent(e.target.value)}
-                className="textarea-journal min-h-[200px]"
+                onChange={(e) => {
+                  setJobDescContent(e.target.value);
+                  if (uploadedFileName) setUploadedFileName(null);
+                }}
+                className="textarea-journal min-h-[160px]"
                 placeholder="Paste the key responsibilities from your job description here..."
               />
             </div>
