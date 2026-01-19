@@ -3,6 +3,7 @@ import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { MiniCalendar } from '@/components/dashboard/MiniCalendar';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { RecentEntries } from '@/components/dashboard/RecentEntries';
+import { WeeklyReflection } from '@/components/dashboard/WeeklyReflection';
 import { NewEntryModal } from '@/components/entry/NewEntryModal';
 import { useApp } from '@/context/AppContext';
 import { Plus, Sparkles, FileText } from '@/components/ui/icons';
@@ -70,6 +71,9 @@ export default function DashboardPage() {
           
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Weekly Reflection */}
+            <WeeklyReflection />
+            
             {/* Calendar */}
             <MiniCalendar />
             

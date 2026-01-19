@@ -18,6 +18,17 @@ export interface JobDescription {
   createdAt: Date;
 }
 
+export interface EntryItem {
+  text: string;
+  createdAt: Date;
+}
+
+export interface AIReflection {
+  traits: string[]; // e.g., "thoughtful", "brave", "initiative"
+  summary: string;
+  growthAreas: string[];
+}
+
 export interface Entry {
   id: string;
   userId: string;
@@ -26,8 +37,21 @@ export interface Entry {
   learnings: string[];
   insights: string[];
   decisions: string[];
+  aiReflection?: AIReflection;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface WeeklyReflection {
+  id: string;
+  userId: string;
+  weekStart: Date;
+  weekEnd: Date;
+  traits: string[];
+  summary: string;
+  growthHighlights: string[];
+  entryCount: number;
+  createdAt: Date;
 }
 
 export interface GeneratedReview {

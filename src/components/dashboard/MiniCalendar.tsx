@@ -73,9 +73,10 @@ export function MiniCalendar({ onDateSelect }: MiniCalendarProps) {
             ${today ? 'font-medium text-primary' : 'text-foreground'}
           `}
         >
-          {day}
-          {hasEntry && (
-            <span className="absolute bottom-0.5 calendar-dot" />
+          {hasEntry ? (
+            <span className="text-base leading-none" title="Entry captured">🌱</span>
+          ) : (
+            day
           )}
         </button>
       );
