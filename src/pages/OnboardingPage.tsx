@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
-import { ArrowRight, FileText, Sparkles, Upload, X } from '@/components/ui/icons';
+import { ArrowRight, FileText, Loader2, Sparkles, Upload, X } from '@/components/ui/icons';
+import { useToast } from '@/hooks/use-toast';
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -11,43 +12,93 @@ export default function OnboardingPage() {
   const [company, setCompany] = useState('');
   const [jobDescContent, setJobDescContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { user } = useAuth();
   const { profile, saveJobDescription } = useUserData();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const userName = profile?.name || user?.user_metadata?.name || 'there';
+
+  const parseDocumentWithEdgeFunction = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/parse-document`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to parse document');
+    }
+
+    const data = await response.json();
+    return data.text;
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setUploadedFileName(file.name);
+    const fileName = file.name.toLowerCase();
 
-    // Handle text-based files
-    if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+    // Handle text-based files directly in browser
+    if (file.type === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.md')) {
       const text = await file.text();
       setJobDescContent(text);
-    } else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-      // For PDF files, we'd need server-side parsing
-      // For now, show a message that they should paste the content
-      setJobDescContent('');
-      setUploadedFileName(null);
-      alert('PDF parsing requires server integration. Please paste the job description text directly for now.');
-    } else if (file.name.endsWith('.docx') || file.name.endsWith('.doc')) {
-      // For Word docs, we'd need server-side parsing
-      setJobDescContent('');
-      setUploadedFileName(null);
-      alert('Word document parsing requires server integration. Please paste the job description text directly for now.');
-    } else {
-      // Try to read as text
+      setUploadedFileName(file.name);
+    } 
+    // Handle PDF and DOCX via edge function
+    else if (fileName.endsWith('.pdf') || fileName.endsWith('.docx')) {
+      setIsUploadingFile(true);
+      setUploadedFileName(file.name);
+      
+      try {
+        const extractedText = await parseDocumentWithEdgeFunction(file);
+        setJobDescContent(extractedText);
+        toast({
+          title: 'Document parsed successfully',
+          description: `Extracted text from ${file.name}`,
+        });
+      } catch (error) {
+        console.error('File parsing error:', error);
+        setUploadedFileName(null);
+        toast({
+          title: 'Failed to parse document',
+          description: error instanceof Error ? error.message : 'Please try a different file or paste the text directly.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsUploadingFile(false);
+      }
+    }
+    // Legacy .doc format not supported
+    else if (fileName.endsWith('.doc')) {
+      toast({
+        title: 'Format not supported',
+        description: 'Please save as .docx or .txt and try again.',
+        variant: 'destructive',
+      });
+    }
+    // Try reading as plain text
+    else {
       try {
         const text = await file.text();
         setJobDescContent(text);
+        setUploadedFileName(file.name);
       } catch {
-        setUploadedFileName(null);
-        alert('Unable to read this file format. Please paste the job description text directly.');
+        toast({
+          title: 'Unable to read file',
+          description: 'Please paste the job description text directly.',
+          variant: 'destructive',
+        });
       }
     }
 
@@ -216,7 +267,14 @@ export default function OnboardingPage() {
                   id="job-desc-upload"
                 />
                 
-                {uploadedFileName ? (
+                {isUploadingFile ? (
+                  <div className="flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-primary/50 bg-primary/5">
+                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                    <span className="text-sm text-foreground">
+                      Parsing {uploadedFileName}...
+                    </span>
+                  </div>
+                ) : uploadedFileName ? (
                   <div className="flex items-center gap-3 p-4 rounded-lg border border-primary/30 bg-primary/5">
                     <FileText className="w-5 h-5 text-primary flex-shrink-0" />
                     <span className="flex-1 text-sm text-foreground truncate">{uploadedFileName}</span>
@@ -238,7 +296,7 @@ export default function OnboardingPage() {
                       Click to upload a file
                     </span>
                     <span className="text-xs text-muted-foreground/70">
-                      .txt, .md supported • PDF & Word coming soon
+                      .txt, .md, .pdf, .docx supported
                     </span>
                   </label>
                 )}
