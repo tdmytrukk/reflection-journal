@@ -26,9 +26,15 @@ export default function AuthPage() {
     
     setIsLoading(false);
     
-    if (hasCompletedOnboarding) {
+    // For returning users (login mode), check if they've completed onboarding
+    // The hasCompletedOnboarding from context reflects the persisted state
+    if (isLogin && hasCompletedOnboarding) {
       navigate('/dashboard');
+    } else if (isLogin) {
+      // Returning user who never completed onboarding
+      navigate('/onboarding');
     } else {
+      // New user signup always goes to onboarding
       navigate('/onboarding');
     }
   };
