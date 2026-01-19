@@ -29,6 +29,7 @@ import {
   Shield,
   Zap,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 
 export {
@@ -62,4 +63,5 @@ export {
   Shield,
   Zap,
   TrendingUp,
+  Loader2,
 };
