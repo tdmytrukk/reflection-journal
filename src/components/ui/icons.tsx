@@ -23,6 +23,7 @@ import {
   Target,
   BookOpen,
   Compass,
+  Upload,
 } from "lucide-react";
 
 export {
@@ -50,4 +51,5 @@ export {
   Target,
   BookOpen,
   Compass,
+  Upload,
 };
