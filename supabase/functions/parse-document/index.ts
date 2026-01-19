@@ -59,7 +59,15 @@ serve(async (req) => {
               content: [
                 {
                   type: 'text',
-                  text: 'Extract all the text content from this document. Return ONLY the extracted text, preserving the original formatting and structure as much as possible. Do not add any commentary or explanation.',
+                  text: `Extract the text content from this job description document. Format the output as follows:
+
+1. Preserve all section headers (like "Responsibilities", "Requirements", "Qualifications", etc.) and make them clearly visible
+2. Keep all bullet points as "• " at the start of each line
+3. Maintain numbered lists in their original format (1., 2., 3., etc.)
+4. Preserve paragraph breaks between sections
+5. Keep the job title and company name prominent at the top if present
+
+Return ONLY the formatted text content. Do not add any commentary, explanations, or markdown formatting symbols like ** or #.`,
                 },
                 {
                   type: 'file',
