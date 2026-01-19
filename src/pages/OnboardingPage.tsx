@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
 import { ArrowRight, FileText, Sparkles, Upload, X } from '@/components/ui/icons';
-import type { JobDescription } from '@/types';
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -14,8 +14,10 @@ export default function OnboardingPage() {
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { userName, completeOnboarding } = useApp();
+  const { user } = useAuth();
+  const { profile, saveJobDescription } = useUserData();
   const navigate = useNavigate();
+  const userName = profile?.name || user?.user_metadata?.name || 'there';
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,40 +79,28 @@ export default function OnboardingPage() {
   const handleComplete = async () => {
     setIsProcessing(true);
     
-    // Simulate processing
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     const responsibilities = extractResponsibilities(jobDescContent);
     
-    const jobDesc: JobDescription = {
-      id: crypto.randomUUID(),
-      userId: 'user-1',
+    await saveJobDescription({
       title: jobTitle,
       company: company,
       content: jobDescContent,
       responsibilities,
       startDate: new Date(),
-      createdAt: new Date(),
-    };
+    });
     
-    completeOnboarding(jobDesc);
     setIsProcessing(false);
     navigate('/dashboard');
   };
 
-  const handleSkip = () => {
-    const jobDesc: JobDescription = {
-      id: crypto.randomUUID(),
-      userId: 'user-1',
+  const handleSkip = async () => {
+    await saveJobDescription({
       title: 'Professional',
       company: 'My Company',
       content: '',
       responsibilities: [],
       startDate: new Date(),
-      createdAt: new Date(),
-    };
-    
-    completeOnboarding(jobDesc);
+    });
     navigate('/dashboard');
   };
 
