@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   User,
+  Users,
   Sparkles,
   Download,
   Copy,
@@ -24,6 +25,10 @@ import {
   BookOpen,
   Compass,
   Upload,
+  Heart,
+  Shield,
+  Zap,
+  TrendingUp,
 } from "lucide-react";
 
 export {
@@ -40,6 +45,7 @@ export {
   Settings,
   LogOut,
   User,
+  Users,
   Sparkles,
   Download,
   Copy,
@@ -52,4 +58,8 @@ export {
   BookOpen,
   Compass,
   Upload,
+  Heart,
+  Shield,
+  Zap,
+  TrendingUp,
 };
