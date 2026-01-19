@@ -1,8 +1,8 @@
-import { useApp } from '@/context/AppContext';
-import { FileText, Target, Lightbulb, BookOpen } from '@/components/ui/icons';
+import { useUserData } from '@/hooks/useUserData';
+import { FileText, Target, Lightbulb } from '@/components/ui/icons';
 
 export function QuickStats() {
-  const { entries } = useApp();
+  const { entries } = useUserData();
   
   // Get current quarter
   const now = new Date();

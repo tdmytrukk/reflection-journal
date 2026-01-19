@@ -5,12 +5,14 @@ import { QuickStats } from '@/components/dashboard/QuickStats';
 import { RecentEntries } from '@/components/dashboard/RecentEntries';
 import { WeeklyReflection } from '@/components/dashboard/WeeklyReflection';
 import { NewEntryModal } from '@/components/entry/NewEntryModal';
-import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { Plus, Sparkles, FileText } from '@/components/ui/icons';
 
 export default function DashboardPage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
-  const { userName, jobDescription } = useApp();
+  const { user } = useAuth();
+  const { profile, jobDescription } = useUserData();
   
   // Get current quarter
   const now = new Date();
@@ -22,6 +24,8 @@ export default function DashboardPage() {
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
   };
+  
+  const userName = profile?.name || user?.email?.split('@')[0] || 'there';
   
   return (
     <div className="min-h-screen paper-texture">

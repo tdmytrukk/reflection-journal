@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      entries: {
+        Row: {
+          achievements: string[] | null
+          ai_reflection: Json | null
+          created_at: string
+          date: string
+          decisions: string[] | null
+          id: string
+          insights: string[] | null
+          learnings: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements?: string[] | null
+          ai_reflection?: Json | null
+          created_at?: string
+          date?: string
+          decisions?: string[] | null
+          id?: string
+          insights?: string[] | null
+          learnings?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements?: string[] | null
+          ai_reflection?: Json | null
+          created_at?: string
+          date?: string
+          decisions?: string[] | null
+          id?: string
+          insights?: string[] | null
+          learnings?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_descriptions: {
+        Row: {
+          company: string
+          content: string
+          created_at: string
+          end_date: string | null
+          id: string
+          responsibilities: string[] | null
+          start_date: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          company: string
+          content: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          responsibilities?: string[] | null
+          start_date?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          company?: string
+          content?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          responsibilities?: string[] | null
+          start_date?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

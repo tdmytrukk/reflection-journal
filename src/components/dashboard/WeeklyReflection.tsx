@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { useApp } from '@/context/AppContext';
+import { useUserData } from '@/hooks/useUserData';
 import { Sparkles, TrendingUp, Heart, Zap, Shield, Users, Target } from '@/components/ui/icons';
+import { useMemo } from 'react';
 
 const TRAIT_ICONS: Record<string, React.ElementType> = {
   thoughtful: Heart,
@@ -73,7 +73,7 @@ function getWeekRange(date: Date): { start: Date; end: Date } {
 }
 
 export function WeeklyReflection() {
-  const { entries } = useApp();
+  const { entries } = useUserData();
   
   const weeklyData = useMemo(() => {
     const { start, end } = getWeekRange(new Date());

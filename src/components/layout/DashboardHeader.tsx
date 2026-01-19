@@ -1,4 +1,5 @@
-import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
 import { Settings, LogOut, User } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
@@ -11,11 +12,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function DashboardHeader() {
-  const { userName, userEmail, logout } = useApp();
+  const { user, signOut } = useAuth();
+  const { profile } = useUserData();
   const navigate = useNavigate();
   
-  const handleLogout = () => {
-    logout();
+  const userName = profile?.name || user?.email?.split('@')[0] || 'User';
+  const userEmail = profile?.email || user?.email || '';
+  
+  const handleLogout = async () => {
+    await signOut();
     navigate('/');
   };
   

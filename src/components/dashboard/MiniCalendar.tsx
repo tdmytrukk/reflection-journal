@@ -1,7 +1,6 @@
+import { useUserData } from '@/hooks/useUserData';
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@/components/ui/icons';
-import { useApp } from '@/context/AppContext';
-import type { Entry } from '@/types';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -15,7 +14,7 @@ interface MiniCalendarProps {
 
 export function MiniCalendar({ onDateSelect }: MiniCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const { entries } = useApp();
+  const { entries } = useUserData();
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
