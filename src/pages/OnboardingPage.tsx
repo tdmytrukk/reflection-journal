@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
-import { ArrowRight, FileText, Loader2, Sparkles, Upload, X } from '@/components/ui/icons';
+import { ArrowRight, FileText, Loader2, Sparkles, Upload, X, Edit3 } from '@/components/ui/icons';
 import { useToast } from '@/hooks/use-toast';
 
 export default function OnboardingPage() {
@@ -54,6 +54,8 @@ export default function OnboardingPage() {
       const text = await file.text();
       setJobDescContent(text);
       setUploadedFileName(file.name);
+      // Auto-advance to step 2 after successful upload
+      setStep(2);
     } 
     // Handle PDF and DOCX via edge function
     else if (fileName.endsWith('.pdf') || fileName.endsWith('.docx')) {
@@ -67,12 +69,14 @@ export default function OnboardingPage() {
           title: 'Document parsed successfully',
           description: `Extracted text from ${file.name}`,
         });
+        // Auto-advance to step 2 after successful upload
+        setStep(2);
       } catch (error) {
         console.error('File parsing error:', error);
         setUploadedFileName(null);
         toast({
           title: 'Failed to parse document',
-          description: error instanceof Error ? error.message : 'Please try a different file or paste the text directly.',
+          description: error instanceof Error ? error.message : 'Please try a different file or enter details manually.',
           variant: 'destructive',
         });
       } finally {
@@ -93,10 +97,11 @@ export default function OnboardingPage() {
         const text = await file.text();
         setJobDescContent(text);
         setUploadedFileName(file.name);
+        setStep(2);
       } catch {
         toast({
           title: 'Unable to read file',
-          description: 'Please paste the job description text directly.',
+          description: 'Please enter your job details manually.',
           variant: 'destructive',
         });
       }
@@ -133,8 +138,8 @@ export default function OnboardingPage() {
     const responsibilities = extractResponsibilities(jobDescContent);
     
     await saveJobDescription({
-      title: jobTitle,
-      company: company,
+      title: jobTitle || 'Professional',
+      company: company || 'My Company',
       content: jobDescContent,
       responsibilities,
       startDate: new Date(),
@@ -178,18 +183,126 @@ export default function OnboardingPage() {
           {step === 2 && (
             <>
               <h1 className="text-2xl font-medium text-foreground mb-2">
-                Share your role
+                Complete your profile
               </h1>
               <p className="text-muted-foreground">
-                This helps us match your achievements to your responsibilities
+                Add your role details to match achievements to responsibilities
               </p>
             </>
           )}
         </div>
 
-        {/* Step 1: Role basics */}
+        {/* Step 1: Upload job description */}
         {step === 1 && (
           <div className="journal-card space-y-6">
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-sage-light/50 border border-sage-light">
+              <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground mb-1">Why add your job description?</p>
+                <p className="text-muted-foreground">
+                  We'll use it to match your achievements to your responsibilities and generate meaningful performance reviews.
+                </p>
+              </div>
+            </div>
+
+            {/* File Upload Option */}
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-foreground">
+                Upload your job description
+              </label>
+              
+              {/* Upload area */}
+              <div className="relative">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".txt,.md,.pdf,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="job-desc-upload"
+                />
+                
+                {isUploadingFile ? (
+                  <div className="flex flex-col items-center gap-2 p-8 rounded-lg border-2 border-dashed border-primary/50 bg-primary/5">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    <span className="text-sm text-foreground">
+                      Parsing {uploadedFileName}...
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      This may take a few seconds
+                    </span>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor="job-desc-upload"
+                    className="flex flex-col items-center gap-3 p-8 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Upload className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <span className="text-sm font-medium text-foreground block">
+                        Click to upload your job description
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-1 block">
+                        PDF, Word, or text files supported
+                      </span>
+                    </div>
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">or</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            {/* Manual entry option */}
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/30 transition-colors"
+            >
+              <Edit3 className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-foreground">Enter details manually</span>
+            </button>
+
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={handleSkip}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Skip for now
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Role details (manual entry or after upload) */}
+        {step === 2 && (
+          <div className="journal-card space-y-6">
+            {/* Show uploaded file if exists */}
+            {uploadedFileName && (
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                <span className="flex-1 text-sm text-foreground truncate">{uploadedFileName}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearUploadedFile();
+                    setStep(1);
+                  }}
+                  className="p-1 rounded-full hover:bg-muted transition-colors"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">
                 Your current job title
@@ -216,125 +329,47 @@ export default function OnboardingPage() {
               />
             </div>
 
-            <div className="flex gap-3 pt-2">
-              <button
-                type="button"
-                onClick={handleSkip}
-                className="btn-ghost flex-1"
-              >
-                Skip for now
-              </button>
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                disabled={!jobTitle || !company}
-                className="btn-serene flex-1 group disabled:opacity-50"
-              >
-                Continue
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Job description */}
-        {step === 2 && (
-          <div className="journal-card space-y-6">
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-sage-light/50 border border-sage-light">
-              <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-foreground mb-1">Why add your job description?</p>
-                <p className="text-muted-foreground">
-                  We'll use it to match your achievements to your responsibilities and generate meaningful performance reviews.
-                </p>
-              </div>
-            </div>
-
-            {/* File Upload Option */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                Upload or paste your job description
-              </label>
-              
-              {/* Upload area */}
-              <div className="relative">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".txt,.md,.pdf,.doc,.docx"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="job-desc-upload"
+            {/* Job description text area - only show if no file uploaded */}
+            {!uploadedFileName && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Job description <span className="text-muted-foreground font-normal">(optional)</span>
+                </label>
+                <textarea
+                  value={jobDescContent}
+                  onChange={(e) => setJobDescContent(e.target.value)}
+                  className="textarea-journal min-h-[120px]"
+                  placeholder="Paste your key responsibilities here..."
                 />
-                
-                {isUploadingFile ? (
-                  <div className="flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-primary/50 bg-primary/5">
-                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
-                    <span className="text-sm text-foreground">
-                      Parsing {uploadedFileName}...
-                    </span>
-                  </div>
-                ) : uploadedFileName ? (
-                  <div className="flex items-center gap-3 p-4 rounded-lg border border-primary/30 bg-primary/5">
-                    <FileText className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="flex-1 text-sm text-foreground truncate">{uploadedFileName}</span>
-                    <button
-                      type="button"
-                      onClick={clearUploadedFile}
-                      className="p-1 rounded-full hover:bg-muted transition-colors"
-                    >
-                      <X className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                ) : (
-                  <label
-                    htmlFor="job-desc-upload"
-                    className="flex flex-col items-center gap-2 p-6 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer"
-                  >
-                    <Upload className="w-6 h-6 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      Click to upload a file
-                    </span>
-                    <span className="text-xs text-muted-foreground/70">
-                      .txt, .md, .pdf, .docx supported
-                    </span>
-                  </label>
-                )}
               </div>
+            )}
 
-              {/* Divider */}
-              <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground uppercase tracking-wider">or paste below</span>
-                <div className="flex-1 h-px bg-border" />
+            {/* Show extracted content preview if file was uploaded */}
+            {uploadedFileName && jobDescContent && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Extracted content
+                </label>
+                <div className="p-3 rounded-lg bg-muted/50 border border-border max-h-[200px] overflow-y-auto">
+                  <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-sans">
+                    {jobDescContent.slice(0, 500)}{jobDescContent.length > 500 ? '...' : ''}
+                  </pre>
+                </div>
               </div>
-
-              {/* Text area */}
-              <textarea
-                value={jobDescContent}
-                onChange={(e) => {
-                  setJobDescContent(e.target.value);
-                  if (uploadedFileName) setUploadedFileName(null);
-                }}
-                className="textarea-journal min-h-[160px]"
-                placeholder="Paste the key responsibilities from your job description here..."
-              />
-            </div>
+            )}
 
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setStep(1)}
+                onClick={() => {
+                  if (uploadedFileName) {
+                    clearUploadedFile();
+                  }
+                  setStep(1);
+                }}
                 className="btn-ghost"
               >
                 Back
-              </button>
-              <button
-                type="button"
-                onClick={handleSkip}
-                className="btn-ghost flex-1"
-              >
-                Skip for now
               </button>
               <button
                 type="button"
