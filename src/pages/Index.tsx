@@ -20,6 +20,20 @@ export default function Index() {
   
   return (
     <div className="min-h-screen paper-texture flex flex-col">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-2">
+          <RistLogo size={24} className="text-primary" />
+          <span className="font-medium text-foreground">Rist</span>
+        </div>
+        <button
+          onClick={() => navigate('/auth')}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Log in
+        </button>
+      </header>
+      
       {/* Hero section */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-16">
         <div className="max-w-2xl mx-auto text-center animate-fade-in">
