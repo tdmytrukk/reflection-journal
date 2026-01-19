@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Mic, Sparkles, ArrowRight } from '@/components/ui/icons';
-import { useApp } from '@/context/AppContext';
-import type { Entry } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
+import { toast } from 'sonner';
 
 interface NewEntryModalProps {
   isOpen: boolean;
@@ -26,7 +27,8 @@ const PLACEHOLDER_PROMPTS = [
 ];
 
 export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
-  const { addEntry } = useApp();
+  const { user } = useAuth();
+  const { addEntry } = useUserData();
   const [input, setInput] = useState('');
   const [entries, setEntries] = useState<string[]>([]);
   const [showReflection, setShowReflection] = useState(false);
@@ -87,6 +89,11 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
   };
 
   const handleSave = async () => {
+    if (!user) {
+      toast.error('You must be logged in to save entries');
+      return;
+    }
+    
     // Include current input if there's content
     const allEntries = input.trim() 
       ? [...entries, input.trim()] 
@@ -96,20 +103,21 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
     
     setIsSaving(true);
     
-    const entry: Entry = {
-      id: crypto.randomUUID(),
-      userId: 'user-1',
+    const result = await addEntry({
       date: today,
-      achievements: allEntries, // For now, store all as achievements - can categorize with AI later
+      achievements: allEntries, // For now, store all as achievements
       learnings: [],
       insights: [],
       decisions: [],
-      createdAt: today,
-      updatedAt: today,
-    };
+    });
     
-    await new Promise(resolve => setTimeout(resolve, 500));
-    addEntry(entry);
+    if (result?.error) {
+      toast.error('Failed to save entry');
+      setIsSaving(false);
+      return;
+    }
+    
+    toast.success('Entry saved! 🌱');
     setIsSaving(false);
     
     // Reset form

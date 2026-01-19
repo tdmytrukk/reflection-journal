@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AppProvider, useApp } from "@/context/AppContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useUserData } from "@/hooks/useUserData";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
@@ -12,11 +13,28 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Loading spinner
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen paper-texture flex items-center justify-center">
+      <div className="text-center animate-fade-in">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground text-sm">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
 // Protected route component
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasCompletedOnboarding } = useApp();
+  const { user, isLoading: authLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: dataLoading } = useUserData();
   
-  if (!isAuthenticated) {
+  if (authLoading || dataLoading) {
+    return <LoadingScreen />;
+  }
+  
+  if (!user) {
     return <Navigate to="/auth" replace />;
   }
   
@@ -29,9 +47,14 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // Onboarding route - requires auth but not onboarding
 function OnboardingRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, hasCompletedOnboarding } = useApp();
+  const { user, isLoading: authLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: dataLoading } = useUserData();
   
-  if (!isAuthenticated) {
+  if (authLoading || dataLoading) {
+    return <LoadingScreen />;
+  }
+  
+  if (!user) {
     return <Navigate to="/auth" replace />;
   }
   
@@ -42,11 +65,40 @@ function OnboardingRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Auth route - redirect if already logged in
+function AuthRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading: authLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: dataLoading } = useUserData();
+  
+  if (authLoading) {
+    return <LoadingScreen />;
+  }
+  
+  if (user) {
+    if (dataLoading) {
+      return <LoadingScreen />;
+    }
+    if (hasCompletedOnboarding) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    return <Navigate to="/onboarding" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route path="/auth" element={<AuthPage />} />
+      <Route 
+        path="/auth" 
+        element={
+          <AuthRoute>
+            <AuthPage />
+          </AuthRoute>
+        } 
+      />
       <Route 
         path="/onboarding" 
         element={
@@ -70,7 +122,7 @@ function AppRoutes() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AppProvider>
+    <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -78,7 +130,7 @@ const App = () => (
           <AppRoutes />
         </BrowserRouter>
       </TooltipProvider>
-    </AppProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import { RistLogo } from '@/components/icons/RistLogo';
 import { ArrowRight } from '@/components/ui/icons';
+import { toast } from 'sonner';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,31 +12,35 @@ export default function AuthPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login, hasCompletedOnboarding } = useApp();
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate auth delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const userName = isLogin ? email.split('@')[0] : name;
-    login(email, userName);
-    
-    setIsLoading(false);
-    
-    // For returning users (login mode), check if they've completed onboarding
-    // The hasCompletedOnboarding from context reflects the persisted state
-    if (isLogin && hasCompletedOnboarding) {
-      navigate('/dashboard');
-    } else if (isLogin) {
-      // Returning user who never completed onboarding
-      navigate('/onboarding');
-    } else {
-      // New user signup always goes to onboarding
-      navigate('/onboarding');
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) {
+          toast.error(error.message || 'Failed to sign in');
+          setIsLoading(false);
+          return;
+        }
+        // Navigation handled by auth state change
+      } else {
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          toast.error(error.message || 'Failed to create account');
+          setIsLoading(false);
+          return;
+        }
+        toast.success('Account created! Welcome to Rist.');
+        // Navigation handled by auth state change
+      }
+    } catch (err) {
+      toast.error('An unexpected error occurred');
+      setIsLoading(false);
     }
   };
 
