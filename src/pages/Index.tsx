@@ -1,22 +1,37 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
+import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
 import { ArrowRight } from '@/components/ui/icons';
 
 export default function Index() {
-  const { isAuthenticated, hasCompletedOnboarding } = useApp();
+  const { user, isLoading: authLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading: dataLoading } = useUserData();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (isAuthenticated) {
+    if (authLoading) return;
+    
+    if (user) {
+      if (dataLoading) return;
+      
       if (hasCompletedOnboarding) {
         navigate('/dashboard');
       } else {
         navigate('/onboarding');
       }
     }
-  }, [isAuthenticated, hasCompletedOnboarding, navigate]);
+  }, [user, authLoading, hasCompletedOnboarding, dataLoading, navigate]);
+  
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen paper-texture flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen paper-texture flex flex-col">
