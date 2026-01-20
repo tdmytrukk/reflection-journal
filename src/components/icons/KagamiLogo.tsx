@@ -1,9 +1,9 @@
-interface RistLogoProps {
+interface KagamiLogoProps {
   className?: string;
   size?: number;
 }
 
-export function RistLogo({ className = "", size = 32 }: RistLogoProps) {
+export function KagamiLogo({ className = "", size = 32 }: KagamiLogoProps) {
   return (
     <svg
       width={size}
