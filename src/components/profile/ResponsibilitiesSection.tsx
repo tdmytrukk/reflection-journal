@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, CheckCircle2, AlertCircle, MinusCircle, TrendingUp, FileText } from 'lucide-react';
 import { useResponsibilities } from '@/hooks/useResponsibilities';
 import { Progress } from '@/components/ui/progress';
