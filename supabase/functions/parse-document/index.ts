@@ -23,11 +23,11 @@ serve(async (req) => {
     }
 
     const fileName = file.name.toLowerCase();
-    let extractedText = '';
+    let rawText = '';
 
     // Handle plain text files directly
     if (fileName.endsWith('.txt') || fileName.endsWith('.md')) {
-      extractedText = await file.text();
+      rawText = await file.text();
     }
     // Handle PDF and DOCX via Lovable AI (Gemini)
     else if (fileName.endsWith('.pdf') || fileName.endsWith('.docx')) {
@@ -45,6 +45,7 @@ serve(async (req) => {
         throw new Error('LOVABLE_API_KEY not configured');
       }
 
+      // Use tool calling to extract structured data
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -59,15 +60,18 @@ serve(async (req) => {
               content: [
                 {
                   type: 'text',
-                  text: `Extract the text content from this job description document. Format the output as follows:
+                  text: `Analyze this job description document and extract the key information for someone who ALREADY HAS this job and wants to track their achievements against their responsibilities.
 
-1. Preserve all section headers (like "Responsibilities", "Requirements", "Qualifications", etc.) and make them clearly visible
-2. Keep all bullet points as "• " at the start of each line
-3. Maintain numbered lists in their original format (1., 2., 3., etc.)
-4. Preserve paragraph breaks between sections
-5. Keep the job title and company name prominent at the top if present
+Extract:
+1. The exact job title
+2. The company name
+3. Key responsibilities and goals for this role (what the person in this job is expected to DO and ACHIEVE)
+4. Any company-wide goals or mission mentioned (from About Us or company description sections)
 
-Return ONLY the formatted text content. Do not add any commentary, explanations, or markdown formatting symbols like ** or #.`,
+IMPORTANT: 
+- Skip any "requirements", "qualifications", or "ideal candidate" sections - the person already has the job
+- Focus only on what the role is responsible for and what success looks like
+- Keep responsibilities as concise bullet points`,
                 },
                 {
                   type: 'file',
@@ -79,17 +83,69 @@ Return ONLY the formatted text content. Do not add any commentary, explanations,
               ],
             },
           ],
+          tools: [
+            {
+              type: 'function',
+              function: {
+                name: 'extract_job_info',
+                description: 'Extract structured job information from a job description document',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    jobTitle: {
+                      type: 'string',
+                      description: 'The job title exactly as stated in the document',
+                    },
+                    company: {
+                      type: 'string',
+                      description: 'The company name',
+                    },
+                    responsibilities: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'List of key responsibilities and goals for this role (what the person does and achieves)',
+                    },
+                    companyGoals: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Company-wide goals or mission statements if mentioned',
+                    },
+                  },
+                  required: ['jobTitle', 'company', 'responsibilities'],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: 'function', function: { name: 'extract_job_info' } },
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error('AI Gateway error:', errorText);
-        throw new Error('Failed to extract text from document');
+        throw new Error('Failed to extract information from document');
       }
 
       const aiResponse = await response.json();
-      extractedText = aiResponse.choices?.[0]?.message?.content || '';
+      
+      // Extract the tool call result
+      const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+      if (toolCall && toolCall.function?.arguments) {
+        const extractedData = JSON.parse(toolCall.function.arguments);
+        
+        return new Response(
+          JSON.stringify({
+            jobTitle: extractedData.jobTitle || '',
+            company: extractedData.company || '',
+            responsibilities: extractedData.responsibilities || [],
+            companyGoals: extractedData.companyGoals || [],
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      throw new Error('Failed to parse document structure');
     }
     // Legacy .doc format not supported
     else if (fileName.endsWith('.doc')) {
@@ -100,18 +156,112 @@ Return ONLY the formatted text content. Do not add any commentary, explanations,
     }
     // Try to read as plain text
     else {
-      extractedText = await file.text();
+      rawText = await file.text();
     }
 
-    // Clean up the extracted text
-    extractedText = extractedText
-      .replace(/\r\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    // For plain text files, also use AI to extract structured data
+    if (rawText) {
+      const apiKey = Deno.env.get('LOVABLE_API_KEY');
+      if (!apiKey) {
+        // Fallback: return raw text if no API key
+        return new Response(
+          JSON.stringify({ text: rawText }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'user',
+              content: `Analyze this job description and extract the key information for someone who ALREADY HAS this job.
+
+Job Description:
+${rawText}
+
+Extract:
+1. The exact job title
+2. The company name
+3. Key responsibilities and goals (what the person does and achieves)
+4. Company-wide goals or mission if mentioned
+
+IMPORTANT: Skip requirements/qualifications sections - focus only on responsibilities and goals.`,
+            },
+          ],
+          tools: [
+            {
+              type: 'function',
+              function: {
+                name: 'extract_job_info',
+                description: 'Extract structured job information from a job description',
+                parameters: {
+                  type: 'object',
+                  properties: {
+                    jobTitle: {
+                      type: 'string',
+                      description: 'The job title exactly as stated',
+                    },
+                    company: {
+                      type: 'string',
+                      description: 'The company name',
+                    },
+                    responsibilities: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'List of key responsibilities and goals',
+                    },
+                    companyGoals: {
+                      type: 'array',
+                      items: { type: 'string' },
+                      description: 'Company-wide goals or mission statements',
+                    },
+                  },
+                  required: ['jobTitle', 'company', 'responsibilities'],
+                  additionalProperties: false,
+                },
+              },
+            },
+          ],
+          tool_choice: { type: 'function', function: { name: 'extract_job_info' } },
+        }),
+      });
+
+      if (response.ok) {
+        const aiResponse = await response.json();
+        const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+        
+        if (toolCall && toolCall.function?.arguments) {
+          const extractedData = JSON.parse(toolCall.function.arguments);
+          
+          return new Response(
+            JSON.stringify({
+              jobTitle: extractedData.jobTitle || '',
+              company: extractedData.company || '',
+              responsibilities: extractedData.responsibilities || [],
+              companyGoals: extractedData.companyGoals || [],
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      }
+
+      // Fallback to raw text
+      return new Response(
+        JSON.stringify({ text: rawText }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     return new Response(
-      JSON.stringify({ text: extractedText }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'No content extracted' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: unknown) {
     console.error('Document parsing error:', error);
