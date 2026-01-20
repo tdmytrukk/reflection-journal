@@ -41,16 +41,18 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left journal-card p-4 transition-colors cursor-pointer"
+      className="w-full text-left entry-card transition-colors cursor-pointer"
     >
-      <div className="flex items-center gap-2 mb-3">
+      {/* Date header with cream stripe */}
+      <div className="entry-card-header flex items-center gap-2">
         <Calendar className="w-4 h-4 text-cedar" />
-        <span className="text-sm text-cedar">
+        <span className="text-sm font-medium text-cedar">
           {formatDate(entry.date)}
         </span>
       </div>
       
-      <div className="space-y-2">
+      {/* Entry content */}
+      <div className="entry-card-body space-y-2">
         {displayItems.map((item, idx) => {
           const Icon = getCategoryIcon(item.category);
           return (

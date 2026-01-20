@@ -198,45 +198,65 @@
   .journal-card {
     @apply rounded-xl p-6;
     background-color: hsl(var(--card-white));
-    border: 1px solid hsl(var(--cedar) / 0.12);
-    box-shadow: 
-      0 2px 8px hsl(var(--text-primary) / 0.04),
-      0 1px 2px hsl(var(--text-primary) / 0.08);
+    border: 1px solid hsl(30 30% 70% / 0.15);
+    box-shadow: 0 2px 8px rgba(139, 111, 71, 0.04), 0 1px 2px rgba(139, 111, 71, 0.06);
     transition: all 0.3s ease;
   }
   
   .journal-card:hover {
     transform: translateY(-2px);
-    box-shadow: 
-      0 4px 16px hsl(var(--text-primary) / 0.06),
-      0 2px 4px hsl(var(--text-primary) / 0.1);
-    border-color: hsl(var(--cedar) / 0.25);
+    box-shadow: 0 6px 20px rgba(139, 111, 71, 0.08), 0 2px 6px rgba(139, 111, 71, 0.06);
+    border-color: hsl(30 30% 70% / 0.25);
   }
 
-  /* New Entry card - special styling */
+  /* New Entry card - special styling with more presence */
   .new-entry-card {
-    @apply rounded-xl p-6;
+    @apply rounded-xl;
+    padding: 32px;
     background-color: hsl(var(--card-soft));
     border: 1.5px solid hsl(var(--moss-garden) / 0.2);
-    box-shadow: 
-      0 2px 8px hsl(var(--text-primary) / 0.04),
-      0 1px 2px hsl(var(--text-primary) / 0.08);
+    box-shadow: 0 2px 8px rgba(139, 111, 71, 0.04), 0 1px 2px rgba(139, 111, 71, 0.06);
     transition: all 0.3s ease;
   }
   
   .new-entry-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     background-color: hsl(40 35% 96%);
-    box-shadow: 
-      0 4px 16px hsl(var(--text-primary) / 0.06),
-      0 2px 4px hsl(var(--text-primary) / 0.1);
-    border-color: hsl(var(--moss-garden) / 0.3);
+    box-shadow: 0 8px 24px rgba(139, 111, 71, 0.1), 0 4px 8px rgba(107, 122, 90, 0.06);
+    border-color: hsl(var(--moss-garden) / 0.35);
   }
 
-  /* Paper texture feel */
+  /* Paper texture feel - enhanced washi paper effect */
   .paper-texture {
     background-color: hsl(var(--paper));
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+    background-image: 
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, hsl(39 33% 94% / 1) 0%, hsl(39 28% 92% / 1) 100%);
+  }
+
+  /* Entry card with date stripe */
+  .entry-card {
+    @apply rounded-xl p-0 overflow-hidden;
+    background-color: hsl(var(--card-white));
+    border: 1px solid hsl(30 30% 70% / 0.12);
+    box-shadow: 0 2px 8px rgba(139, 111, 71, 0.04), 0 1px 2px rgba(139, 111, 71, 0.06);
+    transition: all 0.3s ease;
+  }
+  
+  .entry-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139, 111, 71, 0.1), 0 3px 8px rgba(139, 111, 71, 0.06);
+    border-color: hsl(30 30% 70% / 0.25);
+  }
+  
+  .entry-card-header {
+    padding: 12px 16px;
+    background: linear-gradient(180deg, hsl(39 33% 95% / 0.8) 0%, hsl(39 33% 96% / 0.4) 100%);
+    border-bottom: 1px solid hsl(30 30% 70% / 0.1);
+  }
+  
+  .entry-card-body {
+    padding: 16px;
   }
 
   /* Primary button - Moss Garden */
