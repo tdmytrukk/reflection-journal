@@ -1,4 +1,4 @@
-import { useApp } from '@/context/AppContext';
+import { useUserData } from '@/hooks/useUserData';
 import { Calendar, Target, Lightbulb, Compass, BookOpen } from '@/components/ui/icons';
 import type { Entry } from '@/types';
 
@@ -19,10 +19,6 @@ const getCategoryIcon = (category: string) => {
     case 'decisions': return BookOpen;
     default: return Target;
   }
-};
-
-const getCategoryLabel = (category: string) => {
-  return category.charAt(0).toUpperCase() + category.slice(1);
 };
 
 interface EntryCardProps {
@@ -73,35 +69,40 @@ function EntryCard({ entry }: EntryCardProps) {
 }
 
 export function RecentEntries() {
-  const { entries } = useApp();
-  
+  const { entries, isLoading } = useUserData();
+
+  if (isLoading) {
+    return (
+      <div className="journal-card p-8 text-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-sm text-muted-foreground">Loading entries...</p>
+      </div>
+    );
+  }
+
   const recentEntries = [...entries]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
-  
+
   if (recentEntries.length === 0) {
     return (
       <div className="journal-card p-8 text-center">
         <div className="w-12 h-12 rounded-full bg-sage-light/50 flex items-center justify-center mx-auto mb-4">
           <BookOpen className="w-6 h-6 text-primary" />
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">
-          Your journal awaits
-        </h3>
+        <h3 className="text-lg font-medium text-foreground mb-2">Your journal awaits</h3>
         <p className="text-sm text-muted-foreground max-w-xs mx-auto">
           Start capturing your achievements, learnings, and insights. Each entry builds your career story.
         </p>
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-foreground px-1">
-        Recent Entries
-      </h3>
+      <h3 className="text-sm font-medium text-foreground px-1">Recent Entries</h3>
       <div className="space-y-3">
-        {recentEntries.map(entry => (
+        {recentEntries.map((entry) => (
           <EntryCard key={entry.id} entry={entry} />
         ))}
       </div>
