@@ -39,10 +39,10 @@ export default function DashboardPage() {
       <main className="max-w-content mx-auto px-4 sm:px-6 lg:px-12 py-2xl">
         {/* Welcome section */}
         <div className="mb-2xl animate-fade-in">
-          <h1 className="text-foreground mb-1">
+          <h1 className="text-warm-primary mb-1">
             {getGreeting()}, {userName}
           </h1>
-          <p className="text-muted-foreground text-base">
+          <p className="text-warm-muted text-base">
             {jobDescription?.title && jobDescription?.company 
               ? `${jobDescription.title} at ${jobDescription.company}`
               : 'Ready to capture your achievements?'
@@ -57,17 +57,17 @@ export default function DashboardPage() {
             {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
-              className="w-full journal-card text-left group"
+              className="w-full new-entry-card text-left group"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
                   <Plus className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-medium text-warm-primary group-hover:text-primary transition-colors">
                     New Entry
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-warm-secondary">
                     Capture today's achievements and learnings
                   </p>
                 </div>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             
             {/* Quick actions */}
             <div className="journal-card p-4 space-y-2">
-              <h3 className="text-sm font-medium text-foreground mb-3">
+              <h3 className="text-sm font-medium text-warm-primary mb-3">
                 Quick Actions
               </h3>
               
@@ -105,8 +105,8 @@ export default function DashboardPage() {
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Generate Q{currentQuarter} Review</p>
-                  <p className="text-xs text-muted-foreground">Create your quarterly summary</p>
+                  <p className="text-sm font-medium text-warm-primary">Generate Q{currentQuarter} Review</p>
+                  <p className="text-xs text-warm-secondary">Create your quarterly summary</p>
                 </div>
               </button>
               
@@ -115,8 +115,8 @@ export default function DashboardPage() {
                   <FileText className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Resume Bullets</p>
-                  <p className="text-xs text-muted-foreground">Export achievements as bullets</p>
+                  <p className="text-sm font-medium text-warm-primary">Resume Bullets</p>
+                  <p className="text-xs text-warm-secondary">Export achievements as bullets</p>
                 </div>
               </button>
             </div>

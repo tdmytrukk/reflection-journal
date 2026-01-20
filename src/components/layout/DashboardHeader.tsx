@@ -33,7 +33,7 @@ export function DashboardHeader() {
             <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center shadow-subtle">
               <RistLogo size={20} className="text-primary" />
             </div>
-            <span className="text-lg font-medium text-foreground">Rist</span>
+            <span className="text-lg font-medium text-warm-primary">Rist</span>
           </div>
           
           {/* User menu */}
@@ -41,8 +41,8 @@ export function DashboardHeader() {
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-primary/5 transition-colors">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-foreground">{userName}</p>
-                  <p className="text-xs text-muted-foreground">{userEmail}</p>
+                  <p className="text-sm font-medium text-warm-primary">{userName}</p>
+                  <p className="text-xs text-warm-muted">{userEmail}</p>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-sage-light flex items-center justify-center">
                   <User className="w-4 h-4 text-primary" />
@@ -51,8 +51,8 @@ export function DashboardHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 shadow-overlay">
               <div className="px-2 py-1.5 sm:hidden">
-                <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground">{userEmail}</p>
+                <p className="text-sm font-medium text-warm-primary">{userName}</p>
+                <p className="text-xs text-warm-muted">{userEmail}</p>
               </div>
               <DropdownMenuSeparator className="sm:hidden" />
               <DropdownMenuItem className="gap-2">

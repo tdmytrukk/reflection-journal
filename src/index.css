@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Crimson+Pro:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=Crimson+Pro:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,46 +6,52 @@
 
 @layer base {
   :root {
-    /* Japanese Ryokan-inspired palette */
+    /* Japanese Ryokan-inspired palette - WARM BROWNS, no grays */
     
     /* Primary Colors */
     --washi-paper: 39 33% 94%;        /* #F5F1E8 - Main background */
-    --sumi-ink: 18 18% 14%;           /* #2C2420 - Primary text */
+    --sumi-ink: 25 22% 20%;           /* #3D3228 - Primary text (warm dark brown) */
     --warm-cedar: 30 30% 41%;         /* #8B6F47 - Headings, borders */
     --tatami-beige: 37 23% 76%;       /* #D4C5A9 - Secondary bg, cards */
+    
+    /* Text Colors - Warm Browns */
+    --text-primary: 25 22% 20%;       /* #3D3228 - Main headings */
+    --text-body: 27 16% 25%;          /* #4A4036 - Body text */
+    --text-secondary: 30 13% 43%;     /* #7A6F5F - Secondary text */
+    --text-muted: 30 11% 49%;         /* #8B7F6F - Job title, muted */
     
     /* Accent Colors */
     --moss-garden: 86 15% 41%;        /* #6B7A5A - Primary CTA */
     --pale-olive: 86 14% 59%;         /* #9CA986 - Hover states */
-    --stone-gray: 40 4% 63%;          /* #A8A39D - Disabled, dividers */
     --matcha-dust: 90 14% 48%;        /* #7D8B6F - Success */
+    
+    /* Card & Surface Colors */
+    --card-white: 40 50% 99%;         /* #FEFDFB - Warmer than white */
+    --card-soft: 40 40% 97%;          /* #FAF8F3 - New entry card */
     
     /* Functional Colors */
     --warm-alert: 23 48% 54%;         /* #C17A4F - Warnings */
     --error-red: 350 37% 40%;         /* #8B4049 - Errors */
     --subtle-blue: 200 18% 47%;       /* #667C8A - Info */
     
-    /* Card white */
-    --card-white: 40 50% 99%;         /* #FEFDFB - Warmer than white */
-    
     /* Semantic tokens mapped to palette */
     --background: var(--washi-paper);
-    --foreground: var(--sumi-ink);
+    --foreground: var(--text-primary);
     
     --card: var(--card-white);
-    --card-foreground: var(--sumi-ink);
+    --card-foreground: var(--text-body);
     
     --popover: var(--card-white);
-    --popover-foreground: var(--sumi-ink);
+    --popover-foreground: var(--text-body);
     
     --primary: var(--moss-garden);
     --primary-foreground: var(--washi-paper);
     
     --secondary: var(--tatami-beige);
-    --secondary-foreground: var(--sumi-ink);
+    --secondary-foreground: var(--text-primary);
     
-    --muted: 37 18% 88%;
-    --muted-foreground: 18 10% 45%;
+    --muted: 37 25% 92%;              /* Warm muted background */
+    --muted-foreground: var(--text-secondary);
     
     --accent: var(--pale-olive);
     --accent-foreground: var(--washi-paper);
@@ -62,29 +68,29 @@
     --info: var(--subtle-blue);
     --info-foreground: var(--washi-paper);
     
-    --border: 30 20% 85%;
-    --input: 30 20% 85%;
+    /* Borders - Warm cedar tones */
+    --border: 30 30% 85%;
+    --input: 30 30% 85%;
     --ring: var(--moss-garden);
     
     --radius: 0.375rem;
     
     /* Custom tokens for Rist */
     --paper: var(--washi-paper);
-    --ink: var(--sumi-ink);
+    --ink: var(--text-primary);
     --sage: var(--moss-garden);
     --sage-light: 86 15% 92%;
-    --stone: var(--stone-gray);
-    --brush-stroke: var(--tatami-beige);
     --cedar: var(--warm-cedar);
+    --brush-stroke: var(--tatami-beige);
     
     /* Sidebar */
     --sidebar-background: 39 28% 92%;
-    --sidebar-foreground: var(--sumi-ink);
+    --sidebar-foreground: var(--text-primary);
     --sidebar-primary: var(--moss-garden);
     --sidebar-primary-foreground: var(--washi-paper);
     --sidebar-accent: 86 15% 90%;
     --sidebar-accent-foreground: var(--moss-garden);
-    --sidebar-border: 30 20% 85%;
+    --sidebar-border: 30 25% 82%;
     --sidebar-ring: var(--moss-garden);
   }
 
@@ -122,9 +128,8 @@
     --ink: 39 25% 88%;
     --sage: 86 18% 55%;
     --sage-light: 86 12% 22%;
-    --stone: 40 6% 50%;
-    --brush-stroke: 20 8% 25%;
     --cedar: 30 25% 50%;
+    --brush-stroke: 20 8% 25%;
     
     --sidebar-background: 20 15% 8%;
     --sidebar-foreground: 39 20% 85%;
@@ -151,19 +156,23 @@
   }
 
   h1 {
-    @apply text-[32px] font-light tracking-[-0.02em] leading-[1.2];
+    @apply text-[32px] font-normal tracking-[-0.02em] leading-[1.2];
+    color: hsl(var(--text-primary));
   }
   
   h2 {
     @apply text-2xl font-normal tracking-[-0.01em] leading-[1.3];
+    color: hsl(var(--text-primary));
   }
   
   h3 {
     @apply text-lg font-medium leading-[1.4];
+    color: hsl(var(--text-primary));
   }
   
   h4, h5, h6 {
     @apply font-medium tracking-tight;
+    color: hsl(var(--text-primary));
   }
 
   /* Better focus states for accessibility */
@@ -187,20 +196,41 @@
 
   /* Journal card style - like picking up a journal */
   .journal-card {
-    @apply rounded-xl border bg-card p-6;
-    border-color: hsl(var(--cedar) / 0.12);
+    @apply rounded-xl p-6;
+    background-color: hsl(var(--card-white));
+    border: 1px solid hsl(var(--cedar) / 0.12);
     box-shadow: 
-      0 2px 8px hsl(var(--sumi-ink) / 0.04),
-      0 1px 2px hsl(var(--sumi-ink) / 0.08);
+      0 2px 8px hsl(var(--text-primary) / 0.04),
+      0 1px 2px hsl(var(--text-primary) / 0.08);
     transition: all 0.3s ease;
   }
   
   .journal-card:hover {
     transform: translateY(-2px);
     box-shadow: 
-      0 4px 16px hsl(var(--sumi-ink) / 0.06),
-      0 2px 4px hsl(var(--sumi-ink) / 0.1);
-    border-color: hsl(var(--cedar) / 0.2);
+      0 4px 16px hsl(var(--text-primary) / 0.06),
+      0 2px 4px hsl(var(--text-primary) / 0.1);
+    border-color: hsl(var(--cedar) / 0.25);
+  }
+
+  /* New Entry card - special styling */
+  .new-entry-card {
+    @apply rounded-xl p-6;
+    background-color: hsl(var(--card-soft));
+    border: 1.5px solid hsl(var(--moss-garden) / 0.2);
+    box-shadow: 
+      0 2px 8px hsl(var(--text-primary) / 0.04),
+      0 1px 2px hsl(var(--text-primary) / 0.08);
+    transition: all 0.3s ease;
+  }
+  
+  .new-entry-card:hover {
+    transform: translateY(-2px);
+    background-color: hsl(40 35% 96%);
+    box-shadow: 
+      0 4px 16px hsl(var(--text-primary) / 0.06),
+      0 2px 4px hsl(var(--text-primary) / 0.1);
+    border-color: hsl(var(--moss-garden) / 0.3);
   }
 
   /* Paper texture feel */
@@ -263,11 +293,11 @@
     @apply w-full rounded-md px-4 py-3 text-base transition-all duration-200;
     background-color: hsl(var(--card-white));
     border: 1px solid hsl(var(--cedar) / 0.2);
-    color: hsl(var(--sumi-ink));
+    color: hsl(var(--text-body));
   }
   
   .input-paper::placeholder {
-    color: hsl(var(--sumi-ink) / 0.4);
+    color: hsl(var(--text-secondary) / 0.7);
     font-style: italic;
   }
   
@@ -282,12 +312,12 @@
     @apply w-full rounded-md px-4 py-3 text-base transition-all duration-200 resize-none;
     background-color: hsl(var(--card-white));
     border: 1px solid hsl(var(--cedar) / 0.2);
-    color: hsl(var(--sumi-ink));
+    color: hsl(var(--text-body));
     min-height: 100px;
   }
   
   .textarea-journal::placeholder {
-    color: hsl(var(--sumi-ink) / 0.4);
+    color: hsl(var(--text-secondary) / 0.7);
     font-style: italic;
   }
   
@@ -312,15 +342,15 @@
 
   /* Top navigation - translucent washi */
   .nav-header {
-    @apply h-16 border-b;
+    @apply h-16;
     background: hsl(var(--washi-paper) / 0.95);
     backdrop-filter: blur(8px);
-    border-color: hsl(var(--cedar) / 0.12);
+    border-bottom: 1px solid hsl(var(--cedar) / 0.15);
   }
   
   .nav-link {
     @apply text-sm font-medium transition-colors;
-    color: hsl(var(--sumi-ink) / 0.7);
+    color: hsl(var(--text-secondary));
   }
   
   .nav-link:hover {
@@ -409,22 +439,28 @@
   /* Modal/overlay shadow */
   .shadow-overlay {
     box-shadow: 
-      0 8px 32px hsl(var(--sumi-ink) / 0.12),
-      0 2px 8px hsl(var(--sumi-ink) / 0.08);
+      0 8px 32px hsl(var(--text-primary) / 0.12),
+      0 2px 8px hsl(var(--text-primary) / 0.08);
   }
   
   /* Subtle card shadow */
   .shadow-subtle {
     box-shadow: 
-      0 2px 8px hsl(var(--sumi-ink) / 0.04),
-      0 1px 2px hsl(var(--sumi-ink) / 0.08);
+      0 2px 8px hsl(var(--text-primary) / 0.04),
+      0 1px 2px hsl(var(--text-primary) / 0.08);
   }
   
   /* Elevated card shadow (hover) */
   .shadow-elevated {
     box-shadow: 
-      0 4px 16px hsl(var(--sumi-ink) / 0.06),
-      0 2px 4px hsl(var(--sumi-ink) / 0.1);
+      0 4px 16px hsl(var(--text-primary) / 0.06),
+      0 2px 4px hsl(var(--text-primary) / 0.1);
+  }
+
+  /* Weekly Growth section gradient */
+  .growth-section {
+    background: linear-gradient(180deg, hsl(var(--card-soft)) 0%, hsl(var(--washi-paper)) 100%);
+    border-top: 1px solid hsl(var(--cedar) / 0.15);
   }
 }
 
@@ -435,6 +471,27 @@
 
   .font-display {
     font-family: 'Crimson Pro', serif;
+  }
+  
+  /* Warm text colors */
+  .text-warm-primary {
+    color: hsl(var(--text-primary));
+  }
+  
+  .text-warm-body {
+    color: hsl(var(--text-body));
+  }
+  
+  .text-warm-secondary {
+    color: hsl(var(--text-secondary));
+  }
+  
+  .text-warm-muted {
+    color: hsl(var(--text-muted));
+  }
+  
+  .text-cedar {
+    color: hsl(var(--cedar));
   }
   
   /* Underline animation for links */
