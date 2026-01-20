@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Calendar, Target, Lightbulb, Compass, BookOpen } from '@/components/ui/icons';
+import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2 } from 'lucide-react';
 import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
-import type { Entry } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import type { Entry, ResponsibilityMatch } from '@/types';
 
 const formatDate = (date: Date) => {
   const d = new Date(date);
@@ -25,9 +26,10 @@ const getCategoryIcon = (category: string) => {
 interface EntryCardProps {
   entry: Entry;
   onClick: () => void;
+  matchCount?: number;
 }
 
-function EntryCard({ entry, onClick }: EntryCardProps) {
+function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
   const allItems: { category: string; text: string }[] = [
     ...entry.achievements.map(text => ({ category: 'achievements', text })),
     ...entry.learnings.map(text => ({ category: 'learnings', text })),
@@ -41,14 +43,22 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left entry-card cursor-pointer"
+      className={`w-full text-left entry-card cursor-pointer ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}
     >
       {/* Date header with cream background */}
-      <div className="entry-card-header flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-cedar" strokeLinecap="round" />
-        <span className="text-warm-secondary" style={{ fontSize: '14px', fontWeight: 500 }}>
-          {formatDate(entry.date)}
-        </span>
+      <div className="entry-card-header flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-cedar" strokeLinecap="round" />
+          <span className="text-warm-secondary" style={{ fontSize: '14px', fontWeight: 500 }}>
+            {formatDate(entry.date)}
+          </span>
+        </div>
+        {matchCount > 0 && (
+          <Badge variant="outline" className="text-xs border-moss/50 text-moss bg-moss/5">
+            <Link2 className="w-3 h-3 mr-1" />
+            {matchCount} {matchCount === 1 ? 'responsibility' : 'responsibilities'}
+          </Badge>
+        )}
       </div>
       
       {/* Entry content */}
@@ -78,12 +88,21 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
 interface RecentEntriesProps {
   entries: Entry[];
   isLoading: boolean;
+  matches?: ResponsibilityMatch[];
   onUpdateEntry?: (id: string, updates: Partial<Entry>) => Promise<{ error?: Error } | undefined>;
   onDeleteEntry?: (id: string) => Promise<{ error?: Error } | undefined>;
 }
 
-export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry }: RecentEntriesProps) {
+export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry, onDeleteEntry }: RecentEntriesProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+
+  // Count matches per entry
+  const getMatchCountForEntry = (entryId: string) => {
+    const entryMatches = matches.filter(m => m.entryId === entryId);
+    // Count unique responsibilities
+    const uniqueResponsibilities = new Set(entryMatches.map(m => m.responsibilityIndex));
+    return uniqueResponsibilities.size;
+  };
 
   const currentEntry = selectedEntry 
     ? entries.find(e => e.id === selectedEntry.id) || null 
@@ -126,6 +145,7 @@ export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry
               key={entry.id} 
               entry={entry} 
               onClick={() => setSelectedEntry(entry)}
+              matchCount={getMatchCountForEntry(entry.id)}
             />
           ))}
         </div>
