@@ -24,7 +24,6 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
   const startingDayOfWeek = firstDayOfMonth.getDay();
   const daysInMonth = lastDayOfMonth.getDate();
   
-  // Get entries for this month
   const monthEntries = entries.filter(e => {
     const date = new Date(e.date);
     return date.getFullYear() === year && date.getMonth() === month;
@@ -52,12 +51,10 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
   const renderDays = () => {
     const days = [];
     
-    // Empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(<div key={`empty-${i}`} className="h-8" />);
     }
     
-    // Actual days
     for (let day = 1; day <= daysInMonth; day++) {
       const hasEntry = daysWithEntries.has(day);
       const today = isToday(day);
@@ -68,8 +65,8 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
           onClick={() => onDateSelect?.(new Date(year, month, day))}
           className={`
             h-8 w-8 rounded-lg text-sm flex flex-col items-center justify-center relative
-            transition-colors hover:bg-muted
-            ${today ? 'font-medium text-primary' : 'text-warm-body'}
+            transition-all duration-300 hover:bg-[rgba(107,122,90,0.08)]
+            ${today ? 'font-medium text-moss' : 'text-warm-body'}
           `}
         >
           {hasEntry ? (
@@ -85,24 +82,24 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
   };
   
   return (
-    <div className="journal-card p-4">
+    <div className="sidebar-card">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-warm-primary">
+        <h3 className="text-warm-primary" style={{ fontSize: '16px', fontWeight: 500 }}>
           {MONTHS[month]} {year}
         </h3>
         <div className="flex gap-1">
           <button
             onClick={prevMonth}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            className="p-2 rounded-lg hover:bg-[rgba(139,111,71,0.08)] transition-all duration-300"
           >
-            <ChevronLeft className="w-4 h-4 text-cedar" />
+            <ChevronLeft className="w-4 h-4 text-cedar" strokeLinecap="round" />
           </button>
           <button
             onClick={nextMonth}
-            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+            className="p-2 rounded-lg hover:bg-[rgba(139,111,71,0.08)] transition-all duration-300"
           >
-            <ChevronRight className="w-4 h-4 text-cedar" />
+            <ChevronRight className="w-4 h-4 text-cedar" strokeLinecap="round" />
           </button>
         </div>
       </div>
@@ -111,7 +108,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
       <div className="grid grid-cols-7 gap-1 mb-2">
         {DAYS.map(day => (
           <div key={day} className="h-6 flex items-center justify-center">
-            <span className="text-xs text-warm-secondary">{day}</span>
+            <span className="text-warm-muted" style={{ fontSize: '12px' }}>{day}</span>
           </div>
         ))}
       </div>

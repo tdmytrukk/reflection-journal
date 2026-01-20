@@ -26,42 +26,42 @@ export function DashboardHeader() {
   
   return (
     <header className="nav-header sticky top-0 z-40">
-      <div className="max-w-content mx-auto px-4 sm:px-6 lg:px-12">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center shadow-subtle">
-              <RistLogo size={20} className="text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-[rgba(254,253,251,0.9)] flex items-center justify-center shadow-subtle border border-[rgba(139,111,71,0.1)]">
+              <RistLogo size={22} className="text-moss" />
             </div>
-            <span className="text-lg font-medium text-warm-primary">Rist</span>
+            <span className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>Rist</span>
           </div>
           
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-primary/5 transition-colors">
+              <button className="flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-[rgba(107,122,90,0.06)] transition-all duration-300">
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-warm-primary">{userName}</p>
-                  <p className="text-xs text-warm-muted">{userEmail}</p>
+                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
+                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
                 </div>
-                <div className="w-9 h-9 rounded-full bg-sage-light flex items-center justify-center">
-                  <User className="w-4 h-4 text-primary" />
+                <div className="w-10 h-10 rounded-full bg-[rgba(107,122,90,0.1)] flex items-center justify-center">
+                  <User className="w-5 h-5 text-moss" strokeLinecap="round" />
                 </div>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 shadow-overlay">
-              <div className="px-2 py-1.5 sm:hidden">
-                <p className="text-sm font-medium text-warm-primary">{userName}</p>
-                <p className="text-xs text-warm-muted">{userEmail}</p>
+            <DropdownMenuContent align="end" className="w-56 shadow-overlay bg-[#FEFDFB] border-[rgba(139,111,71,0.12)]">
+              <div className="px-3 py-2 sm:hidden">
+                <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
+                <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
               </div>
-              <DropdownMenuSeparator className="sm:hidden" />
-              <DropdownMenuItem className="gap-2">
-                <Settings className="w-4 h-4" />
+              <DropdownMenuSeparator className="sm:hidden bg-[rgba(139,111,71,0.1)]" />
+              <DropdownMenuItem className="gap-3 py-2.5 text-warm-body cursor-pointer hover:bg-[rgba(107,122,90,0.06)]">
+                <Settings className="w-4 h-4 text-cedar" strokeLinecap="round" />
                 Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="gap-2 text-destructive">
-                <LogOut className="w-4 h-4" />
+              <DropdownMenuSeparator className="bg-[rgba(139,111,71,0.1)]" />
+              <DropdownMenuItem onClick={handleLogout} className="gap-3 py-2.5 text-destructive cursor-pointer hover:bg-[rgba(139,67,73,0.06)]">
+                <LogOut className="w-4 h-4" strokeLinecap="round" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

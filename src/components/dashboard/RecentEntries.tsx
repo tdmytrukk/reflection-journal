@@ -41,24 +41,24 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left entry-card transition-colors cursor-pointer"
+      className="w-full text-left entry-card cursor-pointer"
     >
-      {/* Date header with cream stripe */}
+      {/* Date header with cream background */}
       <div className="entry-card-header flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-cedar" />
-        <span className="text-sm font-medium text-cedar">
+        <Calendar className="w-4 h-4 text-cedar" strokeLinecap="round" />
+        <span className="text-warm-secondary" style={{ fontSize: '14px', fontWeight: 500 }}>
           {formatDate(entry.date)}
         </span>
       </div>
       
       {/* Entry content */}
-      <div className="entry-card-body space-y-2">
+      <div className="entry-card-body space-y-3">
         {displayItems.map((item, idx) => {
           const Icon = getCategoryIcon(item.category);
           return (
-            <div key={idx} className="flex items-start gap-2">
-              <Icon className="w-3.5 h-3.5 text-primary mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-warm-body line-clamp-1">
+            <div key={idx} className="flex items-start gap-3">
+              <Icon className="w-5 h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
+              <p className="text-warm-body line-clamp-1" style={{ fontSize: '14px', lineHeight: 1.6, paddingLeft: '4px' }}>
                 {item.text}
               </p>
             </div>
@@ -66,7 +66,7 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
         })}
         
         {remainingCount > 0 && (
-          <p className="text-xs text-warm-secondary pl-5">
+          <p className="text-warm-muted pl-8" style={{ fontSize: '13px' }}>
             +{remainingCount} more
           </p>
         )}
@@ -85,7 +85,6 @@ interface RecentEntriesProps {
 export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry }: RecentEntriesProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
-  // Keep selected entry in sync with entries prop
   const currentEntry = selectedEntry 
     ? entries.find(e => e.id === selectedEntry.id) || null 
     : null;
@@ -93,8 +92,8 @@ export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry
   if (isLoading) {
     return (
       <div className="journal-card p-8 text-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-sm text-warm-secondary">Loading entries...</p>
+        <div className="w-8 h-8 border-2 border-moss border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-warm-secondary" style={{ fontSize: '14px' }}>Loading entries...</p>
       </div>
     );
   }
@@ -105,12 +104,12 @@ export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry
 
   if (recentEntries.length === 0) {
     return (
-      <div className="journal-card p-8 text-center">
-        <div className="w-12 h-12 rounded-full bg-sage-light/50 flex items-center justify-center mx-auto mb-4">
-          <BookOpen className="w-6 h-6 text-primary" />
+      <div className="journal-card p-10 text-center">
+        <div className="icon-container icon-container-lg mx-auto mb-5">
+          <BookOpen className="w-6 h-6 text-moss" strokeLinecap="round" />
         </div>
-        <h3 className="text-lg font-medium text-warm-primary mb-2">Your journal awaits</h3>
-        <p className="text-sm text-warm-secondary max-w-xs mx-auto">
+        <h3 className="text-warm-primary mb-2" style={{ fontSize: '18px', fontWeight: 500 }}>Your journal awaits</h3>
+        <p className="text-warm-secondary max-w-xs mx-auto" style={{ fontSize: '14px', lineHeight: 1.6 }}>
           Start capturing your achievements, learnings, and insights. Each entry builds your career story.
         </p>
       </div>
@@ -119,9 +118,9 @@ export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry
 
   return (
     <>
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-warm-primary px-1">Recent Entries</h3>
-        <div className="space-y-3">
+      <div className="space-y-4">
+        <h3 className="text-warm-primary px-1" style={{ fontSize: '15px', fontWeight: 500 }}>Recent Entries</h3>
+        <div className="space-y-4">
           {recentEntries.map((entry) => (
             <EntryCard 
               key={entry.id} 
