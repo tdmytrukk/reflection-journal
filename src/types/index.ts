@@ -2,6 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  avatarUrl?: string;
   jobTitle?: string;
   createdAt: Date;
 }
@@ -72,6 +73,37 @@ export interface ResumeBullet {
   createdAt: Date;
 }
 
+export interface Goal {
+  id: string;
+  userId: string;
+  text: string;
+  targetDate?: Date;
+  category: 'promotion' | 'skill' | 'leadership' | 'project' | 'custom';
+  status: 'on-track' | 'needs-attention' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserPreferences {
+  id: string;
+  userId: string;
+  weeklyReminder: boolean;
+  reminderDay: string;
+  reminderTime: string;
+  aiPromptsEnabled: boolean;
+  shareableRecap: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProfileStats {
+  totalEntries: number;
+  activeWeeks: number;
+  reviewsGenerated: number;
+  daysSinceFirst: number;
+  firstEntryDate?: Date;
+}
+
 export type EntryCategory = 'achievements' | 'learnings' | 'insights' | 'decisions';
 
 export const ENTRY_CATEGORIES: { key: EntryCategory; label: string; description: string }[] = [
@@ -80,3 +112,21 @@ export const ENTRY_CATEGORIES: { key: EntryCategory; label: string; description:
   { key: 'insights', label: 'Insights', description: 'What realizations did you have?' },
   { key: 'decisions', label: 'Decisions', description: 'What decisions did you make?' },
 ];
+
+export const GOAL_CATEGORIES = [
+  { value: 'promotion', label: 'Promotion' },
+  { value: 'skill', label: 'Skill Development' },
+  { value: 'leadership', label: 'Leadership' },
+  { value: 'project', label: 'Project Completion' },
+  { value: 'custom', label: 'Custom' },
+] as const;
+
+export const WEEKDAYS = [
+  { value: 'monday', label: 'Monday' },
+  { value: 'tuesday', label: 'Tuesday' },
+  { value: 'wednesday', label: 'Wednesday' },
+  { value: 'thursday', label: 'Thursday' },
+  { value: 'friday', label: 'Friday' },
+  { value: 'saturday', label: 'Saturday' },
+  { value: 'sunday', label: 'Sunday' },
+] as const;
