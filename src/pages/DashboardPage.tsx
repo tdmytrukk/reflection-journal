@@ -59,15 +59,15 @@ export default function DashboardPage() {
               onClick={() => setIsNewEntryOpen(true)}
               className="w-full new-entry-card text-left group"
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                  <Plus className="w-6 h-6 text-primary" />
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                  <Plus className="w-7 h-7 text-primary" strokeWidth={2} />
                 </div>
                 <div>
                   <h3 className="text-lg font-medium text-warm-primary group-hover:text-primary transition-colors">
                     New Entry
                   </h3>
-                  <p className="text-sm text-warm-secondary">
+                  <p className="text-sm text-warm-secondary mt-0.5">
                     Capture today's achievements and learnings
                   </p>
                 </div>
