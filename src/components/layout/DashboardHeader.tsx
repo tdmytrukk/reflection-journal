@@ -25,12 +25,12 @@ export function DashboardHeader() {
   };
   
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="nav-header sticky top-0 z-40">
+      <div className="max-w-content mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-card border border-border flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-card flex items-center justify-center shadow-subtle">
               <RistLogo size={20} className="text-primary" />
             </div>
             <span className="text-lg font-medium text-foreground">Rist</span>
@@ -39,7 +39,7 @@ export function DashboardHeader() {
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-muted transition-colors">
+              <button className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-primary/5 transition-colors">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-medium text-foreground">{userName}</p>
                   <p className="text-xs text-muted-foreground">{userEmail}</p>
@@ -49,7 +49,7 @@ export function DashboardHeader() {
                 </div>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 shadow-overlay">
               <div className="px-2 py-1.5 sm:hidden">
                 <p className="text-sm font-medium">{userName}</p>
                 <p className="text-xs text-muted-foreground">{userEmail}</p>
