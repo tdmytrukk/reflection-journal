@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
-import { RistLogo } from '@/components/icons/RistLogo';
+import { KagamiLogo } from '@/components/icons/KagamiLogo';
 import { ArrowRight } from '@/components/ui/icons';
 
 export default function Index() {
@@ -38,8 +38,8 @@ export default function Index() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <RistLogo size={24} className="text-primary" />
-          <span className="font-medium text-foreground">Rist</span>
+          <KagamiLogo size={24} className="text-primary" />
+          <span className="font-medium text-foreground">Kagami</span>
         </div>
         <button
           onClick={() => navigate('/auth')}
@@ -54,12 +54,12 @@ export default function Index() {
         <div className="max-w-2xl mx-auto text-center animate-fade-in">
           {/* Logo */}
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-card border border-border mb-8 shadow-sm">
-            <RistLogo size={40} className="text-primary" />
+            <KagamiLogo size={40} className="text-primary" />
           </div>
           
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight">
-            Rist
+            Kagami
           </h1>
           
           <p className="text-xl text-muted-foreground mb-2 font-serif-jp">

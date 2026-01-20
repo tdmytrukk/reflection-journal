@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { RistLogo } from '@/components/icons/RistLogo';
+import { KagamiLogo } from '@/components/icons/KagamiLogo';
 import { ArrowRight } from '@/components/ui/icons';
 import { toast } from 'sonner';
 
@@ -35,7 +35,7 @@ export default function AuthPage() {
           setIsLoading(false);
           return;
         }
-        toast.success('Account created! Welcome to Rist.');
+        toast.success('Account created! Welcome to Kagami.');
         // Navigation handled by auth state change
       }
     } catch (err) {
@@ -50,10 +50,10 @@ export default function AuthPage() {
         {/* Logo and tagline */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border mb-6">
-            <RistLogo size={32} className="text-primary" />
+            <KagamiLogo size={32} className="text-primary" />
           </div>
           <h1 className="text-3xl font-medium text-foreground mb-2 tracking-tight">
-            Rist
+            Kagami
           </h1>
           <p className="text-muted-foreground text-sm">
             Your career journey, mindfully tracked
