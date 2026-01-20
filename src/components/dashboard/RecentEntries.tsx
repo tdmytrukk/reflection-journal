@@ -1,4 +1,3 @@
-import { useUserData } from '@/hooks/useUserData';
 import { Calendar, Target, Lightbulb, Compass, BookOpen } from '@/components/ui/icons';
 import type { Entry } from '@/types';
 
@@ -68,8 +67,12 @@ function EntryCard({ entry }: EntryCardProps) {
   );
 }
 
-export function RecentEntries() {
-  const { entries, isLoading } = useUserData();
+interface RecentEntriesProps {
+  entries: Entry[];
+  isLoading: boolean;
+}
+
+export function RecentEntries({ entries, isLoading }: RecentEntriesProps) {
 
   if (isLoading) {
     return (

@@ -1,6 +1,6 @@
-import { useUserData } from '@/hooks/useUserData';
 import { Sparkles, TrendingUp, Heart, Zap, Shield, Users, Target } from '@/components/ui/icons';
 import { useMemo } from 'react';
+import type { Entry } from '@/types';
 
 const TRAIT_ICONS: Record<string, React.ElementType> = {
   thoughtful: Heart,
@@ -72,8 +72,11 @@ function getWeekRange(date: Date): { start: Date; end: Date } {
   return { start, end };
 }
 
-export function WeeklyReflection() {
-  const { entries } = useUserData();
+interface WeeklyReflectionProps {
+  entries: Entry[];
+}
+
+export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
   
   const weeklyData = useMemo(() => {
     const { start, end } = getWeekRange(new Date());
@@ -93,7 +96,7 @@ export function WeeklyReflection() {
       ...e.decisions,
     ]).join(' ');
     
-    // Analyze for traits
+    // Analyze for traits (fallback if no AI reflection)
     const traits = analyzeEntryForTraits(allText);
     
     // Count items
@@ -101,12 +104,24 @@ export function WeeklyReflection() {
       sum + e.achievements.length + e.learnings.length + e.insights.length + e.decisions.length, 0
     );
     
+    // Get AI reflections from entries
+    const aiReflections = weekEntries
+      .filter(e => e.aiReflection)
+      .map(e => e.aiReflection!);
+    
+    // Aggregate AI insights
+    const allStrengths = [...new Set(aiReflections.flatMap(r => r.strengths || []))];
+    const latestReflection = aiReflections[0]; // Most recent entry's reflection
+    
     return {
       entryCount: weekEntries.length,
       itemCount: totalItems,
       traits,
       weekStart: start,
       weekEnd: end,
+      aiReflections,
+      allStrengths,
+      latestReflection,
     };
   }, [entries]);
   
@@ -128,6 +143,11 @@ export function WeeklyReflection() {
     const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
     return `${weeklyData.weekStart.toLocaleDateString('en-US', options)} - ${weeklyData.weekEnd.toLocaleDateString('en-US', options)}`;
   };
+
+  // Use AI strengths if available, otherwise fall back to trait detection
+  const displayTraits = weeklyData.allStrengths.length > 0 
+    ? weeklyData.allStrengths.slice(0, 4)
+    : weeklyData.traits;
   
   return (
     <div className="journal-card p-4">
@@ -138,6 +158,20 @@ export function WeeklyReflection() {
         </div>
         <span className="text-xs text-muted-foreground">{formatDateRange()}</span>
       </div>
+      
+      {/* AI Summary if available */}
+      {weeklyData.latestReflection?.summary && (
+        <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
+          <p className="text-sm text-foreground leading-relaxed">
+            {weeklyData.latestReflection.summary}
+          </p>
+          {weeklyData.latestReflection.encouragement && (
+            <p className="text-xs text-primary mt-2 font-medium">
+              {weeklyData.latestReflection.encouragement}
+            </p>
+          )}
+        </div>
+      )}
       
       {/* Stats */}
       <div className="flex gap-4 mb-4 text-center">
@@ -151,14 +185,17 @@ export function WeeklyReflection() {
         </div>
       </div>
       
-      {/* Traits detected */}
-      {weeklyData.traits.length > 0 && (
+      {/* Strengths/Traits detected */}
+      {displayTraits.length > 0 && (
         <div>
-          <p className="text-xs text-muted-foreground mb-2">You've shown:</p>
+          <p className="text-xs text-muted-foreground mb-2">
+            {weeklyData.allStrengths.length > 0 ? 'Key strengths:' : "You've shown:"}
+          </p>
           <div className="flex flex-wrap gap-2">
-            {weeklyData.traits.map(trait => {
-              const Icon = TRAIT_ICONS[trait] || Sparkles;
-              const colorClass = TRAIT_COLORS[trait] || 'bg-sage-light text-primary';
+            {displayTraits.map(trait => {
+              const traitLower = trait.toLowerCase();
+              const Icon = TRAIT_ICONS[traitLower] || Sparkles;
+              const colorClass = TRAIT_COLORS[traitLower] || 'bg-sage-light text-primary';
               return (
                 <span
                   key={trait}
@@ -173,7 +210,7 @@ export function WeeklyReflection() {
         </div>
       )}
       
-      {weeklyData.traits.length === 0 && weeklyData.itemCount > 0 && (
+      {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
         <p className="text-sm text-muted-foreground">
           Add more details to your entries to see personalized growth insights! 🌱
         </p>

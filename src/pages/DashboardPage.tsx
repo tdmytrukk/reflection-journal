@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { MiniCalendar } from '@/components/dashboard/MiniCalendar';
 import { QuickStats } from '@/components/dashboard/QuickStats';
@@ -12,7 +12,7 @@ import { Plus, Sparkles, FileText } from '@/components/ui/icons';
 export default function DashboardPage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
   const { user } = useAuth();
-  const { profile, jobDescription } = useUserData();
+  const { profile, jobDescription, entries, isLoading, refreshData } = useUserData();
   
   // Get current quarter
   const now = new Date();
@@ -26,6 +26,11 @@ export default function DashboardPage() {
   };
   
   const userName = profile?.name || user?.email?.split('@')[0] || 'there';
+
+  const handleEntrySaved = useCallback(() => {
+    // Refresh all data after an entry is saved
+    refreshData();
+  }, [refreshData]);
   
   return (
     <div className="min-h-screen paper-texture">
@@ -70,19 +75,19 @@ export default function DashboardPage() {
             </button>
             
             {/* Recent entries */}
-            <RecentEntries />
+            <RecentEntries entries={entries} isLoading={isLoading} />
           </div>
           
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Weekly Reflection */}
-            <WeeklyReflection />
+            <WeeklyReflection entries={entries} />
             
             {/* Calendar */}
-            <MiniCalendar />
+            <MiniCalendar entries={entries} />
             
             {/* Stats */}
-            <QuickStats />
+            <QuickStats entries={entries} />
             
             {/* Quick actions */}
             <div className="journal-card p-4 space-y-2">
@@ -117,7 +122,8 @@ export default function DashboardPage() {
       {/* New Entry Modal */}
       <NewEntryModal 
         isOpen={isNewEntryOpen} 
-        onClose={() => setIsNewEntryOpen(false)} 
+        onClose={() => setIsNewEntryOpen(false)}
+        onEntrySaved={handleEntrySaved}
       />
     </div>
   );

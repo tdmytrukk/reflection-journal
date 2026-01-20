@@ -1,8 +1,11 @@
-import { useUserData } from '@/hooks/useUserData';
 import { FileText, Target, Lightbulb } from '@/components/ui/icons';
+import type { Entry } from '@/types';
 
-export function QuickStats() {
-  const { entries } = useUserData();
+interface QuickStatsProps {
+  entries: Entry[];
+}
+
+export function QuickStats({ entries }: QuickStatsProps) {
   
   // Get current quarter
   const now = new Date();
