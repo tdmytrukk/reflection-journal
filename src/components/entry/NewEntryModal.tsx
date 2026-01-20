@@ -3,6 +3,7 @@ import { X, Mic, MicOff, Sparkles, ArrowRight, Loader2 } from '@/components/ui/i
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useResponsibilities } from '@/hooks/useResponsibilities';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -32,6 +33,7 @@ const PLACEHOLDER_PROMPTS = [
 export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
   const { user } = useAuth();
   const { addEntry } = useUserData();
+  const { triggerMatching, responsibilities } = useResponsibilities();
   const [input, setInput] = useState('');
   const [entries, setEntries] = useState<string[]>([]);
   const [showReflection, setShowReflection] = useState(false);
@@ -207,9 +209,17 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     
     toast.success('Entry saved! 🌱');
     
-    // Generate AI reflection in the background
+    // Generate AI reflection and match responsibilities in the background
     if (result.entryId) {
       generateReflection(result.entryId, entryData);
+      
+      // Match to responsibilities if available
+      if (responsibilities.length > 0) {
+        triggerMatching(result.entryId).then(() => {
+          // Refresh to show match indicator
+          onEntrySaved?.();
+        });
+      }
     }
     
     setIsSaving(false);

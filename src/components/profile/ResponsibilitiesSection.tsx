@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, CheckCircle2, AlertCircle, MinusCircle, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronDown, ChevronUp, CheckCircle2, AlertCircle, MinusCircle, TrendingUp, ExternalLink } from 'lucide-react';
 import { useResponsibilities } from '@/hooks/useResponsibilities';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export function ResponsibilitiesSection() {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  const { responsibilities, getResponsibilityCoverage, isLoading } = useResponsibilities();
+  const { responsibilities, matches, getResponsibilityCoverage, isLoading } = useResponsibilities();
 
   if (isLoading || responsibilities.length === 0) {
     return null;
@@ -17,7 +23,10 @@ export function ResponsibilitiesSection() {
   const coveredCount = coverage.filter(c => c.coverage !== 'none').length;
   const coveragePercent = Math.round((coveredCount / responsibilities.length) * 100);
 
-  const getCoverageIcon = (level: string) => {
+  const getCoverageIcon = (level: string, matchCount: number) => {
+    if (matchCount > 0) {
+      return <CheckCircle2 className="w-4 h-4 text-moss" />;
+    }
     switch (level) {
       case 'strong':
         return <CheckCircle2 className="w-4 h-4 text-moss" />;
@@ -41,6 +50,12 @@ export function ResponsibilitiesSection() {
       default:
         return <Badge variant="outline" className="text-xs">No evidence</Badge>;
     }
+  };
+
+  // Get unique entry IDs for a responsibility
+  const getMatchedEntryIds = (responsibilityIndex: number) => {
+    const respMatches = matches.filter(m => m.responsibilityIndex === responsibilityIndex);
+    return [...new Set(respMatches.map(m => m.entryId))];
   };
 
   return (
@@ -75,27 +90,42 @@ export function ResponsibilitiesSection() {
             Your journal entries are matched to your job responsibilities to help track progress.
           </p>
           
-          {coverage.map((item) => (
-            <div
-              key={item.index}
-              className="flex items-start gap-3 p-3 rounded-lg bg-warm-paper/50"
-            >
-              {getCoverageIcon(item.coverage)}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm" style={{ color: '#4A4036' }}>
-                  {item.text}
-                </p>
-                <div className="flex items-center gap-2 mt-1">
-                  {getCoverageBadge(item.coverage)}
-                  {item.matchCount > 0 && (
-                    <span className="text-xs text-muted-foreground">
-                      {item.matchCount} {item.matchCount === 1 ? 'match' : 'matches'}
-                    </span>
-                  )}
+          {coverage.map((item) => {
+            const matchedEntryIds = getMatchedEntryIds(item.index);
+            
+            return (
+              <div
+                key={item.index}
+                className="flex items-start gap-3 p-3 rounded-lg bg-warm-paper/50"
+              >
+                {getCoverageIcon(item.coverage, item.matchCount)}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm" style={{ color: '#4A4036' }}>
+                    {item.text}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    {getCoverageBadge(item.coverage)}
+                    {matchedEntryIds.length > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => navigate('/dashboard')}
+                            className="flex items-center gap-1 text-xs text-moss hover:underline"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            {matchedEntryIds.length} {matchedEntryIds.length === 1 ? 'entry' : 'entries'}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>View linked entries on dashboard</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -4,15 +4,18 @@ import { MiniCalendar } from '@/components/dashboard/MiniCalendar';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { RecentEntries } from '@/components/dashboard/RecentEntries';
 import { WeeklyReflection } from '@/components/dashboard/WeeklyReflection';
+import { QuarterlyCheckinBanner } from '@/components/dashboard/QuarterlyCheckinBanner';
 import { NewEntryModal } from '@/components/entry/NewEntryModal';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
+import { useResponsibilities } from '@/hooks/useResponsibilities';
 import { Plus, Sparkles, FileText } from '@/components/ui/icons';
 
 export default function DashboardPage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
   const { user } = useAuth();
   const { profile, jobDescription, entries, isLoading, refreshData, updateEntry, deleteEntry } = useUserData();
+  const { matches, refreshData: refreshResponsibilities } = useResponsibilities();
   
   // Get current quarter
   const now = new Date();
@@ -29,7 +32,8 @@ export default function DashboardPage() {
 
   const handleEntrySaved = useCallback(() => {
     refreshData();
-  }, [refreshData]);
+    refreshResponsibilities();
+  }, [refreshData, refreshResponsibilities]);
   
   return (
     <div className="min-h-screen paper-texture">
@@ -48,6 +52,9 @@ export default function DashboardPage() {
             }
           </p>
         </div>
+        
+        {/* Quarterly Check-in Banner */}
+        <QuarterlyCheckinBanner />
         
         {/* Main grid - 65/35 split */}
         <div className="grid lg:grid-cols-[1fr_420px] gap-10">
@@ -80,6 +87,7 @@ export default function DashboardPage() {
             <RecentEntries 
               entries={entries} 
               isLoading={isLoading} 
+              matches={matches}
               onUpdateEntry={updateEntry}
               onDeleteEntry={deleteEntry}
             />
