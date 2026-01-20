@@ -3,13 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { RistLogo } from '@/components/icons/RistLogo';
-import { ArrowRight, FileText, Loader2, Sparkles, Upload, X, Edit3 } from '@/components/ui/icons';
+import { ArrowRight, FileText, Loader2, Sparkles, Upload, X, Edit3, Check } from '@/components/ui/icons';
 import { useToast } from '@/hooks/use-toast';
+
+interface ParsedJobData {
+  jobTitle: string;
+  company: string;
+  responsibilities: string[];
+  companyGoals: string[];
+}
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [jobTitle, setJobTitle] = useState('');
   const [company, setCompany] = useState('');
+  const [responsibilities, setResponsibilities] = useState<string[]>([]);
+  const [companyGoals, setCompanyGoals] = useState<string[]>([]);
   const [jobDescContent, setJobDescContent] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
@@ -22,7 +31,7 @@ export default function OnboardingPage() {
   const { toast } = useToast();
   const userName = profile?.name || user?.user_metadata?.name || 'there';
 
-  const parseDocumentWithEdgeFunction = async (file: File): Promise<string> => {
+  const parseDocumentWithEdgeFunction = async (file: File): Promise<ParsedJobData | { text: string }> => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -39,8 +48,7 @@ export default function OnboardingPage() {
       throw new Error(error.error || 'Failed to parse document');
     }
 
-    const data = await response.json();
-    return data.text;
+    return response.json();
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,63 +56,47 @@ export default function OnboardingPage() {
     if (!file) return;
 
     const fileName = file.name.toLowerCase();
+    setIsUploadingFile(true);
+    setUploadedFileName(file.name);
 
-    // Handle text-based files directly in browser
-    if (file.type === 'text/plain' || fileName.endsWith('.txt') || fileName.endsWith('.md')) {
-      const text = await file.text();
-      setJobDescContent(text);
-      setUploadedFileName(file.name);
-      // Auto-advance to step 2 after successful upload
-      setStep(2);
-    } 
-    // Handle PDF and DOCX via edge function
-    else if (fileName.endsWith('.pdf') || fileName.endsWith('.docx')) {
-      setIsUploadingFile(true);
-      setUploadedFileName(file.name);
+    try {
+      // All file types now go through the edge function for AI extraction
+      const result = await parseDocumentWithEdgeFunction(file);
       
-      try {
-        const extractedText = await parseDocumentWithEdgeFunction(file);
-        setJobDescContent(extractedText);
+      if ('jobTitle' in result) {
+        // Structured data from AI
+        setJobTitle(result.jobTitle);
+        setCompany(result.company);
+        setResponsibilities(result.responsibilities);
+        setCompanyGoals(result.companyGoals || []);
+        // Build content from responsibilities for storage
+        const content = [
+          ...result.responsibilities.map(r => `• ${r}`),
+          ...(result.companyGoals?.length ? ['', 'Company Goals:', ...result.companyGoals.map(g => `• ${g}`)] : [])
+        ].join('\n');
+        setJobDescContent(content);
+        
         toast({
-          title: 'Document parsed successfully',
-          description: `Extracted text from ${file.name}`,
+          title: 'Document analyzed successfully',
+          description: `Extracted ${result.responsibilities.length} responsibilities from ${file.name}`,
         });
-        // Auto-advance to step 2 after successful upload
-        setStep(2);
-      } catch (error) {
-        console.error('File parsing error:', error);
-        setUploadedFileName(null);
-        toast({
-          title: 'Failed to parse document',
-          description: error instanceof Error ? error.message : 'Please try a different file or enter details manually.',
-          variant: 'destructive',
-        });
-      } finally {
-        setIsUploadingFile(false);
+      } else if ('text' in result) {
+        // Fallback to raw text
+        setJobDescContent(result.text);
       }
-    }
-    // Legacy .doc format not supported
-    else if (fileName.endsWith('.doc')) {
+      
+      // Auto-advance to step 2
+      setStep(2);
+    } catch (error) {
+      console.error('File parsing error:', error);
+      setUploadedFileName(null);
       toast({
-        title: 'Format not supported',
-        description: 'Please save as .docx or .txt and try again.',
+        title: 'Failed to parse document',
+        description: error instanceof Error ? error.message : 'Please try a different file or enter details manually.',
         variant: 'destructive',
       });
-    }
-    // Try reading as plain text
-    else {
-      try {
-        const text = await file.text();
-        setJobDescContent(text);
-        setUploadedFileName(file.name);
-        setStep(2);
-      } catch {
-        toast({
-          title: 'Unable to read file',
-          description: 'Please enter your job details manually.',
-          variant: 'destructive',
-        });
-      }
+    } finally {
+      setIsUploadingFile(false);
     }
 
     // Reset file input
@@ -116,26 +108,12 @@ export default function OnboardingPage() {
   const clearUploadedFile = () => {
     setUploadedFileName(null);
     setJobDescContent('');
-  };
-
-  const extractResponsibilities = (content: string): string[] => {
-    // Simple extraction - split by newlines and filter meaningful lines
-    const lines = content.split('\n').map(line => line.trim()).filter(line => {
-      if (line.length < 10) return false;
-      if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) return true;
-      if (/^\d+\./.test(line)) return true;
-      return line.length > 20 && line.length < 200;
-    });
-    
-    return lines.slice(0, 10).map(line => 
-      line.replace(/^[-•*\d.]+\s*/, '').trim()
-    );
+    setResponsibilities([]);
+    setCompanyGoals([]);
   };
 
   const handleComplete = async () => {
     setIsProcessing(true);
-    
-    const responsibilities = extractResponsibilities(jobDescContent);
     
     await saveJobDescription({
       title: jobTitle || 'Professional',
@@ -183,10 +161,12 @@ export default function OnboardingPage() {
           {step === 2 && (
             <>
               <h1 className="text-2xl font-medium text-foreground mb-2">
-                Complete your profile
+                {uploadedFileName ? 'Review your profile' : 'Complete your profile'}
               </h1>
               <p className="text-muted-foreground">
-                Add your role details to match achievements to responsibilities
+                {uploadedFileName 
+                  ? 'We extracted your role details - confirm they look right'
+                  : 'Add your role details to match achievements to responsibilities'}
               </p>
             </>
           )}
@@ -226,10 +206,10 @@ export default function OnboardingPage() {
                   <div className="flex flex-col items-center gap-2 p-8 rounded-lg border-2 border-dashed border-primary/50 bg-primary/5">
                     <Loader2 className="w-8 h-8 text-primary animate-spin" />
                     <span className="text-sm text-foreground">
-                      Parsing {uploadedFileName}...
+                      Analyzing {uploadedFileName}...
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      This may take a few seconds
+                      Extracting job title, company, and responsibilities
                     </span>
                   </div>
                 ) : (
@@ -294,6 +274,8 @@ export default function OnboardingPage() {
                   type="button"
                   onClick={() => {
                     clearUploadedFile();
+                    setJobTitle('');
+                    setCompany('');
                     setStep(1);
                   }}
                   className="p-1 rounded-full hover:bg-muted transition-colors"
@@ -305,7 +287,7 @@ export default function OnboardingPage() {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-foreground">
-                Your current job title
+                Job title
               </label>
               <input
                 type="text"
@@ -329,7 +311,41 @@ export default function OnboardingPage() {
               />
             </div>
 
-            {/* Job description text area - only show if no file uploaded */}
+            {/* Show extracted responsibilities */}
+            {responsibilities.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Key responsibilities
+                </label>
+                <div className="space-y-2 p-3 rounded-lg bg-muted/50 border border-border max-h-[200px] overflow-y-auto">
+                  {responsibilities.map((resp, index) => (
+                    <div key={index} className="flex items-start gap-2 text-sm">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-foreground">{resp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Show company goals if extracted */}
+            {companyGoals.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-foreground">
+                  Company goals
+                </label>
+                <div className="space-y-2 p-3 rounded-lg bg-muted/50 border border-border">
+                  {companyGoals.map((goal, index) => (
+                    <div key={index} className="flex items-start gap-2 text-sm">
+                      <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{goal}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Manual job description entry - only show if no file uploaded */}
             {!uploadedFileName && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-foreground">
@@ -344,26 +360,14 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* Show extracted content preview if file was uploaded */}
-            {uploadedFileName && jobDescContent && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-foreground">
-                  Extracted content
-                </label>
-                <div className="p-3 rounded-lg bg-muted/50 border border-border max-h-[200px] overflow-y-auto">
-                  <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-sans">
-                    {jobDescContent.slice(0, 500)}{jobDescContent.length > 500 ? '...' : ''}
-                  </pre>
-                </div>
-              </div>
-            )}
-
             <div className="flex gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => {
                   if (uploadedFileName) {
                     clearUploadedFile();
+                    setJobTitle('');
+                    setCompany('');
                   }
                   setStep(1);
                 }}
