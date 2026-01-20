@@ -3,11 +3,13 @@ import { X, Mic, MicOff, Sparkles, ArrowRight } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface NewEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onEntrySaved?: () => void;
 }
 
 const REFLECTION_PROMPTS = [
@@ -27,7 +29,7 @@ const PLACEHOLDER_PROMPTS = [
   "Describe a challenge you overcame...",
 ];
 
-export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
+export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
   const { user } = useAuth();
   const { addEntry } = useUserData();
   const [input, setInput] = useState('');
@@ -142,12 +144,16 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
     
     setIsSaving(true);
     
+    const entryData = {
+      achievements: allEntries,
+      learnings: [] as string[],
+      insights: [] as string[],
+      decisions: [] as string[],
+    };
+    
     const result = await addEntry({
       date: today,
-      achievements: allEntries, // For now, store all as achievements
-      learnings: [],
-      insights: [],
-      decisions: [],
+      ...entryData,
     });
     
     if (result?.error) {
@@ -157,12 +163,48 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
     }
     
     toast.success('Entry saved! 🌱');
+    
+    // Generate AI reflection in the background
+    if (result.entryId) {
+      generateReflection(result.entryId, entryData);
+    }
+    
     setIsSaving(false);
+    
+    // Notify parent to refresh data
+    onEntrySaved?.();
     
     // Reset form
     setInput('');
     setEntries([]);
     onClose();
+  };
+
+  const generateReflection = async (entryId: string, entryData: {
+    achievements: string[];
+    learnings: string[];
+    insights: string[];
+    decisions: string[];
+  }) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await supabase.functions.invoke('generate-reflection', {
+        body: { entryId, entryData },
+      });
+
+      if (response.error) {
+        console.error('Failed to generate reflection:', response.error);
+        return;
+      }
+
+      // Refresh data to show the new reflection
+      onEntrySaved?.();
+      toast.success('AI reflection generated! ✨');
+    } catch (error) {
+      console.error('Reflection generation error:', error);
+    }
   };
   
   const usePrompt = () => {

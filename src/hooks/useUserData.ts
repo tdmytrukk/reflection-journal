@@ -116,7 +116,7 @@ export function useUserData() {
     return { error };
   };
 
-  const addEntry = async (entry: Omit<Entry, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
+  const addEntry = async (entry: Omit<Entry, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<{ error?: Error; entryId?: string }> => {
     if (!user) return { error: new Error('Not authenticated') };
     
     const insertData: {
@@ -136,15 +136,17 @@ export function useUserData() {
       decisions: entry.decisions,
     };
     
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('entries')
-      .insert([insertData]);
+      .insert([insertData])
+      .select('id')
+      .single();
     
     if (!error) {
       await fetchEntries();
     }
     
-    return { error };
+    return { error: error ?? undefined, entryId: data?.id };
   };
 
   const updateEntry = async (id: string, updates: Partial<Entry>) => {

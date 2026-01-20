@@ -24,9 +24,10 @@ export interface EntryItem {
 }
 
 export interface AIReflection {
-  traits: string[]; // e.g., "thoughtful", "brave", "initiative"
   summary: string;
-  growthAreas: string[];
+  strengths: string[];
+  highlights: string[];
+  encouragement: string;
 }
 
 export interface Entry {
