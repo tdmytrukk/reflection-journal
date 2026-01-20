@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Mic, Sparkles, ArrowRight } from '@/components/ui/icons';
+import { X, Mic, MicOff, Sparkles, ArrowRight } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { toast } from 'sonner';
 
 interface NewEntryModalProps {
@@ -37,6 +38,17 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
+  // Speech recognition
+  const {
+    isListening,
+    transcript,
+    error: speechError,
+    isSupported: isSpeechSupported,
+    startListening,
+    stopListening,
+    resetTranscript,
+  } = useSpeechRecognition();
+  
   const today = new Date();
   const formattedDate = today.toLocaleDateString('en-US', {
     weekday: 'long',
@@ -44,6 +56,24 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
     month: 'long',
     day: 'numeric',
   });
+
+  // Append transcript to input when speech is recognized
+  useEffect(() => {
+    if (transcript) {
+      setInput(prev => {
+        const separator = prev && !prev.endsWith(' ') ? ' ' : '';
+        return prev + separator + transcript;
+      });
+      resetTranscript();
+    }
+  }, [transcript, resetTranscript]);
+
+  // Show speech error as toast
+  useEffect(() => {
+    if (speechError) {
+      toast.error(speechError);
+    }
+  }, [speechError]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -67,6 +97,15 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  // Toggle voice recording
+  const handleVoiceToggle = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
 
   const handleSubmitEntry = () => {
     if (!input.trim()) return;
@@ -252,13 +291,34 @@ export function NewEntryModal({ isOpen, onClose }: NewEntryModalProps) {
               >
                 <Sparkles className="w-4 h-4" />
               </button>
-              <button 
-                className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors opacity-50 cursor-not-allowed" 
-                disabled
-                title="Voice input (coming soon)"
-              >
-                <Mic className="w-4 h-4" />
-              </button>
+              {isSpeechSupported ? (
+                <button 
+                  onClick={handleVoiceToggle}
+                  className={`p-2 rounded-lg transition-colors relative ${
+                    isListening 
+                      ? 'bg-destructive/10 text-destructive' 
+                      : 'hover:bg-muted text-muted-foreground'
+                  }`}
+                  title={isListening ? 'Stop recording' : 'Start voice input'}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="w-4 h-4" />
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
+                    </>
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+              ) : (
+                <button 
+                  className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors opacity-50 cursor-not-allowed" 
+                  disabled
+                  title="Voice input not supported in this browser"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+              )}
             </div>
             
             <div className="flex items-center gap-3">
