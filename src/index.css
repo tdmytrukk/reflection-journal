@@ -676,4 +676,13 @@
     transform: scaleX(1);
     transform-origin: bottom-left;
   }
+
+  /* Profile page card */
+  .profile-card {
+    background: linear-gradient(135deg, #FAF8F3 0%, #F5F1E8 100%);
+    border: 1px solid rgba(139, 111, 71, 0.12);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(139, 111, 71, 0.06);
+  }
 }

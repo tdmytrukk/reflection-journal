@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      goals: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          status: string
+          target_date: string | null
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_descriptions: {
         Row: {
           company: string
@@ -91,6 +124,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string
           id: string
@@ -98,6 +132,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email: string
           id: string
@@ -105,11 +140,48 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string
           id?: string
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          ai_prompts_enabled: boolean
+          created_at: string
+          id: string
+          reminder_day: string | null
+          reminder_time: string | null
+          shareable_recap: boolean
+          updated_at: string
+          user_id: string
+          weekly_reminder: boolean
+        }
+        Insert: {
+          ai_prompts_enabled?: boolean
+          created_at?: string
+          id?: string
+          reminder_day?: string | null
+          reminder_time?: string | null
+          shareable_recap?: boolean
+          updated_at?: string
+          user_id: string
+          weekly_reminder?: boolean
+        }
+        Update: {
+          ai_prompts_enabled?: boolean
+          created_at?: string
+          id?: string
+          reminder_day?: string | null
+          reminder_time?: string | null
+          shareable_recap?: boolean
+          updated_at?: string
+          user_id?: string
+          weekly_reminder?: boolean
         }
         Relationships: []
       }

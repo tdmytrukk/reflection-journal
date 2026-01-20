@@ -55,6 +55,13 @@ export function DashboardHeader() {
                 <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
               </div>
               <DropdownMenuSeparator className="sm:hidden bg-[rgba(139,111,71,0.1)]" />
+              <DropdownMenuItem 
+                onClick={() => navigate('/profile')} 
+                className="gap-3 py-2.5 text-warm-body cursor-pointer hover:bg-[rgba(107,122,90,0.06)]"
+              >
+                <User className="w-4 h-4 text-cedar" strokeLinecap="round" />
+                Profile
+              </DropdownMenuItem>
               <DropdownMenuItem className="gap-3 py-2.5 text-warm-body cursor-pointer hover:bg-[rgba(107,122,90,0.06)]">
                 <Settings className="w-4 h-4 text-cedar" strokeLinecap="round" />
                 Settings
