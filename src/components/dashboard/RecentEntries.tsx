@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Calendar, Target, Lightbulb, Compass, BookOpen } from '@/components/ui/icons';
+import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
 import type { Entry } from '@/types';
 
 const formatDate = (date: Date) => {
@@ -22,9 +24,10 @@ const getCategoryIcon = (category: string) => {
 
 interface EntryCardProps {
   entry: Entry;
+  onClick: () => void;
 }
 
-function EntryCard({ entry }: EntryCardProps) {
+function EntryCard({ entry, onClick }: EntryCardProps) {
   const allItems: { category: string; text: string }[] = [
     ...entry.achievements.map(text => ({ category: 'achievements', text })),
     ...entry.learnings.map(text => ({ category: 'learnings', text })),
@@ -36,7 +39,10 @@ function EntryCard({ entry }: EntryCardProps) {
   const remainingCount = allItems.length - 3;
   
   return (
-    <div className="journal-card p-4 hover:border-primary/30 transition-colors cursor-pointer">
+    <button
+      onClick={onClick}
+      className="w-full text-left journal-card p-4 hover:border-primary/30 transition-colors cursor-pointer"
+    >
       <div className="flex items-center gap-2 mb-3">
         <Calendar className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
@@ -63,7 +69,7 @@ function EntryCard({ entry }: EntryCardProps) {
           </p>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -73,6 +79,7 @@ interface RecentEntriesProps {
 }
 
 export function RecentEntries({ entries, isLoading }: RecentEntriesProps) {
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   if (isLoading) {
     return (
@@ -102,13 +109,25 @@ export function RecentEntries({ entries, isLoading }: RecentEntriesProps) {
   }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-foreground px-1">Recent Entries</h3>
+    <>
       <div className="space-y-3">
-        {recentEntries.map((entry) => (
-          <EntryCard key={entry.id} entry={entry} />
-        ))}
+        <h3 className="text-sm font-medium text-foreground px-1">Recent Entries</h3>
+        <div className="space-y-3">
+          {recentEntries.map((entry) => (
+            <EntryCard 
+              key={entry.id} 
+              entry={entry} 
+              onClick={() => setSelectedEntry(entry)}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      <EntryDetailSheet
+        entry={selectedEntry}
+        isOpen={!!selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+      />
+    </>
   );
 }

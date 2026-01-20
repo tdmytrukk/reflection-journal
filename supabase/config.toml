@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-reflection]
 verify_jwt = false
+
+[functions.correct-grammar]
+verify_jwt = false

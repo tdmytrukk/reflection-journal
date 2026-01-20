@@ -31,6 +31,7 @@ import {
   Zap,
   TrendingUp,
   Loader2,
+  Star,
 } from "lucide-react";
 
 export {
@@ -66,4 +67,5 @@ export {
   Zap,
   TrendingUp,
   Loader2,
+  Star,
 };
