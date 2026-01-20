@@ -149,11 +149,97 @@ export type Database = {
         }
         Relationships: []
       }
+      quarterly_checkins: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          flagged_responsibilities: Json | null
+          focus_next_quarter: Json | null
+          id: string
+          quarter: number
+          status: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          flagged_responsibilities?: Json | null
+          focus_next_quarter?: Json | null
+          id?: string
+          quarter: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          flagged_responsibilities?: Json | null
+          focus_next_quarter?: Json | null
+          id?: string
+          quarter?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      responsibility_matches: {
+        Row: {
+          created_at: string
+          entry_id: string
+          evidence_type: string
+          id: string
+          match_score: number
+          matched_items: Json | null
+          responsibility_index: number
+          responsibility_text: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          evidence_type?: string
+          id?: string
+          match_score?: number
+          matched_items?: Json | null
+          responsibility_index: number
+          responsibility_text: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          evidence_type?: string
+          id?: string
+          match_score?: number
+          matched_items?: Json | null
+          responsibility_index?: number
+          responsibility_text?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "responsibility_matches_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           ai_prompts_enabled: boolean
           created_at: string
+          email_reminders_enabled: boolean
           id: string
+          monthly_pulse_enabled: boolean
+          quarterly_checkin_enabled: boolean
           reminder_day: string | null
           reminder_time: string | null
           shareable_recap: boolean
@@ -164,7 +250,10 @@ export type Database = {
         Insert: {
           ai_prompts_enabled?: boolean
           created_at?: string
+          email_reminders_enabled?: boolean
           id?: string
+          monthly_pulse_enabled?: boolean
+          quarterly_checkin_enabled?: boolean
           reminder_day?: string | null
           reminder_time?: string | null
           shareable_recap?: boolean
@@ -175,7 +264,10 @@ export type Database = {
         Update: {
           ai_prompts_enabled?: boolean
           created_at?: string
+          email_reminders_enabled?: boolean
           id?: string
+          monthly_pulse_enabled?: boolean
+          quarterly_checkin_enabled?: boolean
           reminder_day?: string | null
           reminder_time?: string | null
           shareable_recap?: boolean

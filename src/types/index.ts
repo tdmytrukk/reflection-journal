@@ -92,6 +92,44 @@ export interface UserPreferences {
   reminderTime: string;
   aiPromptsEnabled: boolean;
   shareableRecap: boolean;
+  quarterlyCheckinEnabled: boolean;
+  monthlyPulseEnabled: boolean;
+  emailRemindersEnabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ResponsibilityMatch {
+  id: string;
+  userId: string;
+  entryId: string;
+  responsibilityIndex: number;
+  responsibilityText: string;
+  matchScore: number;
+  evidenceType: 'strong' | 'moderate' | 'weak';
+  matchedItems: { category: string; text: string }[];
+  createdAt: Date;
+}
+
+export interface FlaggedResponsibility {
+  index: number;
+  text: string;
+  coverage: 'none' | 'weak';
+  matchCount: number;
+  averageScore: number;
+  action?: 'not-in-scope' | 'not-captured' | 'needs-focus';
+  note?: string;
+}
+
+export interface QuarterlyCheckin {
+  id: string;
+  userId: string;
+  quarter: number;
+  year: number;
+  status: 'pending' | 'in_progress' | 'completed';
+  flaggedResponsibilities: FlaggedResponsibility[];
+  focusNextQuarter: string[];
+  completedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
