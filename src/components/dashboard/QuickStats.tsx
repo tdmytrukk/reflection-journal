@@ -36,17 +36,17 @@ export function QuickStats({ entries }: QuickStatsProps) {
   
   return (
     <div className="journal-card p-4">
-      <h3 className="text-sm font-medium text-foreground mb-4">
+      <h3 className="text-sm font-medium text-warm-primary mb-4">
         Q{currentQuarter} Progress
       </h3>
       
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Entries</span>
+            <FileText className="w-4 h-4 text-cedar" />
+            <span className="text-sm text-warm-secondary">Entries</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-warm-primary">
             {quarterEntries.length}
           </span>
         </div>
@@ -55,10 +55,10 @@ export function QuickStats({ entries }: QuickStatsProps) {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Achievements</span>
+            <Target className="w-4 h-4 text-primary" />
+            <span className="text-sm text-warm-secondary">Achievements</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-warm-primary">
             {totalAchievements}
           </span>
         </div>
@@ -67,10 +67,10 @@ export function QuickStats({ entries }: QuickStatsProps) {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Learnings</span>
+            <Lightbulb className="w-4 h-4 text-primary" />
+            <span className="text-sm text-warm-secondary">Learnings</span>
           </div>
-          <span className="text-sm font-medium text-foreground">
+          <span className="text-sm font-medium text-warm-primary">
             {totalLearnings}
           </span>
         </div>
@@ -78,7 +78,7 @@ export function QuickStats({ entries }: QuickStatsProps) {
       
       {thisMonthEntries.length === 0 && (
         <div className="mt-4 p-3 rounded-lg bg-sage-light/30 border border-sage-light">
-          <p className="text-xs text-muted-foreground text-center">
+          <p className="text-xs text-warm-secondary text-center">
             No entries yet this month. Start capturing your wins!
           </p>
         </div>

@@ -66,7 +66,6 @@ export default {
           DEFAULT: "hsl(var(--moss-garden))",
           light: "hsl(var(--pale-olive))",
         },
-        stone: "hsl(var(--stone))",
         matcha: "hsl(var(--matcha-dust))",
         // Rist legacy tokens (mapped to new palette)
         paper: "hsl(var(--paper))",
@@ -75,6 +74,13 @@ export default {
           light: "hsl(var(--sage-light))",
         },
         "brush-stroke": "hsl(var(--brush-stroke))",
+        // Warm text colors
+        warm: {
+          primary: "hsl(var(--text-primary))",
+          body: "hsl(var(--text-body))",
+          secondary: "hsl(var(--text-secondary))",
+          muted: "hsl(var(--text-muted))",
+        },
         // Functional colors
         warning: {
           DEFAULT: "hsl(var(--warning))",

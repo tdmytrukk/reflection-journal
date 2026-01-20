@@ -130,9 +130,9 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       <div className="journal-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">This Week's Growth</h3>
+          <h3 className="text-sm font-medium text-warm-primary">This Week's Growth</h3>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-warm-secondary">
           Start capturing entries to see your weekly reflection and growth insights.
         </p>
       </div>
@@ -154,15 +154,15 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-foreground">This Week's Growth</h3>
+          <h3 className="text-sm font-medium text-warm-primary">This Week's Growth</h3>
         </div>
-        <span className="text-xs text-muted-foreground">{formatDateRange()}</span>
+        <span className="text-xs text-warm-secondary">{formatDateRange()}</span>
       </div>
       
       {/* AI Summary if available */}
       {weeklyData.latestReflection?.summary && (
         <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
-          <p className="text-sm text-foreground leading-relaxed">
+          <p className="text-sm text-warm-body leading-relaxed">
             {weeklyData.latestReflection.summary}
           </p>
           {weeklyData.latestReflection.encouragement && (
@@ -175,20 +175,20 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       
       {/* Stats */}
       <div className="flex gap-4 mb-4 text-center">
-        <div className="flex-1 p-3 rounded-lg bg-muted/50">
-          <p className="text-2xl font-medium text-foreground">{weeklyData.entryCount}</p>
-          <p className="text-xs text-muted-foreground">days captured</p>
+        <div className="flex-1 p-3 rounded-lg" style={{ backgroundColor: 'hsl(40 40% 97%)' }}>
+          <p className="text-2xl font-medium text-warm-primary">{weeklyData.entryCount}</p>
+          <p className="text-xs text-warm-secondary">days captured</p>
         </div>
-        <div className="flex-1 p-3 rounded-lg bg-muted/50">
-          <p className="text-2xl font-medium text-foreground">{weeklyData.itemCount}</p>
-          <p className="text-xs text-muted-foreground">moments logged</p>
+        <div className="flex-1 p-3 rounded-lg" style={{ backgroundColor: 'hsl(40 40% 97%)' }}>
+          <p className="text-2xl font-medium text-warm-primary">{weeklyData.itemCount}</p>
+          <p className="text-xs text-warm-secondary">moments logged</p>
         </div>
       </div>
       
       {/* Strengths/Traits detected */}
       {displayTraits.length > 0 && (
         <div>
-          <p className="text-xs text-muted-foreground mb-2">
+          <p className="text-xs text-warm-secondary mb-2">
             {weeklyData.allStrengths.length > 0 ? 'Key strengths:' : "You've shown:"}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -211,7 +211,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       )}
       
       {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-warm-secondary">
           Add more details to your entries to see personalized growth insights! 🌱
         </p>
       )}

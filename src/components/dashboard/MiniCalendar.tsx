@@ -69,7 +69,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
           className={`
             h-8 w-8 rounded-lg text-sm flex flex-col items-center justify-center relative
             transition-colors hover:bg-muted
-            ${today ? 'font-medium text-primary' : 'text-foreground'}
+            ${today ? 'font-medium text-primary' : 'text-warm-body'}
           `}
         >
           {hasEntry ? (
@@ -88,7 +88,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
     <div className="journal-card p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-foreground">
+        <h3 className="text-sm font-medium text-warm-primary">
           {MONTHS[month]} {year}
         </h3>
         <div className="flex gap-1">
@@ -96,13 +96,13 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
             onClick={prevMonth}
             className="p-1.5 rounded-lg hover:bg-muted transition-colors"
           >
-            <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+            <ChevronLeft className="w-4 h-4 text-cedar" />
           </button>
           <button
             onClick={nextMonth}
             className="p-1.5 rounded-lg hover:bg-muted transition-colors"
           >
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className="w-4 h-4 text-cedar" />
           </button>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
       <div className="grid grid-cols-7 gap-1 mb-2">
         {DAYS.map(day => (
           <div key={day} className="h-6 flex items-center justify-center">
-            <span className="text-xs text-muted-foreground">{day}</span>
+            <span className="text-xs text-warm-secondary">{day}</span>
           </div>
         ))}
       </div>
