@@ -112,6 +112,9 @@ export function useProfileData() {
         reminderTime: data.reminder_time || '09:00',
         aiPromptsEnabled: data.ai_prompts_enabled,
         shareableRecap: data.shareable_recap,
+        quarterlyCheckinEnabled: data.quarterly_checkin_enabled ?? true,
+        monthlyPulseEnabled: data.monthly_pulse_enabled ?? false,
+        emailRemindersEnabled: data.email_reminders_enabled ?? false,
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at),
       });
@@ -125,6 +128,9 @@ export function useProfileData() {
         reminderTime: '09:00',
         aiPromptsEnabled: true,
         shareableRecap: false,
+        quarterlyCheckinEnabled: true,
+        monthlyPulseEnabled: false,
+        emailRemindersEnabled: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -328,6 +334,9 @@ export function useProfileData() {
     if (updates.reminderTime) updateData.reminder_time = updates.reminderTime;
     if (updates.aiPromptsEnabled !== undefined) updateData.ai_prompts_enabled = updates.aiPromptsEnabled;
     if (updates.shareableRecap !== undefined) updateData.shareable_recap = updates.shareableRecap;
+    if (updates.quarterlyCheckinEnabled !== undefined) updateData.quarterly_checkin_enabled = updates.quarterlyCheckinEnabled;
+    if (updates.monthlyPulseEnabled !== undefined) updateData.monthly_pulse_enabled = updates.monthlyPulseEnabled;
+    if (updates.emailRemindersEnabled !== undefined) updateData.email_reminders_enabled = updates.emailRemindersEnabled;
     
     // Upsert - insert if not exists, update if exists
     const { error } = await supabase

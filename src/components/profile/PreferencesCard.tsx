@@ -134,7 +134,46 @@ export function PreferencesCard({ preferences, isEditing, onUpdate }: Preference
 
           <div className="brush-divider !my-4" />
 
-          {/* Export Data */}
+          {/* Quarterly Check-in */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="quarterly-checkin" className="cursor-pointer">
+              Quarterly responsibility check-in
+            </Label>
+            <Switch
+              id="quarterly-checkin"
+              checked={preferences.quarterlyCheckinEnabled}
+              onCheckedChange={(checked) => handleToggle('quarterlyCheckinEnabled', checked)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          {/* Monthly Pulse */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="monthly-pulse" className="cursor-pointer">
+              Monthly pulse (coverage summary)
+            </Label>
+            <Switch
+              id="monthly-pulse"
+              checked={preferences.monthlyPulseEnabled}
+              onCheckedChange={(checked) => handleToggle('monthlyPulseEnabled', checked)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          {/* Email Reminders */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="email-reminders" className="cursor-pointer">
+              Email reminders
+            </Label>
+            <Switch
+              id="email-reminders"
+              checked={preferences.emailRemindersEnabled}
+              onCheckedChange={(checked) => handleToggle('emailRemindersEnabled', checked)}
+              disabled={!isEditing}
+            />
+          </div>
+
+          <div className="brush-divider !my-4" />
           <div className="space-y-2">
             <Label>Export your data</Label>
             <div className="flex gap-2">

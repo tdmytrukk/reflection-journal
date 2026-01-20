@@ -10,6 +10,7 @@ import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
+import QuarterlyCheckinPage from "./pages/QuarterlyCheckinPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -121,6 +122,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/quarterly-checkin" 
+        element={
+          <ProtectedRoute>
+            <QuarterlyCheckinPage />
           </ProtectedRoute>
         } 
       />

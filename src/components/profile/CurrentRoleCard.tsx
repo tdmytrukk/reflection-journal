@@ -11,6 +11,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { JobDescription } from '@/types';
 import { format } from 'date-fns';
+import { ResponsibilitiesSection } from './ResponsibilitiesSection';
 
 interface CurrentRoleCardProps {
   job: JobDescription | null;
@@ -157,6 +158,9 @@ export function CurrentRoleCard({ job, isEditing, onUpdate }: CurrentRoleCardPro
             View/Edit Job Description
           </button>
         </div>
+
+        {/* Responsibilities Section */}
+        <ResponsibilitiesSection />
       </div>
 
       {/* Job Description Modal */}
