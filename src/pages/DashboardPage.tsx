@@ -36,13 +36,13 @@ export default function DashboardPage() {
     <div className="min-h-screen paper-texture">
       <DashboardHeader />
       
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-content mx-auto px-4 sm:px-6 lg:px-12 py-2xl">
         {/* Welcome section */}
-        <div className="mb-8 animate-fade-in">
-          <h1 className="text-2xl font-medium text-foreground mb-1">
+        <div className="mb-2xl animate-fade-in">
+          <h1 className="text-foreground mb-1">
             {getGreeting()}, {userName}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-base">
             {jobDescription?.title && jobDescription?.company 
               ? `${jobDescription.title} at ${jobDescription.company}`
               : 'Ready to capture your achievements?'
@@ -51,22 +51,22 @@ export default function DashboardPage() {
         </div>
         
         {/* Main grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-lg">
           {/* Main content area */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-lg">
             {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
-              className="w-full journal-card p-6 text-left group hover:border-primary/30 transition-all"
+              className="w-full journal-card text-left group"
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
                   <Plus className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-medium text-foreground group-hover:text-primary transition-colors">
                     New Entry
-                  </h2>
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Capture today's achievements and learnings
                   </p>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
           </div>
           
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-lg">
             {/* Weekly Reflection */}
             <WeeklyReflection entries={entries} />
             
