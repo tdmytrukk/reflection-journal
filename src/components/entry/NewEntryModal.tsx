@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { X, Mic, MicOff, Sparkles, ArrowRight } from '@/components/ui/icons';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { X, Mic, MicOff, Sparkles, ArrowRight, Loader2 } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -37,8 +37,10 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   const [showReflection, setShowReflection] = useState(false);
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [isCorrectingGrammar, setIsCorrectingGrammar] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const pendingTranscriptRef = useRef<string>('');
   
   // Speech recognition
   const {
@@ -59,17 +61,58 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     day: 'numeric',
   });
 
-  // Append transcript to input when speech is recognized
+  // Correct grammar using AI
+  const correctGrammar = useCallback(async (text: string): Promise<string> => {
+    if (!text.trim()) return text;
+    
+    try {
+      setIsCorrectingGrammar(true);
+      const response = await supabase.functions.invoke('correct-grammar', {
+        body: { text },
+      });
+
+      if (response.error) {
+        console.error('Grammar correction error:', response.error);
+        return text;
+      }
+
+      return response.data?.correctedText || text;
+    } catch (error) {
+      console.error('Grammar correction failed:', error);
+      return text;
+    } finally {
+      setIsCorrectingGrammar(false);
+    }
+  }, []);
+
+  // Accumulate transcript while listening
   useEffect(() => {
     if (transcript) {
-      setInput(prev => {
-        const separator = prev && !prev.endsWith(' ') ? ' ' : '';
-        return prev + separator + transcript;
-      });
+      pendingTranscriptRef.current += (pendingTranscriptRef.current ? ' ' : '') + transcript;
       resetTranscript();
     }
   }, [transcript, resetTranscript]);
 
+  // When listening stops, apply grammar correction
+  useEffect(() => {
+    const applyGrammarCorrection = async () => {
+      const pendingText = pendingTranscriptRef.current;
+      if (!pendingText) return;
+      
+      pendingTranscriptRef.current = '';
+      
+      const correctedText = await correctGrammar(pendingText);
+      
+      setInput(prev => {
+        const separator = prev && !prev.endsWith(' ') ? ' ' : '';
+        return prev + separator + correctedText;
+      });
+    };
+
+    if (!isListening && pendingTranscriptRef.current) {
+      applyGrammarCorrection();
+    }
+  }, [isListening, correctGrammar]);
   // Show speech error as toast
   useEffect(() => {
     if (speechError) {
@@ -336,14 +379,19 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               {isSpeechSupported ? (
                 <button 
                   onClick={handleVoiceToggle}
+                  disabled={isCorrectingGrammar}
                   className={`p-2 rounded-lg transition-colors relative ${
                     isListening 
                       ? 'bg-destructive/10 text-destructive' 
-                      : 'hover:bg-muted text-muted-foreground'
+                      : isCorrectingGrammar
+                        ? 'bg-primary/10 text-primary'
+                        : 'hover:bg-muted text-muted-foreground'
                   }`}
-                  title={isListening ? 'Stop recording' : 'Start voice input'}
+                  title={isCorrectingGrammar ? 'Correcting grammar...' : isListening ? 'Stop recording' : 'Start voice input'}
                 >
-                  {isListening ? (
+                  {isCorrectingGrammar ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : isListening ? (
                     <>
                       <MicOff className="w-4 h-4" />
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
