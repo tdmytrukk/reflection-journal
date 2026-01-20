@@ -348,6 +348,13 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="sentences"
+              spellCheck="true"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
               className="w-full resize-none bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 text-base leading-relaxed min-h-[24px] max-h-[200px] pr-12"
               rows={1}
             />

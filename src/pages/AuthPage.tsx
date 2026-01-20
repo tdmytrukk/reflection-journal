@@ -62,7 +62,7 @@ export default function AuthPage() {
 
         {/* Auth form */}
         <div className="journal-card">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="on">
             {!isLogin && (
               <div className="space-y-2">
                 <label htmlFor="name" className="block text-sm font-medium text-foreground">
@@ -70,12 +70,14 @@ export default function AuthPage() {
                 </label>
                 <input
                   id="name"
+                  name="name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="input-paper"
                   placeholder="How should we call you?"
                   required={!isLogin}
+                  autoComplete="name"
                 />
               </div>
             )}
@@ -86,12 +88,14 @@ export default function AuthPage() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="input-paper"
                 placeholder="you@example.com"
                 required
+                autoComplete="email"
               />
             </div>
 
@@ -101,6 +105,7 @@ export default function AuthPage() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -108,6 +113,7 @@ export default function AuthPage() {
                 placeholder="••••••••"
                 required
                 minLength={6}
+                autoComplete={isLogin ? "current-password" : "new-password"}
               />
             </div>
 
