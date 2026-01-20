@@ -76,10 +76,17 @@ function EntryCard({ entry, onClick }: EntryCardProps) {
 interface RecentEntriesProps {
   entries: Entry[];
   isLoading: boolean;
+  onUpdateEntry?: (id: string, updates: Partial<Entry>) => Promise<{ error?: Error } | undefined>;
+  onDeleteEntry?: (id: string) => Promise<{ error?: Error } | undefined>;
 }
 
-export function RecentEntries({ entries, isLoading }: RecentEntriesProps) {
+export function RecentEntries({ entries, isLoading, onUpdateEntry, onDeleteEntry }: RecentEntriesProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+
+  // Keep selected entry in sync with entries prop
+  const currentEntry = selectedEntry 
+    ? entries.find(e => e.id === selectedEntry.id) || null 
+    : null;
 
   if (isLoading) {
     return (
@@ -124,9 +131,11 @@ export function RecentEntries({ entries, isLoading }: RecentEntriesProps) {
       </div>
 
       <EntryDetailSheet
-        entry={selectedEntry}
+        entry={currentEntry}
         isOpen={!!selectedEntry}
         onClose={() => setSelectedEntry(null)}
+        onUpdate={onUpdateEntry}
+        onDelete={onDeleteEntry}
       />
     </>
   );

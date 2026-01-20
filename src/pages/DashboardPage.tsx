@@ -12,7 +12,7 @@ import { Plus, Sparkles, FileText } from '@/components/ui/icons';
 export default function DashboardPage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
   const { user } = useAuth();
-  const { profile, jobDescription, entries, isLoading, refreshData } = useUserData();
+  const { profile, jobDescription, entries, isLoading, refreshData, updateEntry, deleteEntry } = useUserData();
   
   // Get current quarter
   const now = new Date();
@@ -75,7 +75,12 @@ export default function DashboardPage() {
             </button>
             
             {/* Recent entries */}
-            <RecentEntries entries={entries} isLoading={isLoading} />
+            <RecentEntries 
+              entries={entries} 
+              isLoading={isLoading} 
+              onUpdateEntry={updateEntry}
+              onDeleteEntry={deleteEntry}
+            />
           </div>
           
           {/* Sidebar */}
