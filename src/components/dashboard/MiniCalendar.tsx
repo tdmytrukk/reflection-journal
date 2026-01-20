@@ -52,7 +52,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
     const days = [];
     
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8" />);
+      days.push(<div key={`empty-${i}`} className="h-8 w-full" />);
     }
     
     for (let day = 1; day <= daysInMonth; day++) {
@@ -64,7 +64,7 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
           key={day}
           onClick={() => onDateSelect?.(new Date(year, month, day))}
           className={`
-            h-8 w-8 rounded-lg text-sm flex flex-col items-center justify-center relative
+            h-8 w-full rounded-lg text-sm flex flex-col items-center justify-center relative
             transition-all duration-300 hover:bg-[rgba(107,122,90,0.08)]
             ${today ? 'font-medium text-moss' : 'text-warm-body'}
           `}
@@ -105,16 +105,16 @@ export function MiniCalendar({ entries, onDateSelect }: MiniCalendarProps) {
       </div>
       
       {/* Day headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="grid grid-cols-7 mb-1">
         {DAYS.map(day => (
-          <div key={day} className="h-6 flex items-center justify-center">
-            <span className="text-warm-muted" style={{ fontSize: '12px' }}>{day}</span>
+          <div key={day} className="h-8 w-full flex items-center justify-center">
+            <span className="text-warm-muted" style={{ fontSize: '11px' }}>{day}</span>
           </div>
         ))}
       </div>
       
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7">
         {renderDays()}
       </div>
     </div>
