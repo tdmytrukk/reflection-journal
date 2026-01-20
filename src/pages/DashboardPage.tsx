@@ -28,7 +28,6 @@ export default function DashboardPage() {
   const userName = profile?.name || user?.email?.split('@')[0] || 'there';
 
   const handleEntrySaved = useCallback(() => {
-    // Refresh all data after an entry is saved
     refreshData();
   }, [refreshData]);
   
@@ -36,13 +35,13 @@ export default function DashboardPage() {
     <div className="min-h-screen paper-texture">
       <DashboardHeader />
       
-      <main className="max-w-content mx-auto px-4 sm:px-6 lg:px-12 py-2xl">
+      <main className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-16 pb-12">
         {/* Welcome section */}
-        <div className="mb-2xl animate-fade-in">
-          <h1 className="text-warm-primary mb-1">
+        <div className="mb-10 animate-fade-in">
+          <h1 className="text-ink mb-2" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
             {getGreeting()}, {userName}
           </h1>
-          <p className="text-warm-muted text-base">
+          <p className="font-display-italic text-cedar" style={{ fontSize: '15px' }}>
             {jobDescription?.title && jobDescription?.company 
               ? `${jobDescription.title} at ${jobDescription.company}`
               : 'Ready to capture your achievements?'
@@ -50,29 +49,32 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        {/* Main grid */}
-        <div className="grid lg:grid-cols-3 gap-lg">
+        {/* Main grid - 65/35 split */}
+        <div className="grid lg:grid-cols-[1fr_420px] gap-10">
           {/* Main content area */}
-          <div className="lg:col-span-2 space-y-lg">
-            {/* New entry card */}
+          <div className="space-y-8">
+            {/* New entry card - RICH styling */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
               className="w-full new-entry-card text-left group"
             >
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                  <Plus className="w-7 h-7 text-primary" strokeWidth={2} />
+              <div className="flex items-center gap-6">
+                <div className="plus-icon-container">
+                  <Plus className="w-7 h-7 text-moss" strokeWidth={2.5} strokeLinecap="round" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-warm-primary group-hover:text-primary transition-colors">
+                  <h3 className="text-warm-primary group-hover:text-moss transition-colors" style={{ fontSize: '20px', fontWeight: 500 }}>
                     New Entry
                   </h3>
-                  <p className="text-sm text-warm-secondary mt-0.5">
+                  <p className="text-warm-muted mt-1" style={{ fontSize: '15px' }}>
                     Capture today's achievements and learnings
                   </p>
                 </div>
               </div>
             </button>
+            
+            {/* Decorative divider */}
+            <div className="brush-divider" />
             
             {/* Recent entries */}
             <RecentEntries 
@@ -84,7 +86,7 @@ export default function DashboardPage() {
           </div>
           
           {/* Sidebar */}
-          <div className="space-y-lg">
+          <div className="space-y-8">
             {/* Weekly Reflection */}
             <WeeklyReflection entries={entries} />
             
@@ -95,28 +97,28 @@ export default function DashboardPage() {
             <QuickStats entries={entries} />
             
             {/* Quick actions */}
-            <div className="journal-card p-4 space-y-2">
-              <h3 className="text-sm font-medium text-warm-primary mb-3">
+            <div className="sidebar-card space-y-3">
+              <h3 className="text-warm-primary mb-4" style={{ fontSize: '16px', fontWeight: 500 }}>
                 Quick Actions
               </h3>
               
-              <button className="w-full btn-ghost justify-start text-left gap-3 py-3">
-                <div className="w-8 h-8 rounded-lg bg-sage-light flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-primary" />
+              <button className="w-full btn-ghost justify-start text-left gap-4 py-3 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container">
+                  <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-warm-primary">Generate Q{currentQuarter} Review</p>
-                  <p className="text-xs text-warm-secondary">Create your quarterly summary</p>
+                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
+                  <p className="text-warm-muted" style={{ fontSize: '13px' }}>Create your quarterly summary</p>
                 </div>
               </button>
               
-              <button className="w-full btn-ghost justify-start text-left gap-3 py-3">
-                <div className="w-8 h-8 rounded-lg bg-sage-light flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-4 h-4 text-primary" />
+              <button className="w-full btn-ghost justify-start text-left gap-4 py-3 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container">
+                  <FileText className="w-5 h-5 text-moss" strokeLinecap="round" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-warm-primary">Resume Bullets</p>
-                  <p className="text-xs text-warm-secondary">Export achievements as bullets</p>
+                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>Resume Bullets</p>
+                  <p className="text-warm-muted" style={{ fontSize: '13px' }}>Export achievements as bullets</p>
                 </div>
               </button>
             </div>

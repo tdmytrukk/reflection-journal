@@ -11,46 +11,26 @@ const TRAIT_ICONS: Record<string, React.ElementType> = {
   resilient: TrendingUp,
 };
 
-const TRAIT_COLORS: Record<string, string> = {
-  thoughtful: 'bg-pink-100 text-pink-700',
-  brave: 'bg-amber-100 text-amber-700',
-  initiative: 'bg-blue-100 text-blue-700',
-  collaborative: 'bg-violet-100 text-violet-700',
-  focused: 'bg-emerald-100 text-emerald-700',
-  resilient: 'bg-orange-100 text-orange-700',
-};
-
 // Simple AI analysis to detect traits from entry content
 function analyzeEntryForTraits(text: string): string[] {
   const traits: string[] = [];
   const lowerText = text.toLowerCase();
   
-  // Thoughtful indicators
   if (lowerText.includes('consider') || lowerText.includes('reflect') || lowerText.includes('thought about') || lowerText.includes('careful')) {
     traits.push('thoughtful');
   }
-  
-  // Brave indicators
   if (lowerText.includes('challenge') || lowerText.includes('difficult') || lowerText.includes('risk') || lowerText.includes('spoke up') || lowerText.includes('pushed back')) {
     traits.push('brave');
   }
-  
-  // Initiative indicators
   if (lowerText.includes('started') || lowerText.includes('proposed') || lowerText.includes('initiated') || lowerText.includes('created') || lowerText.includes('built')) {
     traits.push('initiative');
   }
-  
-  // Collaborative indicators
   if (lowerText.includes('team') || lowerText.includes('together') || lowerText.includes('collaborated') || lowerText.includes('helped') || lowerText.includes('supported')) {
     traits.push('collaborative');
   }
-  
-  // Focused indicators
   if (lowerText.includes('completed') || lowerText.includes('finished') || lowerText.includes('delivered') || lowerText.includes('achieved')) {
     traits.push('focused');
   }
-  
-  // Resilient indicators
   if (lowerText.includes('overcame') || lowerText.includes('despite') || lowerText.includes('persisted') || lowerText.includes('adapted')) {
     traits.push('resilient');
   }
@@ -88,7 +68,6 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     
     if (weekEntries.length === 0) return null;
     
-    // Collect all text from entries
     const allText = weekEntries.flatMap(e => [
       ...e.achievements,
       ...e.learnings,
@@ -96,22 +75,18 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       ...e.decisions,
     ]).join(' ');
     
-    // Analyze for traits (fallback if no AI reflection)
     const traits = analyzeEntryForTraits(allText);
     
-    // Count items
     const totalItems = weekEntries.reduce((sum, e) => 
       sum + e.achievements.length + e.learnings.length + e.insights.length + e.decisions.length, 0
     );
     
-    // Get AI reflections from entries
     const aiReflections = weekEntries
       .filter(e => e.aiReflection)
       .map(e => e.aiReflection!);
     
-    // Aggregate AI insights
     const allStrengths = [...new Set(aiReflections.flatMap(r => r.strengths || []))];
-    const latestReflection = aiReflections[0]; // Most recent entry's reflection
+    const latestReflection = aiReflections[0];
     
     return {
       entryCount: weekEntries.length,
@@ -127,12 +102,14 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
   
   if (!weeklyData || weeklyData.itemCount === 0) {
     return (
-      <div className="journal-card p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-warm-primary">This Week's Growth</h3>
+      <div className="sidebar-card">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="icon-container">
+            <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
+          </div>
+          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>This Week's Growth</h3>
         </div>
-        <p className="text-sm text-warm-secondary">
+        <p className="text-warm-secondary" style={{ fontSize: '14px', lineHeight: 1.6 }}>
           Start capturing entries to see your weekly reflection and growth insights.
         </p>
       </div>
@@ -144,64 +121,62 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     return `${weeklyData.weekStart.toLocaleDateString('en-US', options)} - ${weeklyData.weekEnd.toLocaleDateString('en-US', options)}`;
   };
 
-  // Use AI strengths if available, otherwise fall back to trait detection
   const displayTraits = weeklyData.allStrengths.length > 0 
     ? weeklyData.allStrengths.slice(0, 4)
     : weeklyData.traits;
   
   return (
-    <div className="journal-card p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <h3 className="text-sm font-medium text-warm-primary">This Week's Growth</h3>
+    <div className="sidebar-card">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="icon-container">
+            <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
+          </div>
+          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>This Week's Growth</h3>
         </div>
-        <span className="text-xs text-warm-secondary">{formatDateRange()}</span>
+        <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
       </div>
       
       {/* AI Summary if available */}
       {weeklyData.latestReflection?.summary && (
-        <div className="mb-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
-          <p className="text-sm text-warm-body leading-relaxed">
+        <div className="sidebar-inner-card mb-5">
+          <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.7 }}>
             {weeklyData.latestReflection.summary}
           </p>
           {weeklyData.latestReflection.encouragement && (
-            <p className="text-xs text-primary mt-2 font-medium">
+            <p className="text-moss mt-3" style={{ fontSize: '13px', fontWeight: 500 }}>
               {weeklyData.latestReflection.encouragement}
             </p>
           )}
         </div>
       )}
       
-      {/* Stats */}
-      <div className="flex gap-4 mb-4 text-center">
-        <div className="flex-1 p-3 rounded-lg" style={{ backgroundColor: 'hsl(40 40% 97%)' }}>
-          <p className="text-2xl font-medium text-warm-primary">{weeklyData.entryCount}</p>
-          <p className="text-xs text-warm-secondary">days captured</p>
+      {/* Stats with large numbers */}
+      <div className="flex items-stretch mb-5">
+        <div className="metric-stat flex-1">
+          <p className="number">{weeklyData.entryCount}</p>
+          <p className="label">days captured</p>
         </div>
-        <div className="flex-1 p-3 rounded-lg" style={{ backgroundColor: 'hsl(40 40% 97%)' }}>
-          <p className="text-2xl font-medium text-warm-primary">{weeklyData.itemCount}</p>
-          <p className="text-xs text-warm-secondary">moments logged</p>
+        <div className="metric-divider" />
+        <div className="metric-stat flex-1">
+          <p className="number">{weeklyData.itemCount}</p>
+          <p className="label">moments logged</p>
         </div>
       </div>
       
       {/* Strengths/Traits detected */}
       {displayTraits.length > 0 && (
         <div>
-          <p className="text-xs text-warm-secondary mb-2">
+          <p className="text-warm-muted mb-3" style={{ fontSize: '13px' }}>
             {weeklyData.allStrengths.length > 0 ? 'Key strengths:' : "You've shown:"}
           </p>
           <div className="flex flex-wrap gap-2">
             {displayTraits.map(trait => {
               const traitLower = trait.toLowerCase();
               const Icon = TRAIT_ICONS[traitLower] || Sparkles;
-              const colorClass = TRAIT_COLORS[traitLower] || 'bg-sage-light text-primary';
               return (
-                <span
-                  key={trait}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${colorClass}`}
-                >
-                  <Icon className="w-3 h-3" />
+                <span key={trait} className="strength-tag">
+                  <Icon className="w-3.5 h-3.5" strokeLinecap="round" />
                   {trait.charAt(0).toUpperCase() + trait.slice(1)}
                 </span>
               );
@@ -211,7 +186,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       )}
       
       {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
-        <p className="text-sm text-warm-secondary">
+        <p className="text-warm-secondary" style={{ fontSize: '14px' }}>
           Add more details to your entries to see personalized growth insights! 🌱
         </p>
       )}

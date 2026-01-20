@@ -7,7 +7,6 @@ interface QuickStatsProps {
 
 export function QuickStats({ entries }: QuickStatsProps) {
   
-  // Get current quarter
   const now = new Date();
   const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
   const quarterStartMonth = (currentQuarter - 1) * 3;
@@ -35,50 +34,50 @@ export function QuickStats({ entries }: QuickStatsProps) {
   );
   
   return (
-    <div className="journal-card p-4">
-      <h3 className="text-sm font-medium text-warm-primary mb-4">
+    <div className="sidebar-card">
+      <h3 className="text-warm-primary mb-5" style={{ fontSize: '16px', fontWeight: 500 }}>
         Q{currentQuarter} Progress
       </h3>
       
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-cedar" />
-            <span className="text-sm text-warm-secondary">Entries</span>
+          <div className="flex items-center gap-3">
+            <FileText className="w-4 h-4 text-cedar" strokeLinecap="round" />
+            <span className="text-warm-secondary" style={{ fontSize: '14px' }}>Entries</span>
           </div>
-          <span className="text-sm font-medium text-warm-primary">
+          <span className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>
             {quarterEntries.length}
           </span>
         </div>
         
-        <div className="brush-divider" />
+        <div className="brush-divider !my-3 !w-full" />
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-primary" />
-            <span className="text-sm text-warm-secondary">Achievements</span>
+          <div className="flex items-center gap-3">
+            <Target className="w-4 h-4 text-moss" strokeLinecap="round" />
+            <span className="text-warm-secondary" style={{ fontSize: '14px' }}>Achievements</span>
           </div>
-          <span className="text-sm font-medium text-warm-primary">
+          <span className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>
             {totalAchievements}
           </span>
         </div>
         
-        <div className="brush-divider" />
+        <div className="brush-divider !my-3 !w-full" />
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-primary" />
-            <span className="text-sm text-warm-secondary">Learnings</span>
+          <div className="flex items-center gap-3">
+            <Lightbulb className="w-4 h-4 text-moss" strokeLinecap="round" />
+            <span className="text-warm-secondary" style={{ fontSize: '14px' }}>Learnings</span>
           </div>
-          <span className="text-sm font-medium text-warm-primary">
+          <span className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>
             {totalLearnings}
           </span>
         </div>
       </div>
       
       {thisMonthEntries.length === 0 && (
-        <div className="mt-4 p-3 rounded-lg bg-sage-light/30 border border-sage-light">
-          <p className="text-xs text-warm-secondary text-center">
+        <div className="mt-5 p-4 rounded-xl" style={{ background: 'rgba(107, 122, 90, 0.06)', border: '1px solid rgba(107, 122, 90, 0.12)' }}>
+          <p className="text-warm-secondary text-center" style={{ fontSize: '13px' }}>
             No entries yet this month. Start capturing your wins!
           </p>
         </div>
