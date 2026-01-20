@@ -81,6 +81,11 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       sum + e.achievements.length + e.learnings.length + e.insights.length + e.decisions.length, 0
     );
     
+    // Count unique days (not entries) - multiple entries on same day = 1 day
+    const uniqueDays = new Set(
+      weekEntries.map(e => new Date(e.date).toDateString())
+    ).size;
+    
     const aiReflections = weekEntries
       .filter(e => e.aiReflection)
       .map(e => e.aiReflection!);
@@ -89,7 +94,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     const latestReflection = aiReflections[0];
     
     return {
-      entryCount: weekEntries.length,
+      dayCount: uniqueDays,
       itemCount: totalItems,
       traits,
       weekStart: start,
@@ -154,8 +159,8 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       {/* Stats with large numbers */}
       <div className="flex items-stretch mb-5">
         <div className="metric-stat flex-1">
-          <p className="number">{weeklyData.entryCount}</p>
-          <p className="label">days captured</p>
+          <p className="number">{weeklyData.dayCount}</p>
+          <p className="label">{weeklyData.dayCount === 1 ? 'day captured' : 'days captured'}</p>
         </div>
         <div className="metric-divider" />
         <div className="metric-stat flex-1">
