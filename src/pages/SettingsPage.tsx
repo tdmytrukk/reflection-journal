@@ -28,6 +28,8 @@ export default function SettingsPage() {
     const { error } = await updatePreferences({ [key]: value });
     if (error) {
       toast.error('Failed to update preference');
+    } else {
+      toast.success('Setting saved');
     }
   };
 
@@ -35,6 +37,8 @@ export default function SettingsPage() {
     const { error } = await updatePreferences({ [key]: value });
     if (error) {
       toast.error('Failed to update preference');
+    } else {
+      toast.success('Setting saved');
     }
   };
 
