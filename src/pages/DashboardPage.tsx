@@ -85,21 +85,11 @@ export default function DashboardPage() {
       <DashboardHeader />
       
       <main className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-16 pb-12">
-        {/* Welcome section */}
-        <div className="mb-6 animate-fade-in">
-          <h1 className="text-ink mb-1" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
+        {/* Welcome section with quote */}
+        <div className="mb-10 animate-fade-in">
+          <h1 className="text-ink mb-2" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
             {getGreeting()}, {userName}
           </h1>
-          <p className="font-display-italic text-cedar" style={{ fontSize: '15px' }}>
-            {jobDescription?.title && jobDescription?.company 
-              ? `${jobDescription.title} at ${jobDescription.company}`
-              : 'Ready to capture your achievements?'
-            }
-          </p>
-        </div>
-        
-        {/* Daily quote section */}
-        <div className="mb-10 animate-fade-in">
           <blockquote className="text-warm-muted font-display-italic" style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.5 }}>
             "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
           </blockquote>
