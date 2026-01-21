@@ -107,7 +107,7 @@ export default function DashboardPage() {
             {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
-              className="w-full new-entry-card text-left group"
+              className="w-full new-entry-card text-left group focus:outline-none focus:ring-0"
             >
               <div className="flex items-center gap-4">
                 <div className="plus-icon-container">
