@@ -8,7 +8,6 @@ import { CurrentRoleCard } from '@/components/profile/CurrentRoleCard';
 import { RoleHistoryCard } from '@/components/profile/RoleHistoryCard';
 import { GoalsCard } from '@/components/profile/GoalsCard';
 import { StatsCard } from '@/components/profile/StatsCard';
-import { PreferencesCard } from '@/components/profile/PreferencesCard';
 import { useProfileData } from '@/hooks/useProfileData';
 import { toast } from 'sonner';
 
@@ -21,7 +20,6 @@ export default function ProfilePage() {
     currentJob,
     roleHistory,
     goals,
-    preferences,
     stats,
     isLoading,
     updateProfile,
@@ -32,7 +30,6 @@ export default function ProfilePage() {
     addGoal,
     updateGoal,
     deleteGoal,
-    updatePreferences,
   } = useProfileData();
 
   const handleUpdateName = async (name: string) => {
@@ -109,13 +106,6 @@ export default function ProfilePage() {
       toast.error('Failed to delete goal');
     } else {
       toast.success('Goal deleted');
-    }
-  };
-
-  const handleUpdatePreferences = async (updates: Parameters<typeof updatePreferences>[0]) => {
-    const { error } = await updatePreferences(updates);
-    if (error) {
-      toast.error('Failed to update preferences');
     }
   };
 
@@ -234,12 +224,6 @@ export default function ProfilePage() {
             />
             
             <StatsCard stats={stats} />
-            
-            <PreferencesCard
-              preferences={preferences}
-              isEditing={isEditing}
-              onUpdate={handleUpdatePreferences}
-            />
           </div>
         </div>
       </main>
