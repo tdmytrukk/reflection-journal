@@ -65,35 +65,35 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
       className={`w-full text-left entry-card cursor-pointer group ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}
     >
       {/* Date header with cream background */}
-      <div className="entry-card-header flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-cedar" strokeLinecap="round" />
-          <span className="text-warm-secondary" style={{ fontSize: '14px', fontWeight: 500 }}>
+      <div className="entry-card-header !py-2 !px-3 md:!py-2.5 md:!px-4 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 md:gap-2">
+          <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-cedar" strokeLinecap="round" />
+          <span className="text-warm-secondary text-xs md:text-sm" style={{ fontWeight: 500 }}>
             {formatDate(entry.date)}
           </span>
         </div>
         {matchCount > 0 && (
-          <Badge variant="outline" className="text-xs border-moss/50 text-moss bg-moss/5">
-            <Link2 className="w-3 h-3 mr-1" />
-            {matchCount} {matchCount === 1 ? 'responsibility' : 'responsibilities'}
+          <Badge variant="outline" className="text-[10px] md:text-xs border-moss/50 text-moss bg-moss/5 !py-0.5 !px-1.5 md:!py-1 md:!px-2">
+            <Link2 className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+            {matchCount} {matchCount === 1 ? 'resp.' : 'resp.'}
           </Badge>
         )}
       </div>
       
       {/* Entry content - show 3 lines */}
-      <div className="entry-card-body relative">
-        <div className="flex items-start gap-3">
-          <Icon className="w-5 h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
-          <div className="flex-1 min-w-0 pr-8">
+      <div className="entry-card-body !p-3 md:!p-4 relative">
+        <div className="flex items-start gap-2 md:gap-3">
+          <Icon className="w-4 h-4 md:w-5 md:h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
+          <div className="flex-1 min-w-0 pr-6 md:pr-8">
             <p 
               ref={textRef}
-              className="text-warm-body line-clamp-3" 
-              style={{ fontSize: '14px', lineHeight: 1.6 }}
+              className="text-warm-body line-clamp-3 text-xs md:text-sm" 
+              style={{ lineHeight: 1.6 }}
             >
               {primaryItem.text}
             </p>
             {isTruncated && (
-              <span className="text-warm-muted mt-1 inline-block" style={{ fontSize: '12px' }}>
+              <span className="text-warm-muted mt-1 inline-block text-[10px] md:text-xs">
                 ...
               </span>
             )}
@@ -102,7 +102,7 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
         
         {/* Chevron to open full entry - always present */}
         <div className="absolute bottom-0 right-0 p-1 text-cedar/60 group-hover:text-moss transition-colors">
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
         </div>
       </div>
     </button>
@@ -134,9 +134,9 @@ export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry,
 
   if (isLoading) {
     return (
-      <div className="journal-card p-8 text-center">
-        <div className="w-8 h-8 border-2 border-moss border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-warm-secondary" style={{ fontSize: '14px' }}>Loading entries...</p>
+      <div className="journal-card p-5 md:p-8 text-center">
+        <div className="w-6 h-6 md:w-8 md:h-8 border-2 border-moss border-t-transparent rounded-full animate-spin mx-auto mb-3 md:mb-4" />
+        <p className="text-warm-secondary text-xs md:text-sm">Loading entries...</p>
       </div>
     );
   }
@@ -147,13 +147,13 @@ export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry,
 
   if (recentEntries.length === 0) {
     return (
-      <div className="journal-card p-10 text-center">
-        <div className="icon-container icon-container-lg mx-auto mb-5">
-          <BookOpen className="w-6 h-6 text-moss" strokeLinecap="round" />
+      <div className="journal-card p-6 md:p-10 text-center">
+        <div className="icon-container icon-container-lg mx-auto mb-4 md:mb-5">
+          <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-moss" strokeLinecap="round" />
         </div>
-        <h3 className="text-warm-primary mb-2" style={{ fontSize: '18px', fontWeight: 500 }}>Your journal awaits</h3>
-        <p className="text-warm-secondary max-w-xs mx-auto" style={{ fontSize: '14px', lineHeight: 1.6 }}>
-          Start capturing your achievements, learnings, and insights. Each entry builds your career story.
+        <h3 className="text-warm-primary mb-1.5 md:mb-2 text-base md:text-lg" style={{ fontWeight: 500 }}>Your journal awaits</h3>
+        <p className="text-warm-secondary max-w-xs mx-auto text-xs md:text-sm" style={{ lineHeight: 1.6 }}>
+          Start capturing your achievements, learnings, and insights.
         </p>
       </div>
     );
@@ -161,9 +161,9 @@ export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry,
 
   return (
     <>
-      <div className="space-y-4">
-        <h3 className="text-warm-primary px-1" style={{ fontSize: '15px', fontWeight: 500 }}>Recent Entries</h3>
-        <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
+        <h3 className="text-warm-primary px-1 text-sm md:text-[15px]" style={{ fontWeight: 500 }}>Recent Entries</h3>
+        <div className="space-y-3 md:space-y-4">
           {recentEntries.map((entry) => (
             <EntryCard 
               key={entry.id} 

@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useResponsibilities } from '@/hooks/useResponsibilities';
 import { useProfileData } from '@/hooks/useProfileData';
-import { Plus, Sparkles, FileText } from '@/components/ui/icons';
+import { Plus, Sparkles, FileText, ChevronDown } from '@/components/ui/icons';
 
 export default function DashboardPage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
@@ -86,20 +86,26 @@ export default function DashboardPage() {
     <div className="min-h-screen paper-texture">
       <DashboardHeader />
       
-      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-12">
+      <main className="max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-8 lg:pb-12">
         {/* Quarterly Check-in Banner */}
         <QuarterlyCheckinBanner />
         
-        {/* Main 3-column grid on desktop, stacked on mobile */}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_380px] gap-6 lg:gap-8">
-          {/* Left column - Greeting, New Entry, Calendar, Quick Actions */}
-          <div className="space-y-6 order-1 lg:order-1">
-            {/* Welcome section with quote */}
-            <div className="sidebar-card animate-fade-in">
-              <h1 className="text-ink mb-2" style={{ fontSize: '28px', fontWeight: 300, letterSpacing: '-0.3px' }}>
+        {/* 
+          Responsive grid:
+          - Mobile (<768px): 1 column, stacked
+          - Tablet (768-1023px): 2 columns [240px_1fr]
+          - Desktop (≥1024px): 3 columns [280px_1fr_380px]
+        */}
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr_380px] gap-4 md:gap-5 lg:gap-8">
+          
+          {/* Left column - Greeting, New Entry, Calendar */}
+          <div className="space-y-4 md:space-y-5 lg:space-y-6 order-1">
+            {/* Welcome section with quote - compact on mobile */}
+            <div className="sidebar-card !p-4 md:!p-5 lg:!p-6 animate-fade-in">
+              <h1 className="text-ink mb-1.5 md:mb-2 text-xl md:text-2xl lg:text-[28px]" style={{ fontWeight: 300, letterSpacing: '-0.3px' }}>
                 {getGreeting()}, {userName}
               </h1>
-              <blockquote className="text-warm-muted font-display-italic" style={{ fontSize: '14px', fontWeight: 300, lineHeight: 1.5 }}>
+              <blockquote className="text-warm-muted font-display-italic text-xs md:text-sm" style={{ fontWeight: 300, lineHeight: 1.5 }}>
                 "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
               </blockquote>
             </div>
@@ -107,56 +113,58 @@ export default function DashboardPage() {
             {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
-              className="w-full new-entry-card text-left group focus:outline-none focus:ring-0"
+              className="w-full new-entry-card !p-5 md:!p-6 lg:!p-10 text-left group focus:outline-none focus:ring-0"
             >
-              <div className="flex items-center gap-4">
-                <div className="plus-icon-container">
-                  <Plus className="w-6 h-6 text-moss" strokeWidth={2.5} strokeLinecap="round" />
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="plus-icon-container !w-10 !h-10 md:!w-12 md:!h-12 lg:!w-14 lg:!h-14">
+                  <Plus className="w-5 h-5 md:w-6 md:h-6 text-moss" strokeWidth={2.5} strokeLinecap="round" />
                 </div>
                 <div>
-                  <h3 className="text-warm-primary group-hover:text-moss transition-colors" style={{ fontSize: '17px', fontWeight: 500 }}>
+                  <h3 className="text-warm-primary group-hover:text-moss transition-colors text-base md:text-[17px]" style={{ fontWeight: 500 }}>
                     New Entry
                   </h3>
-                  <p className="text-warm-muted mt-0.5" style={{ fontSize: '13px' }}>
-                    Capture today's achievements and learnings
+                  <p className="text-warm-muted mt-0.5 text-xs md:text-[13px]">
+                    Capture today's achievements
                   </p>
                 </div>
               </div>
             </button>
             
-            {/* Calendar */}
-            <MiniCalendar entries={entries} />
+            {/* Calendar - hide on mobile, show on tablet+ */}
+            <div className="hidden md:block">
+              <MiniCalendar entries={entries} />
+            </div>
             
-            {/* Quick actions */}
-            <div className="sidebar-card space-y-2">
-              <h3 className="text-warm-primary mb-3" style={{ fontSize: '15px', fontWeight: 500 }}>
+            {/* Quick actions - hide on mobile, show on tablet+ */}
+            <div className="hidden md:block sidebar-card !p-4 lg:!p-6 space-y-2">
+              <h3 className="text-warm-primary mb-2 lg:mb-3 text-sm lg:text-[15px]" style={{ fontWeight: 500 }}>
                 Quick Actions
               </h3>
               
-              <button className="w-full btn-ghost justify-start text-left gap-3 py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
-                <div className="icon-container !w-8 !h-8">
-                  <Sparkles className="w-4 h-4 text-moss" strokeLinecap="round" />
+              <button className="w-full btn-ghost justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
+                  <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
                 </div>
                 <div>
-                  <p className="text-warm-primary" style={{ fontSize: '13px', fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
-                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>Create your quarterly summary</p>
+                  <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
+                  <p className="text-warm-muted text-[11px] lg:text-xs">Create your quarterly summary</p>
                 </div>
               </button>
               
-              <button className="w-full btn-ghost justify-start text-left gap-3 py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
-                <div className="icon-container !w-8 !h-8">
-                  <FileText className="w-4 h-4 text-moss" strokeLinecap="round" />
+              <button className="w-full btn-ghost justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
+                  <FileText className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
                 </div>
                 <div>
-                  <p className="text-warm-primary" style={{ fontSize: '13px', fontWeight: 500 }}>Resume Bullets</p>
-                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>Export achievements as bullets</p>
+                  <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Resume Bullets</p>
+                  <p className="text-warm-muted text-[11px] lg:text-xs">Export achievements as bullets</p>
                 </div>
               </button>
             </div>
           </div>
           
           {/* Middle column - Recent Entries */}
-          <div className="space-y-6 order-2 lg:order-2">
+          <div className="space-y-4 md:space-y-5 lg:space-y-6 order-2">
             <RecentEntries 
               entries={entries} 
               isLoading={isLoading} 
@@ -164,12 +172,30 @@ export default function DashboardPage() {
               onUpdateEntry={updateEntry}
               onDeleteEntry={deleteEntry}
             />
+            
+            {/* This Month's Review - shown below entries on tablet (md), hidden on lg (moves to right column) */}
+            <div className="block lg:hidden">
+              <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
+            </div>
           </div>
           
-          {/* Right column - Recap Reflection */}
-          <div className="space-y-6 order-3 lg:order-3">
+          {/* Right column - Recap Reflection (desktop only) */}
+          <div className="hidden lg:block space-y-6">
             <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
           </div>
+        </div>
+        
+        {/* Mobile-only: Calendar at bottom, collapsible */}
+        <div className="md:hidden mt-6">
+          <details className="sidebar-card !p-4">
+            <summary className="text-warm-primary text-sm font-medium cursor-pointer list-none flex items-center justify-between">
+              <span>📅 View Calendar</span>
+              <ChevronDown className="w-4 h-4 text-cedar transition-transform [[open]>&]:rotate-180" />
+            </summary>
+            <div className="mt-4">
+              <MiniCalendar entries={entries} />
+            </div>
+          </details>
         </div>
       </main>
       
