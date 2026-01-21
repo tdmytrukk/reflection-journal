@@ -26,7 +26,7 @@ export function DashboardHeader() {
   
   return (
     <header className="nav-header sticky top-0 z-40">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">

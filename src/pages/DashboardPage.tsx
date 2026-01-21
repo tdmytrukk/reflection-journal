@@ -84,48 +84,77 @@ export default function DashboardPage() {
     <div className="min-h-screen paper-texture">
       <DashboardHeader />
       
-      <main className="max-w-[1260px] mx-auto px-8 lg:px-16 pt-16 pb-12">
-        {/* Welcome section with quote */}
-        <div className="mb-10 animate-fade-in">
-          <h1 className="text-ink mb-2" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
-            {getGreeting()}, {userName}
-          </h1>
-          <blockquote className="text-warm-muted font-display-italic" style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.5 }}>
-            "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
-          </blockquote>
-        </div>
-        
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10 pt-8 pb-12">
         {/* Quarterly Check-in Banner */}
         <QuarterlyCheckinBanner />
         
-        {/* Main grid - 60/40 split */}
-        <div className="grid lg:grid-cols-[1fr_40%] gap-10">
-          {/* Main content area */}
-          <div className="space-y-8">
-            {/* New entry card - RICH styling */}
+        {/* Main 3-column grid on desktop, stacked on mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_320px] gap-6 lg:gap-8">
+          {/* Left column - Greeting, New Entry, Calendar, Quick Actions */}
+          <div className="space-y-6 order-1 lg:order-1">
+            {/* Welcome section with quote */}
+            <div className="sidebar-card animate-fade-in">
+              <h1 className="text-ink mb-2" style={{ fontSize: '28px', fontWeight: 300, letterSpacing: '-0.3px' }}>
+                {getGreeting()}, {userName}
+              </h1>
+              <blockquote className="text-warm-muted font-display-italic" style={{ fontSize: '14px', fontWeight: 300, lineHeight: 1.5 }}>
+                "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
+              </blockquote>
+            </div>
+            
+            {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
               className="w-full new-entry-card text-left group"
             >
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <div className="plus-icon-container">
-                  <Plus className="w-7 h-7 text-moss" strokeWidth={2.5} strokeLinecap="round" />
+                  <Plus className="w-6 h-6 text-moss" strokeWidth={2.5} strokeLinecap="round" />
                 </div>
                 <div>
-                  <h3 className="text-warm-primary group-hover:text-moss transition-colors" style={{ fontSize: '20px', fontWeight: 500 }}>
+                  <h3 className="text-warm-primary group-hover:text-moss transition-colors" style={{ fontSize: '17px', fontWeight: 500 }}>
                     New Entry
                   </h3>
-                  <p className="text-warm-muted mt-1" style={{ fontSize: '15px' }}>
+                  <p className="text-warm-muted mt-0.5" style={{ fontSize: '13px' }}>
                     Capture today's achievements and learnings
                   </p>
                 </div>
               </div>
             </button>
             
-            {/* Decorative divider */}
-            <div className="brush-divider" />
+            {/* Calendar */}
+            <MiniCalendar entries={entries} />
             
-            {/* Recent entries */}
+            {/* Quick actions */}
+            <div className="sidebar-card space-y-2">
+              <h3 className="text-warm-primary mb-3" style={{ fontSize: '15px', fontWeight: 500 }}>
+                Quick Actions
+              </h3>
+              
+              <button className="w-full btn-ghost justify-start text-left gap-3 py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container !w-8 !h-8">
+                  <Sparkles className="w-4 h-4 text-moss" strokeLinecap="round" />
+                </div>
+                <div>
+                  <p className="text-warm-primary" style={{ fontSize: '13px', fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
+                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>Create your quarterly summary</p>
+                </div>
+              </button>
+              
+              <button className="w-full btn-ghost justify-start text-left gap-3 py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+                <div className="icon-container !w-8 !h-8">
+                  <FileText className="w-4 h-4 text-moss" strokeLinecap="round" />
+                </div>
+                <div>
+                  <p className="text-warm-primary" style={{ fontSize: '13px', fontWeight: 500 }}>Resume Bullets</p>
+                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>Export achievements as bullets</p>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          {/* Middle column - Recent Entries */}
+          <div className="space-y-6 order-2 lg:order-2">
             <RecentEntries 
               entries={entries} 
               isLoading={isLoading} 
@@ -135,43 +164,9 @@ export default function DashboardPage() {
             />
           </div>
           
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Weekly Reflection */}
+          {/* Right column - Weekly Reflection */}
+          <div className="space-y-6 order-3 lg:order-3">
             <WeeklyReflection entries={entries} />
-            
-            {/* Calendar */}
-            <MiniCalendar entries={entries} />
-            
-            {/* Stats */}
-            <QuickStats entries={entries} />
-            
-            {/* Quick actions */}
-            <div className="sidebar-card space-y-3">
-              <h3 className="text-warm-primary mb-4" style={{ fontSize: '16px', fontWeight: 500 }}>
-                Quick Actions
-              </h3>
-              
-              <button className="w-full btn-ghost justify-start text-left gap-4 py-3 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
-                <div className="icon-container">
-                  <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
-                </div>
-                <div>
-                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
-                  <p className="text-warm-muted" style={{ fontSize: '13px' }}>Create your quarterly summary</p>
-                </div>
-              </button>
-              
-              <button className="w-full btn-ghost justify-start text-left gap-4 py-3 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
-                <div className="icon-container">
-                  <FileText className="w-5 h-5 text-moss" strokeLinecap="round" />
-                </div>
-                <div>
-                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>Resume Bullets</p>
-                  <p className="text-warm-muted" style={{ fontSize: '13px' }}>Export achievements as bullets</p>
-                </div>
-              </button>
-            </div>
           </div>
         </div>
       </main>
