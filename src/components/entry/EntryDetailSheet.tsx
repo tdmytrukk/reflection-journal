@@ -161,57 +161,11 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
           onClose();
         }
       }}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent className="w-full sm:max-w-lg overflow-y-auto flex flex-col">
           <SheetHeader className="mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <span className="text-sm">{formatDate(entry.date)}</span>
-              </div>
-              
-              {/* Action buttons */}
-              <div className="flex items-center gap-1">
-                {isEditing ? (
-                  <>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-                      title="Cancel"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleSaveEdit}
-                      disabled={isSaving}
-                      className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-                      title="Save changes"
-                    >
-                      {isSaving ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={handleStartEdit}
-                      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
-                      title="Edit entry"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteDialog(true)}
-                      className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                      title="Delete entry"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm">{formatDate(entry.date)}</span>
             </div>
             <SheetTitle className="text-xl font-semibold text-foreground">
               {isEditing ? 'Edit Entry' : 'Journal Entry'}
@@ -380,18 +334,48 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
             </div>
           )}
 
-          {/* No AI reflection message */}
-          {!isEditing && !aiReflection && (
-            <div className="mt-8 pt-6 border-t border-border">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-medium text-muted-foreground">AI Analysis</h3>
-              </div>
-              <p className="text-sm text-muted-foreground italic">
-                AI reflection is being generated or not available for this entry.
-              </p>
-            </div>
-          )}
+          {/* Action buttons - bottom right */}
+          <div className="flex items-center justify-end gap-2 pt-6 mt-auto border-t border-border">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={isSaving}
+                  className="px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm flex items-center gap-2"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  Save
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleStartEdit}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
+                  title="Edit entry"
+                >
+                  <Edit3 className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
+                  title="Delete entry"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
         </SheetContent>
       </Sheet>
 
