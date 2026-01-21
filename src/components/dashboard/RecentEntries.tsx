@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2, ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2, ChevronRight } from 'lucide-react';
 import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
 import { Badge } from '@/components/ui/badge';
 import type { Entry, ResponsibilityMatch } from '@/types';
@@ -23,9 +23,6 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
-// Check if text exceeds approximately 3 lines (rough estimate ~150 chars)
-const isTextLong = (text: string) => text.length > 150;
-
 interface EntryCardProps {
   entry: Entry;
   onClick: () => void;
@@ -33,6 +30,9 @@ interface EntryCardProps {
 }
 
 function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
+  const textRef = useRef<HTMLParagraphElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+  
   const allItems: { category: string; text: string }[] = [
     ...entry.achievements.map(text => ({ category: 'achievements', text })),
     ...entry.learnings.map(text => ({ category: 'learnings', text })),
@@ -42,7 +42,18 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
   
   // Show first item only per entry for compact view
   const primaryItem = allItems[0];
-  const hasLongText = primaryItem && isTextLong(primaryItem.text);
+  
+  // Check if text is actually truncated
+  useEffect(() => {
+    const checkTruncation = () => {
+      if (textRef.current) {
+        setIsTruncated(textRef.current.scrollHeight > textRef.current.clientHeight);
+      }
+    };
+    checkTruncation();
+    window.addEventListener('resize', checkTruncation);
+    return () => window.removeEventListener('resize', checkTruncation);
+  }, [primaryItem?.text]);
   
   if (!primaryItem) return null;
   
@@ -51,7 +62,7 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left entry-card cursor-pointer ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}
+      className={`w-full text-left entry-card cursor-pointer group ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}
     >
       {/* Date header with cream background */}
       <div className="entry-card-header flex items-center justify-between">
@@ -70,20 +81,28 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
       </div>
       
       {/* Entry content - show 3 lines */}
-      <div className="entry-card-body">
+      <div className="entry-card-body relative">
         <div className="flex items-start gap-3">
           <Icon className="w-5 h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
-          <div className="flex-1 min-w-0">
-            <p className="text-warm-body line-clamp-3" style={{ fontSize: '14px', lineHeight: 1.6 }}>
+          <div className="flex-1 min-w-0 pr-8">
+            <p 
+              ref={textRef}
+              className="text-warm-body line-clamp-3" 
+              style={{ fontSize: '14px', lineHeight: 1.6 }}
+            >
               {primaryItem.text}
             </p>
-            {hasLongText && (
-              <div className="flex items-center gap-1 mt-2 text-moss">
-                <ChevronDown className="w-4 h-4" />
-                <span style={{ fontSize: '12px', fontWeight: 500 }}>Expand</span>
-              </div>
+            {isTruncated && (
+              <span className="text-warm-muted mt-1 inline-block" style={{ fontSize: '12px' }}>
+                ...
+              </span>
             )}
           </div>
+        </div>
+        
+        {/* Chevron to open full entry - always present */}
+        <div className="absolute bottom-0 right-0 p-1 text-cedar/60 group-hover:text-moss transition-colors">
+          <ChevronRight className="w-5 h-5" />
         </div>
       </div>
     </button>
