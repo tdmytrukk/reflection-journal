@@ -92,25 +92,16 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     
     const allStrengths = [...new Set(aiReflections.flatMap(r => r.strengths || []))];
     
-    // Combine all summaries from the week's entries
+    // Collect all individual summaries from the week's entries
     const allSummaries = aiReflections
       .map(r => r.summary)
       .filter(Boolean) as string[];
     
-    // Combine all encouragements
-    const allEncouragements = aiReflections
+    // Use the most recent encouragement
+    const latestEncouragement = aiReflections
       .map(r => r.encouragement)
-      .filter(Boolean) as string[];
-    
-    // Create a combined summary from all entries
-    const combinedSummary = allSummaries.length > 1 
-      ? allSummaries.join(' ') 
-      : allSummaries[0] || null;
-    
-    // Use the most recent encouragement or combine if multiple
-    const combinedEncouragement = allEncouragements.length > 0 
-      ? allEncouragements[allEncouragements.length - 1] 
-      : null;
+      .filter(Boolean)
+      .pop() || null;
     
     return {
       dayCount: uniqueDays,
@@ -120,11 +111,29 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       weekEnd: end,
       aiReflections,
       allStrengths,
-      combinedSummary,
-      combinedEncouragement,
+      allSummaries,
+      latestEncouragement,
       entryCount: weekEntries.length,
     };
   }, [entries]);
+
+  // Get contextual emoji based on summary content
+  const getContextualEmoji = (text: string): string => {
+    const lower = text.toLowerCase();
+    if (lower.includes('present') || lower.includes('meeting') || lower.includes('spoke')) return '🎤';
+    if (lower.includes('team') || lower.includes('collaborat') || lower.includes('together')) return '🤝';
+    if (lower.includes('learn') || lower.includes('discover') || lower.includes('realized')) return '💡';
+    if (lower.includes('complet') || lower.includes('finish') || lower.includes('deliver') || lower.includes('shipped')) return '✅';
+    if (lower.includes('challenge') || lower.includes('difficult') || lower.includes('overcame')) return '💪';
+    if (lower.includes('creat') || lower.includes('built') || lower.includes('design')) return '🎨';
+    if (lower.includes('decision') || lower.includes('chose') || lower.includes('decided')) return '🎯';
+    if (lower.includes('improv') || lower.includes('better') || lower.includes('optimiz')) return '📈';
+    if (lower.includes('help') || lower.includes('support') || lower.includes('mentor')) return '🌟';
+    if (lower.includes('feedback') || lower.includes('review')) return '💬';
+    if (lower.includes('plan') || lower.includes('strateg')) return '📋';
+    if (lower.includes('launch') || lower.includes('release')) return '🚀';
+    return '✨';
+  };
   
   if (!weeklyData || weeklyData.itemCount === 0) {
     return (
@@ -163,31 +172,30 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
         <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
       </div>
       
-      {/* AI Summary - combined from all entries */}
-      {weeklyData.combinedSummary && (
-        <div className="sidebar-inner-card mb-5">
-          <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.7 }}>
-            {weeklyData.combinedSummary}
-          </p>
-          {weeklyData.combinedEncouragement && (
-            <p className="text-moss mt-3" style={{ fontSize: '13px', fontWeight: 500 }}>
-              {weeklyData.combinedEncouragement}
+      {/* AI Summaries - each as separate talking point with emoji */}
+      {weeklyData.allSummaries.length > 0 && (
+        <div className="space-y-3 mb-5">
+          {weeklyData.allSummaries.map((summary, index) => (
+            <div key={index} className="sidebar-inner-card flex gap-3">
+              <span className="text-lg flex-shrink-0">{getContextualEmoji(summary)}</span>
+              <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                {summary}
+              </p>
+            </div>
+          ))}
+          {weeklyData.latestEncouragement && (
+            <p className="text-moss px-1" style={{ fontSize: '13px', fontWeight: 500 }}>
+              {weeklyData.latestEncouragement}
             </p>
           )}
         </div>
       )}
       
-      {/* Stats with large numbers */}
-      <div className="flex items-stretch mb-5">
-        <div className="metric-stat flex-1">
-          <p className="number">{weeklyData.dayCount}</p>
-          <p className="label">{weeklyData.dayCount === 1 ? 'day captured' : 'days captured'}</p>
-        </div>
-        <div className="metric-divider" />
-        <div className="metric-stat flex-1">
-          <p className="number">{weeklyData.itemCount}</p>
-          <p className="label">moments logged</p>
-        </div>
+      {/* Stats - smaller and subtle */}
+      <div className="flex items-center gap-4 mb-5 text-warm-muted" style={{ fontSize: '12px' }}>
+        <span>{weeklyData.dayCount} {weeklyData.dayCount === 1 ? 'day' : 'days'} captured</span>
+        <span className="text-[rgba(139,111,71,0.3)]">•</span>
+        <span>{weeklyData.itemCount} moments logged</span>
       </div>
       
       {/* Strengths/Traits detected */}
