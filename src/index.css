@@ -243,14 +243,7 @@
     padding: 40px;
     border-radius: 16px;
     background: linear-gradient(135deg, #FEFDFB 0%, #FAF8F3 100%);
-    border: 2px solid;
-    border-image: linear-gradient(
-      135deg,
-      rgba(139, 111, 71, 0.25) 0%,
-      rgba(107, 122, 90, 0.25) 100%
-    ) 1;
-    border-radius: 16px;
-    /* Workaround for border-image not supporting border-radius */
+    border: none;
     position: relative;
     box-shadow: 0 2px 12px rgba(139, 111, 71, 0.06);
     transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
