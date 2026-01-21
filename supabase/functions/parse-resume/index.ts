@@ -56,7 +56,7 @@ For each job/position, extract:
 2. Company name
 3. Start date (month and year)
 4. End date (month and year, or "Present" if current)
-5. Brief description of responsibilities (optional)
+5. Description with bullet points - IMPORTANT: Preserve the exact bullet points from the resume. Keep each bullet point on its own line, prefixed with "• " (bullet character). Do NOT summarize or combine bullets.
 
 Return ALL positions found, ordered from most recent to oldest.
 Parse dates in YYYY-MM format (e.g., "2024-06" for June 2024).
@@ -91,7 +91,7 @@ If the position is current/ongoing, set endDate to null.`,
                         company: { type: 'string', description: 'Company name' },
                         startDate: { type: 'string', description: 'Start date in YYYY-MM format' },
                         endDate: { type: 'string', nullable: true, description: 'End date in YYYY-MM format, or null if current' },
-                        description: { type: 'string', description: 'Brief description of role' },
+                        description: { type: 'string', description: 'Full description with bullet points preserved. Each bullet should be on its own line prefixed with • character' },
                       },
                       required: ['title', 'company', 'startDate'],
                     },
@@ -126,7 +126,7 @@ For each job/position, extract:
 2. Company name
 3. Start date (month and year)
 4. End date (month and year, or "Present" if current)
-5. Brief description of responsibilities (optional)
+5. Description with bullet points - IMPORTANT: Preserve the exact bullet points from the resume. Keep each bullet point on its own line, prefixed with "• " (bullet character). Do NOT summarize or combine bullets.
 
 Return ALL positions found, ordered from most recent to oldest.
 Parse dates in YYYY-MM format (e.g., "2024-06" for June 2024).`,
@@ -150,7 +150,7 @@ Parse dates in YYYY-MM format (e.g., "2024-06" for June 2024).`,
                         company: { type: 'string', description: 'Company name' },
                         startDate: { type: 'string', description: 'Start date in YYYY-MM format' },
                         endDate: { type: 'string', nullable: true, description: 'End date in YYYY-MM format, or null if current' },
-                        description: { type: 'string', description: 'Brief description of role' },
+                        description: { type: 'string', description: 'Full description with bullet points preserved. Each bullet should be on its own line prefixed with • character' },
                       },
                       required: ['title', 'company', 'startDate'],
                     },
