@@ -44,8 +44,16 @@ export function DashboardHeader() {
                   <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
                   <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-[rgba(107,122,90,0.1)] flex items-center justify-center">
-                  <User className="w-5 h-5 text-moss" strokeLinecap="round" />
+                <div className="w-10 h-10 rounded-full bg-[rgba(107,122,90,0.1)] flex items-center justify-center overflow-hidden">
+                  {profile?.avatarUrl ? (
+                    <img 
+                      src={profile.avatarUrl} 
+                      alt={userName} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-5 h-5 text-moss" strokeLinecap="round" />
+                  )}
                 </div>
               </button>
             </DropdownMenuTrigger>

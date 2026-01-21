@@ -12,7 +12,7 @@ function parseDateOnlyToLocal(dateStr: string): Date {
 
 export function useUserData() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
+  const [profile, setProfile] = useState<{ name: string; email: string; avatarUrl?: string } | null>(null);
   const [jobDescription, setJobDescription] = useState<JobDescription | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +27,7 @@ export function useUserData() {
       .maybeSingle();
     
     if (data) {
-      setProfile({ name: data.name, email: data.email });
+      setProfile({ name: data.name, email: data.email, avatarUrl: data.avatar_url || undefined });
     }
   }, [user]);
 
