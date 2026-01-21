@@ -1,11 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Mic, MicOff, Sparkles, ArrowRight, Loader2 } from '@/components/ui/icons';
+import { X, Mic, MicOff, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { useResponsibilities } from '@/hooks/useResponsibilities';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface NewEntryModalProps {
   isOpen: boolean;
@@ -30,6 +34,18 @@ const PLACEHOLDER_PROMPTS = [
   "Describe a challenge you overcame...",
 ];
 
+function getYesterday(): Date {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d;
+}
+
+function isSameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() &&
+         a.getMonth() === b.getMonth() &&
+         a.getDate() === b.getDate();
+}
+
 export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
   const { user } = useAuth();
   const { addEntry } = useUserData();
@@ -41,6 +57,8 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   const [isSaving, setIsSaving] = useState(false);
   const [isCorrectingGrammar, setIsCorrectingGrammar] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pendingTranscriptRef = useRef<string>('');
   
@@ -56,7 +74,15 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   } = useSpeechRecognition();
   
   const today = new Date();
-  const formattedDate = today.toLocaleDateString('en-US', {
+  const yesterday = getYesterday();
+  
+  const getDateLabel = () => {
+    if (isSameDay(selectedDate, today)) return 'Today';
+    if (isSameDay(selectedDate, yesterday)) return 'Yesterday';
+    return format(selectedDate, 'MMM d, yyyy');
+  };
+  
+  const formattedDate = selectedDate.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -130,10 +156,13 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     }
   }, [input]);
 
-  // Focus textarea when modal opens
+  // Focus textarea and reset date when modal opens
   useEffect(() => {
-    if (isOpen && textareaRef.current) {
-      textareaRef.current.focus();
+    if (isOpen) {
+      setSelectedDate(new Date());
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }
   }, [isOpen]);
 
@@ -197,7 +226,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     };
     
     const result = await addEntry({
-      date: today,
+      date: selectedDate,
       ...entryData,
     });
     
@@ -339,9 +368,47 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
         
         {/* Main input card */}
         <div className="journal-card shadow-lg">
-          {/* Date header */}
+          {/* Date header with picker */}
           <div className="flex items-center justify-between mb-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{formattedDate}</p>
+            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors group">
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  <span>{formattedDate}</span>
+                  <ChevronDown className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <div className="p-2 border-b border-border space-y-1">
+                  <button
+                    onClick={() => { setSelectedDate(new Date()); setIsDatePickerOpen(false); }}
+                    className={cn(
+                      "w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors",
+                      isSameDay(selectedDate, today) ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    )}
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => { setSelectedDate(getYesterday()); setIsDatePickerOpen(false); }}
+                    className={cn(
+                      "w-full text-left px-3 py-1.5 text-sm rounded-md transition-colors",
+                      isSameDay(selectedDate, yesterday) ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                    )}
+                  >
+                    Yesterday
+                  </button>
+                </div>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => { if (date) { setSelectedDate(date); setIsDatePickerOpen(false); } }}
+                  disabled={(date) => date > new Date()}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg hover:bg-muted transition-colors"
