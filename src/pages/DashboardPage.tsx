@@ -3,7 +3,7 @@ import { DashboardHeader } from '@/components/layout/DashboardHeader';
 import { MiniCalendar } from '@/components/dashboard/MiniCalendar';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { RecentEntries } from '@/components/dashboard/RecentEntries';
-import { WeeklyReflection } from '@/components/dashboard/WeeklyReflection';
+import { MonthlyReview } from '@/components/dashboard/MonthlyReview';
 import { QuarterlyCheckinBanner } from '@/components/dashboard/QuarterlyCheckinBanner';
 import { NewEntryModal } from '@/components/entry/NewEntryModal';
 import { useAuth } from '@/context/AuthContext';
@@ -175,13 +175,13 @@ export default function DashboardPage() {
             
             {/* This Month's Review - shown below entries on tablet, hidden on desktop (moves to right col) */}
             <div className="block lg:hidden">
-              <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
+              <MonthlyReview entries={entries} period={preferences?.recapPeriod || 'monthly'} />
             </div>
           </div>
           
           {/* Right column - Review (desktop only, always third) */}
           <div className="hidden lg:block space-y-6">
-            <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
+            <MonthlyReview entries={entries} period={preferences?.recapPeriod || 'monthly'} />
           </div>
         </div>
         

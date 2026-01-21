@@ -34,6 +34,8 @@ import {
   TrendingUp,
   Loader2,
   Star,
+  RefreshCw,
+  Sprout,
 } from "lucide-react";
 
 export {
@@ -72,4 +74,6 @@ export {
   TrendingUp,
   Loader2,
   Star,
+  RefreshCw,
+  Sprout,
 };

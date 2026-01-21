@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.generate-quarterly-checkin]
 verify_jwt = false
+
+[functions.generate-monthly-review]
+verify_jwt = false
