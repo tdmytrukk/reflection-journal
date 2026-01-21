@@ -1,6 +1,15 @@
-import { useState } from 'react';
-import { User, Mail, Camera, Pencil, Check, X } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Mail, Camera, Pencil, Check, X, Loader2, Upload, ImageIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProfileHeaderProps {
   name: string;
@@ -19,8 +28,12 @@ export function ProfileHeader({
   onUpdateName,
   onUpdateAvatar,
 }: ProfileHeaderProps) {
+  const { user } = useAuth();
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState(name);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   
   const initials = name
     .split(' ')
@@ -41,6 +54,62 @@ export function ProfileHeader({
     setEditingName(false);
   };
 
+  const handleFileUpload = async (file: File) => {
+    if (!user) {
+      toast.error('You must be logged in to upload an avatar');
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update profile
+      await onUpdateAvatar(publicUrl);
+      toast.success('Profile picture updated!');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+    // Reset input so the same file can be selected again
+    e.target.value = '';
+  };
+
   return (
     <div className="profile-card">
       <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:items-start gap-6">
@@ -54,20 +123,53 @@ export function ProfileHeader({
               border: '3px solid rgba(107, 122, 90, 0.2)',
             }}
           >
-            {avatarUrl ? (
+            {isUploading ? (
+              <Loader2 className="w-10 h-10 animate-spin" style={{ color: '#6B7A5A' }} />
+            ) : avatarUrl ? (
               <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
             ) : (
               initials || <User className="w-10 h-10" />
             )}
           </div>
           
-          {isEditing && (
-            <button 
-              className="absolute inset-0 rounded-full bg-ink/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              aria-label="Change photo"
-            >
-              <Camera className="w-8 h-8 text-washi" />
-            </button>
+          {/* Hidden file inputs */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="user"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          
+          {isEditing && !isUploading && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="absolute inset-0 rounded-full bg-ink/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  aria-label="Change photo"
+                >
+                  <Camera className="w-8 h-8 text-washi" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48">
+                <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload from device
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()}>
+                  <Camera className="w-4 h-4 mr-2" />
+                  Take a photo
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
         

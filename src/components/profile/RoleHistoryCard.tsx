@@ -260,7 +260,7 @@ export function RoleHistoryCard({ roles, isEditing, onAddRole, onUpdateRole, onD
                     {isUploading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <Pencil className="w-4 h-4" style={{ color: '#8B6F47' }} />
+                      <Plus className="w-4 h-4" style={{ color: '#8B6F47' }} />
                     )}
                   </Button>
                 </DropdownMenuTrigger>
