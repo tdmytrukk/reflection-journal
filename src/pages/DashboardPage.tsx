@@ -84,7 +84,7 @@ export default function DashboardPage() {
     <div className="min-h-screen paper-texture">
       <DashboardHeader />
       
-      <main className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-16 pb-12">
+      <main className="max-w-[1260px] mx-auto px-8 lg:px-16 pt-16 pb-12">
         {/* Welcome section with quote */}
         <div className="mb-10 animate-fade-in">
           <h1 className="text-ink mb-2" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
@@ -98,8 +98,8 @@ export default function DashboardPage() {
         {/* Quarterly Check-in Banner */}
         <QuarterlyCheckinBanner />
         
-        {/* Main grid - 65/35 split */}
-        <div className="grid lg:grid-cols-[1fr_420px] gap-10">
+        {/* Main grid - 60/40 split */}
+        <div className="grid lg:grid-cols-[1fr_40%] gap-10">
           {/* Main content area */}
           <div className="space-y-8">
             {/* New entry card - RICH styling */}
