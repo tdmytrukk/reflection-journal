@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { ImageCropDialog } from './ImageCropDialog';
+import { WebcamCaptureDialog } from './WebcamCaptureDialog';
 
 interface ProfileHeaderProps {
   name: string;
@@ -34,9 +35,9 @@ export function ProfileHeader({
   const [tempName, setTempName] = useState(name);
   const [isUploading, setIsUploading] = useState(false);
   const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [webcamDialogOpen, setWebcamDialogOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   
   const initials = name
     .split(' ')
@@ -77,6 +78,13 @@ export function ProfileHeader({
 
     // Create a URL for the image and open crop dialog
     const imageUrl = URL.createObjectURL(file);
+    setSelectedImage(imageUrl);
+    setCropDialogOpen(true);
+  };
+
+  const handleWebcamCapture = (blob: Blob) => {
+    // Create a URL for the captured image and open crop dialog
+    const imageUrl = URL.createObjectURL(blob);
     setSelectedImage(imageUrl);
     setCropDialogOpen(true);
   };
@@ -151,19 +159,11 @@ export function ProfileHeader({
             )}
           </div>
           
-          {/* Hidden file inputs */}
+          {/* Hidden file input */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="user"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -183,7 +183,7 @@ export function ProfileHeader({
                   <Upload className="w-4 h-4 mr-2" />
                   Upload from device
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => cameraInputRef.current?.click()}>
+                <DropdownMenuItem onClick={() => setWebcamDialogOpen(true)}>
                   <Camera className="w-4 h-4 mr-2" />
                   Take a photo
                 </DropdownMenuItem>
@@ -253,6 +253,12 @@ export function ProfileHeader({
           onCropComplete={handleCropComplete}
         />
       )}
+
+      <WebcamCaptureDialog
+        open={webcamDialogOpen}
+        onOpenChange={setWebcamDialogOpen}
+        onCapture={handleWebcamCapture}
+      />
     </div>
   );
 }
