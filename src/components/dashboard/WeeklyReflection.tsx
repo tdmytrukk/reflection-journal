@@ -154,14 +154,14 @@ export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectio
   
   if (!recapData || recapData.itemCount === 0) {
     return (
-      <div className="sidebar-card">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="icon-container">
-            <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
+      <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
+        <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+          <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
           </div>
-          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>{periodLabel}</h3>
+          <h3 className="text-warm-primary text-base md:text-lg" style={{ fontWeight: 500 }}>{periodLabel}</h3>
         </div>
-        <p className="text-warm-secondary" style={{ fontSize: '14px', lineHeight: 1.6 }}>
+        <p className="text-warm-secondary text-xs md:text-sm" style={{ lineHeight: 1.6 }}>
           {emptyMessage}
         </p>
       </div>
@@ -183,31 +183,31 @@ export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectio
     : recapData.traits;
   
   return (
-    <div className="sidebar-card">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <div className="icon-container">
-            <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
+    <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
+      <div className="flex items-center justify-between mb-1.5 md:mb-2">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
           </div>
-          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>{periodLabel}</h3>
+          <h3 className="text-warm-primary text-base md:text-lg" style={{ fontWeight: 500 }}>{periodLabel}</h3>
         </div>
-        <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
+        <span className="text-warm-muted text-xs md:text-[13px]">{formatDateRange()}</span>
       </div>
       
       {/* Encouragement - directly under headline */}
       {recapData.latestEncouragement && (
-        <p className="text-moss mb-5 px-1" style={{ fontSize: '13px', fontWeight: 500, lineHeight: 1.5 }}>
+        <p className="text-moss mb-3 md:mb-5 px-1 text-xs md:text-[13px]" style={{ fontWeight: 500, lineHeight: 1.5 }}>
           {recapData.latestEncouragement}
         </p>
       )}
       
       {/* AI Summaries - each as separate talking point with emoji */}
       {recapData.allSummaries.length > 0 && (
-        <div className="space-y-3 mb-4">
-          {recapData.allSummaries.map((summary, index) => (
-            <div key={index} className="sidebar-inner-card flex gap-3">
-              <span className="text-lg flex-shrink-0">{getContextualEmoji(summary)}</span>
-              <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.6 }}>
+        <div className="space-y-2 md:space-y-3 mb-3 md:mb-4">
+          {recapData.allSummaries.slice(0, 3).map((summary, index) => (
+            <div key={index} className="sidebar-inner-card !p-3 md:!p-4 lg:!p-5 flex gap-2 md:gap-3">
+              <span className="text-base md:text-lg flex-shrink-0">{getContextualEmoji(summary)}</span>
+              <p className="text-warm-body text-xs md:text-sm" style={{ lineHeight: 1.6 }}>
                 {summary}
               </p>
             </div>
@@ -216,21 +216,21 @@ export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectio
       )}
       
       {/* Two-column layout: Strengths on left, Stats on right */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(139,111,71,0.08)]">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t border-[rgba(139,111,71,0.08)]">
         {/* Left column - Key strengths */}
         <div>
           {displayTraits.length > 0 && (
             <>
-              <p className="text-warm-muted mb-2" style={{ fontSize: '12px' }}>
+              <p className="text-warm-muted mb-1.5 md:mb-2 text-[11px] md:text-xs">
                 Key strengths
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {displayTraits.map(trait => {
+              <div className="flex flex-wrap gap-1 md:gap-1.5">
+                {displayTraits.slice(0, 3).map(trait => {
                   const traitLower = trait.toLowerCase();
                   const Icon = TRAIT_ICONS[traitLower] || Sparkles;
                   return (
-                    <span key={trait} className="strength-tag text-xs py-1 px-2">
-                      <Icon className="w-3 h-3" strokeLinecap="round" />
+                    <span key={trait} className="strength-tag !text-[10px] md:!text-xs !py-0.5 md:!py-1 !px-1.5 md:!px-2">
+                      <Icon className="w-2.5 h-2.5 md:w-3 md:h-3" strokeLinecap="round" />
                       {trait.charAt(0).toUpperCase() + trait.slice(1)}
                     </span>
                   );
@@ -239,7 +239,7 @@ export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectio
             </>
           )}
           {displayTraits.length === 0 && recapData.itemCount > 0 && (
-            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+            <p className="text-warm-muted text-[11px] md:text-xs">
               Add details to see strengths
             </p>
           )}
@@ -247,19 +247,19 @@ export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectio
         
         {/* Right column - Stats */}
         <div className="text-right">
-          <div className="mb-2">
-            <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
+          <div className="mb-1.5 md:mb-2">
+            <p className="text-warm-primary text-lg md:text-xl lg:text-2xl" style={{ fontWeight: 500, lineHeight: 1 }}>
               {recapData.dayCount}
             </p>
-            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+            <p className="text-warm-muted text-[10px] md:text-xs">
               {recapData.dayCount === 1 ? 'day captured' : 'days captured'}
             </p>
           </div>
           <div>
-            <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
+            <p className="text-warm-primary text-lg md:text-xl lg:text-2xl" style={{ fontWeight: 500, lineHeight: 1 }}>
               {recapData.itemCount}
             </p>
-            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+            <p className="text-warm-muted text-[10px] md:text-xs">
               moments logged
             </p>
           </div>
