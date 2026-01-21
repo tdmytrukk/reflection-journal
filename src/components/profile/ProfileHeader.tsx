@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { User, Mail, Camera, Pencil, Check, X, Loader2, Upload, ImageIcon } from 'lucide-react';
+import { User, Mail, Camera, Pencil, Check, X, Loader2, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
@@ -10,6 +10,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { ImageCropDialog } from './ImageCropDialog';
 
 interface ProfileHeaderProps {
   name: string;
@@ -32,6 +33,8 @@ export function ProfileHeader({
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState(name);
   const [isUploading, setIsUploading] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   
@@ -54,7 +57,7 @@ export function ProfileHeader({
     setEditingName(false);
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileSelect = (file: File) => {
     if (!user) {
       toast.error('You must be logged in to upload an avatar');
       return;
@@ -72,16 +75,27 @@ export function ProfileHeader({
       return;
     }
 
+    // Create a URL for the image and open crop dialog
+    const imageUrl = URL.createObjectURL(file);
+    setSelectedImage(imageUrl);
+    setCropDialogOpen(true);
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    if (!user) return;
+
     setIsUploading(true);
     try {
       // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/avatar-${Date.now()}.jpg`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, croppedBlob, { 
+          upsert: true,
+          contentType: 'image/jpeg'
+        });
 
       if (uploadError) throw uploadError;
 
@@ -98,13 +112,18 @@ export function ProfileHeader({
       toast.error('Failed to upload profile picture');
     } finally {
       setIsUploading(false);
+      // Clean up the object URL
+      if (selectedImage) {
+        URL.revokeObjectURL(selectedImage);
+        setSelectedImage(null);
+      }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleFileUpload(file);
+      handleFileSelect(file);
     }
     // Reset input so the same file can be selected again
     e.target.value = '';
@@ -225,6 +244,15 @@ export function ProfileHeader({
           </div>
         </div>
       </div>
+
+      {selectedImage && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onOpenChange={setCropDialogOpen}
+          imageSrc={selectedImage}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }
