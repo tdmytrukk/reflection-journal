@@ -3,6 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import type { Entry, JobDescription } from '@/types';
 
+function parseDateOnlyToLocal(dateStr: string): Date {
+  // DB stores `date` as YYYY-MM-DD (no timezone). `new Date(YYYY-MM-DD)` is treated as UTC
+  // and can display as the previous day in negative timezones.
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
 export function useUserData() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<{ name: string; email: string } | null>(null);
@@ -63,7 +70,7 @@ export function useUserData() {
       setEntries(data.map(e => ({
         id: e.id,
         userId: e.user_id,
-        date: new Date(e.date),
+        date: parseDateOnlyToLocal(e.date),
         achievements: e.achievements || [],
         learnings: e.learnings || [],
         insights: e.insights || [],
