@@ -10,6 +10,7 @@ import AuthPage from "./pages/AuthPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import QuarterlyCheckinPage from "./pages/QuarterlyCheckinPage";
 import NotFound from "./pages/NotFound";
 
@@ -126,6 +127,14 @@ function AppRoutes() {
         } 
       />
       <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/quarterly-checkin" 
         element={
           <ProtectedRoute>

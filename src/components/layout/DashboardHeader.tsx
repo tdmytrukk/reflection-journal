@@ -70,7 +70,10 @@ export function DashboardHeader() {
                 <User className="w-4 h-4 text-cedar" strokeLinecap="round" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-3 py-2.5 text-warm-body cursor-pointer hover:bg-[rgba(107,122,90,0.06)]">
+              <DropdownMenuItem 
+                onClick={() => navigate('/settings')} 
+                className="gap-3 py-2.5 text-warm-body cursor-pointer hover:bg-[rgba(107,122,90,0.06)]"
+              >
                 <Settings className="w-4 h-4 text-cedar" strokeLinecap="round" />
                 Settings
               </DropdownMenuItem>
