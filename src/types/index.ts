@@ -31,6 +31,38 @@ export interface AIReflection {
   encouragement: string;
 }
 
+// Monthly Review structured output from AI
+export interface MonthlyReviewAchievement {
+  text: string;
+  isNew: boolean;
+  impact: 'high' | 'medium' | 'standard';
+}
+
+export interface MonthlyReviewData {
+  summary: string;
+  achievements: MonthlyReviewAchievement[];
+  growth: string[];
+  strengths: string[];
+  stats: {
+    daysActive: number;
+    totalEntries: number;
+    newAchievementTypes: number;
+  };
+  generatedAt: Date;
+}
+
+export interface MonthlyReview {
+  id: string;
+  userId: string;
+  month: number; // 1-12
+  year: number;
+  data: MonthlyReviewData | null;
+  status: 'pending' | 'generating' | 'completed' | 'error';
+  errorMessage?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Entry {
   id: string;
   userId: string;
