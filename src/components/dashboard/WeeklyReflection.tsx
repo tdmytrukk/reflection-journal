@@ -174,7 +174,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       
       {/* AI Summaries - each as separate talking point with emoji */}
       {weeklyData.allSummaries.length > 0 && (
-        <div className="space-y-3 mb-5">
+        <div className="space-y-3 mb-4">
           {weeklyData.allSummaries.map((summary, index) => (
             <div key={index} className="sidebar-inner-card flex gap-3">
               <span className="text-lg flex-shrink-0">{getContextualEmoji(summary)}</span>
@@ -183,47 +183,66 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
               </p>
             </div>
           ))}
-          {weeklyData.latestEncouragement && (
-            <p className="text-moss px-1" style={{ fontSize: '13px', fontWeight: 500 }}>
-              {weeklyData.latestEncouragement}
+        </div>
+      )}
+      
+      {/* Encouragement */}
+      {weeklyData.latestEncouragement && (
+        <p className="text-moss mb-5 px-1" style={{ fontSize: '13px', fontWeight: 500, lineHeight: 1.5 }}>
+          {weeklyData.latestEncouragement}
+        </p>
+      )}
+      
+      {/* Two-column layout: Strengths on left, Stats on right */}
+      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(139,111,71,0.08)]">
+        {/* Left column - Key strengths */}
+        <div>
+          {displayTraits.length > 0 && (
+            <>
+              <p className="text-warm-muted mb-2" style={{ fontSize: '12px' }}>
+                Key strengths
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {displayTraits.map(trait => {
+                  const traitLower = trait.toLowerCase();
+                  const Icon = TRAIT_ICONS[traitLower] || Sparkles;
+                  return (
+                    <span key={trait} className="strength-tag text-xs py-1 px-2">
+                      <Icon className="w-3 h-3" strokeLinecap="round" />
+                      {trait.charAt(0).toUpperCase() + trait.slice(1)}
+                    </span>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
+            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+              Add details to see strengths
             </p>
           )}
         </div>
-      )}
-      
-      {/* Stats - smaller and subtle */}
-      <div className="flex items-center gap-4 mb-5 text-warm-muted" style={{ fontSize: '12px' }}>
-        <span>{weeklyData.dayCount} {weeklyData.dayCount === 1 ? 'day' : 'days'} captured</span>
-        <span className="text-[rgba(139,111,71,0.3)]">•</span>
-        <span>{weeklyData.itemCount} moments logged</span>
-      </div>
-      
-      {/* Strengths/Traits detected */}
-      {displayTraits.length > 0 && (
-        <div>
-          <p className="text-warm-muted mb-3" style={{ fontSize: '13px' }}>
-            {weeklyData.allStrengths.length > 0 ? 'Key strengths:' : "You've shown:"}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {displayTraits.map(trait => {
-              const traitLower = trait.toLowerCase();
-              const Icon = TRAIT_ICONS[traitLower] || Sparkles;
-              return (
-                <span key={trait} className="strength-tag">
-                  <Icon className="w-3.5 h-3.5" strokeLinecap="round" />
-                  {trait.charAt(0).toUpperCase() + trait.slice(1)}
-                </span>
-              );
-            })}
+        
+        {/* Right column - Stats */}
+        <div className="text-right">
+          <div className="mb-2">
+            <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
+              {weeklyData.dayCount}
+            </p>
+            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+              {weeklyData.dayCount === 1 ? 'day captured' : 'days captured'}
+            </p>
+          </div>
+          <div>
+            <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
+              {weeklyData.itemCount}
+            </p>
+            <p className="text-warm-muted" style={{ fontSize: '12px' }}>
+              moments logged
+            </p>
           </div>
         </div>
-      )}
-      
-      {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
-        <p className="text-warm-secondary" style={{ fontSize: '14px' }}>
-          Add more details to your entries to see personalized growth insights! 🌱
-        </p>
-      )}
+      </div>
     </div>
   );
 }
