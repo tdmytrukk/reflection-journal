@@ -387,12 +387,11 @@ export function RoleHistoryCard({ roles, isEditing, onAddRole, onUpdateRole, onD
                         </div>
                       </div>
                     ) : (
-                      // View content
                       <>
                         {role.content && (
-                          <p className="text-sm pt-2" style={{ color: '#5A5046' }}>
+                          <div className="text-sm pt-2 whitespace-pre-line" style={{ color: '#5A5046' }}>
                             {role.content}
-                          </p>
+                          </div>
                         )}
                         {!role.content && (
                           <p className="text-sm italic pt-2" style={{ color: '#8B7F6F' }}>
