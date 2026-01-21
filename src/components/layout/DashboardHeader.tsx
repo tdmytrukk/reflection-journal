@@ -40,10 +40,7 @@ export function DashboardHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-3 p-2 -m-2 rounded-xl hover:bg-[rgba(107,122,90,0.06)] transition-all duration-300">
-                <div className="text-right hidden sm:block">
-                  <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
-                  <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
-                </div>
+                <p className="text-warm-primary hidden sm:block" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
                 <div className="w-10 h-10 rounded-full bg-[rgba(107,122,90,0.1)] flex items-center justify-center overflow-hidden">
                   {profile?.avatarUrl ? (
                     <img 
@@ -60,7 +57,6 @@ export function DashboardHeader() {
             <DropdownMenuContent align="end" className="w-56 shadow-overlay bg-[#FEFDFB] border-[rgba(139,111,71,0.12)]">
               <div className="px-3 py-2 sm:hidden">
                 <p className="text-warm-primary" style={{ fontSize: '14px', fontWeight: 500 }}>{userName}</p>
-                <p className="text-warm-muted" style={{ fontSize: '12px' }}>{userEmail}</p>
               </div>
               <DropdownMenuSeparator className="sm:hidden bg-[rgba(139,111,71,0.1)]" />
               <DropdownMenuItem 
