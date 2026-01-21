@@ -162,7 +162,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
   
   return (
     <div className="sidebar-card">
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <div className="icon-container">
             <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
@@ -171,6 +171,13 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
         </div>
         <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
       </div>
+      
+      {/* Encouragement - directly under headline */}
+      {weeklyData.latestEncouragement && (
+        <p className="text-moss mb-5 px-1" style={{ fontSize: '13px', fontWeight: 500, lineHeight: 1.5 }}>
+          {weeklyData.latestEncouragement}
+        </p>
+      )}
       
       {/* AI Summaries - each as separate talking point with emoji */}
       {weeklyData.allSummaries.length > 0 && (
@@ -184,13 +191,6 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
             </div>
           ))}
         </div>
-      )}
-      
-      {/* Encouragement */}
-      {weeklyData.latestEncouragement && (
-        <p className="text-moss mb-5 px-1" style={{ fontSize: '13px', fontWeight: 500, lineHeight: 1.5 }}>
-          {weeklyData.latestEncouragement}
-        </p>
       )}
       
       {/* Two-column layout: Strengths on left, Stats on right */}
