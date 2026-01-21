@@ -98,8 +98,8 @@ export default function DashboardPage() {
         */}
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] lg:grid-cols-[280px_1fr_380px] gap-4 md:gap-5 lg:gap-8">
           
-          {/* Left column - Greeting, New Entry, Calendar */}
-          <div className="space-y-4 md:space-y-5 lg:space-y-6 order-1">
+          {/* Left column - Greeting, New Entry, Calendar (always first) */}
+          <div className="space-y-4 md:space-y-5 lg:space-y-6">
             {/* Welcome section with quote - compact on mobile */}
             <div className="sidebar-card !p-4 md:!p-5 lg:!p-6 animate-fade-in">
               <h1 className="text-ink mb-1.5 md:mb-2 text-xl md:text-2xl lg:text-[28px]" style={{ fontWeight: 300, letterSpacing: '-0.3px' }}>
@@ -130,12 +130,12 @@ export default function DashboardPage() {
               </div>
             </button>
             
-            {/* Calendar - hide on mobile, show on tablet+ */}
+            {/* Calendar - visible on tablet+ */}
             <div className="hidden md:block">
               <MiniCalendar entries={entries} />
             </div>
             
-            {/* Quick actions - hide on mobile, show on tablet+ */}
+            {/* Quick actions - visible on tablet+ */}
             <div className="hidden md:block sidebar-card !p-4 lg:!p-6 space-y-2">
               <h3 className="text-warm-primary mb-2 lg:mb-3 text-sm lg:text-[15px]" style={{ fontWeight: 500 }}>
                 Quick Actions
@@ -163,8 +163,8 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          {/* Middle column - Recent Entries */}
-          <div className="space-y-4 md:space-y-5 lg:space-y-6 order-2">
+          {/* Middle column - Recent Entries (always second) */}
+          <div className="space-y-4 md:space-y-5 lg:space-y-6">
             <RecentEntries 
               entries={entries} 
               isLoading={isLoading} 
@@ -173,13 +173,13 @@ export default function DashboardPage() {
               onDeleteEntry={deleteEntry}
             />
             
-            {/* This Month's Review - shown below entries on tablet (md), hidden on lg (moves to right column) */}
+            {/* This Month's Review - shown below entries on tablet, hidden on desktop (moves to right col) */}
             <div className="block lg:hidden">
               <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
             </div>
           </div>
           
-          {/* Right column - Recap Reflection (desktop only) */}
+          {/* Right column - Review (desktop only, always third) */}
           <div className="hidden lg:block space-y-6">
             <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
           </div>
