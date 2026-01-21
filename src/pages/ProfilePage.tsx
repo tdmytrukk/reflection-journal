@@ -27,6 +27,8 @@ export default function ProfilePage() {
     updateProfile,
     updateCurrentJob,
     addRole,
+    updateRole,
+    deleteRole,
     addGoal,
     updateGoal,
     deleteGoal,
@@ -64,6 +66,24 @@ export default function ProfilePage() {
       toast.error('Failed to add role');
     } else {
       toast.success('Role added');
+    }
+  };
+
+  const handleUpdateRole = async (id: string, updates: Parameters<typeof updateRole>[1]) => {
+    const { error } = await updateRole(id, updates);
+    if (error) {
+      toast.error('Failed to update role');
+    } else {
+      toast.success('Role updated');
+    }
+  };
+
+  const handleDeleteRole = async (id: string) => {
+    const { error } = await deleteRole(id);
+    if (error) {
+      toast.error('Failed to delete role');
+    } else {
+      toast.success('Role deleted');
     }
   };
 
@@ -198,6 +218,8 @@ export default function ProfilePage() {
               roles={roleHistory}
               isEditing={isEditing}
               onAddRole={handleAddRole}
+              onUpdateRole={handleUpdateRole}
+              onDeleteRole={handleDeleteRole}
             />
           </div>
 

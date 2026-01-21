@@ -267,6 +267,46 @@ export function useProfileData() {
     return { error };
   };
 
+  const updateRole = async (id: string, updates: Partial<JobDescription>) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    const updateData: Record<string, unknown> = {};
+    if (updates.title !== undefined) updateData.title = updates.title;
+    if (updates.company !== undefined) updateData.company = updates.company;
+    if (updates.content !== undefined) updateData.content = updates.content;
+    if (updates.responsibilities !== undefined) updateData.responsibilities = updates.responsibilities;
+    if (updates.startDate !== undefined) updateData.start_date = updates.startDate.toISOString();
+    if (updates.endDate !== undefined) updateData.end_date = updates.endDate?.toISOString() ?? null;
+    
+    const { error } = await supabase
+      .from('job_descriptions')
+      .update(updateData)
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (!error) {
+      await fetchJobDescriptions();
+    }
+    
+    return { error };
+  };
+
+  const deleteRole = async (id: string) => {
+    if (!user) return { error: new Error('Not authenticated') };
+    
+    const { error } = await supabase
+      .from('job_descriptions')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (!error) {
+      await fetchJobDescriptions();
+    }
+    
+    return { error };
+  };
+
   const addGoal = async (goal: Omit<Goal, 'id' | 'userId' | 'createdAt' | 'updatedAt'>) => {
     if (!user) return { error: new Error('Not authenticated') };
     
@@ -366,6 +406,8 @@ export function useProfileData() {
     updateProfile,
     updateCurrentJob,
     addRole,
+    updateRole,
+    deleteRole,
     addGoal,
     updateGoal,
     deleteGoal,
