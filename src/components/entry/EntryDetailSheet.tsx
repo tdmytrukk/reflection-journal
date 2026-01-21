@@ -162,14 +162,17 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
         }
       }}>
         <SheetContent className="w-full sm:max-w-lg overflow-y-auto flex flex-col">
-          <SheetHeader className="mb-6">
+          <SheetHeader className="mb-4">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <span className="text-sm">{formatDate(entry.date)}</span>
             </div>
-            <SheetTitle className="text-xl font-semibold text-foreground">
-              {isEditing ? 'Edit Entry' : 'Journal Entry'}
-            </SheetTitle>
+            {isEditing && (
+              <SheetTitle className="text-xl font-semibold text-foreground">
+                Edit Entry
+              </SheetTitle>
+            )}
+            {!isEditing && <SheetTitle className="sr-only">Journal Entry</SheetTitle>}
           </SheetHeader>
 
           {/* Entry Content by Category */}
@@ -364,14 +367,14 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
                   className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground"
                   title="Edit entry"
                 >
-                  <Edit3 className="w-5 h-5" />
+                  <Edit3 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setShowDeleteDialog(true)}
                   className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
                   title="Delete entry"
                 >
-                  <Trash2 className="w-5 h-5" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </>
             )}
