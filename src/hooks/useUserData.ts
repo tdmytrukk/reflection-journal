@@ -129,7 +129,7 @@ export function useUserData() {
       ai_reflection?: null;
     } = {
       user_id: user.id,
-      date: entry.date.toISOString().split('T')[0],
+      date: `${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`,
       achievements: entry.achievements,
       learnings: entry.learnings,
       insights: entry.insights,
