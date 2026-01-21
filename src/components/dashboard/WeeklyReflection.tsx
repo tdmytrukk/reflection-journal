@@ -91,7 +91,26 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       .map(e => e.aiReflection!);
     
     const allStrengths = [...new Set(aiReflections.flatMap(r => r.strengths || []))];
-    const latestReflection = aiReflections[0];
+    
+    // Combine all summaries from the week's entries
+    const allSummaries = aiReflections
+      .map(r => r.summary)
+      .filter(Boolean) as string[];
+    
+    // Combine all encouragements
+    const allEncouragements = aiReflections
+      .map(r => r.encouragement)
+      .filter(Boolean) as string[];
+    
+    // Create a combined summary from all entries
+    const combinedSummary = allSummaries.length > 1 
+      ? allSummaries.join(' ') 
+      : allSummaries[0] || null;
+    
+    // Use the most recent encouragement or combine if multiple
+    const combinedEncouragement = allEncouragements.length > 0 
+      ? allEncouragements[allEncouragements.length - 1] 
+      : null;
     
     return {
       dayCount: uniqueDays,
@@ -101,7 +120,9 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       weekEnd: end,
       aiReflections,
       allStrengths,
-      latestReflection,
+      combinedSummary,
+      combinedEncouragement,
+      entryCount: weekEntries.length,
     };
   }, [entries]);
   
@@ -142,15 +163,15 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
         <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
       </div>
       
-      {/* AI Summary if available */}
-      {weeklyData.latestReflection?.summary && (
+      {/* AI Summary - combined from all entries */}
+      {weeklyData.combinedSummary && (
         <div className="sidebar-inner-card mb-5">
           <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.7 }}>
-            {weeklyData.latestReflection.summary}
+            {weeklyData.combinedSummary}
           </p>
-          {weeklyData.latestReflection.encouragement && (
+          {weeklyData.combinedEncouragement && (
             <p className="text-moss mt-3" style={{ fontSize: '13px', fontWeight: 500 }}>
-              {weeklyData.latestReflection.encouragement}
+              {weeklyData.combinedEncouragement}
             </p>
           )}
         </div>
