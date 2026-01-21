@@ -21,14 +21,50 @@ export default function DashboardPage() {
   const now = new Date();
   const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
   
-  const getGreeting = () => {
-    const hour = now.getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+  // Daily rotating quotes about mindfulness, career, and growth
+  const dailyQuotes = [
+    { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+    { quote: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+    { quote: "Knowing yourself is the beginning of all wisdom.", author: "Aristotle" },
+    { quote: "The unexamined life is not worth living.", author: "Socrates" },
+    { quote: "Growth is the only evidence of life.", author: "John Henry Newman" },
+    { quote: "What we think, we become.", author: "Buddha" },
+    { quote: "Excellence is not a destination but a continuous journey.", author: "Brian Tracy" },
+    { quote: "Be present in all things and thankful for all things.", author: "Maya Angelou" },
+    { quote: "The mind is everything. What you think you become.", author: "Buddha" },
+    { quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+    { quote: "Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.", author: "Buddha" },
+    { quote: "He who has a why to live can bear almost any how.", author: "Friedrich Nietzsche" },
+    { quote: "The journey of a thousand miles begins with one step.", author: "Lao Tzu" },
+    { quote: "To improve is to change; to be perfect is to change often.", author: "Winston Churchill" },
+    { quote: "Happiness is not something ready-made. It comes from your own actions.", author: "Dalai Lama" },
+    { quote: "Your work is to discover your work and then with all your heart to give yourself to it.", author: "Buddha" },
+    { quote: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+    { quote: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
+    { quote: "Be the change that you wish to see in the world.", author: "Mahatma Gandhi" },
+    { quote: "It is not the mountain we conquer, but ourselves.", author: "Edmund Hillary" },
+    { quote: "The secret of change is to focus all of your energy not on fighting the old, but on building the new.", author: "Socrates" },
+    { quote: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+    { quote: "The present moment is filled with joy and happiness. If you are attentive, you will see it.", author: "Thich Nhat Hanh" },
+    { quote: "Life is really simple, but we insist on making it complicated.", author: "Confucius" },
+    { quote: "What you do makes a difference, and you have to decide what kind of difference you want to make.", author: "Jane Goodall" },
+    { quote: "The mind is not a vessel to be filled, but a fire to be kindled.", author: "Plutarch" },
+    { quote: "Small deeds done are better than great deeds planned.", author: "Peter Marshall" },
+    { quote: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+    { quote: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+    { quote: "A journey of self-discovery begins with a single question.", author: "Confucius" },
+    { quote: "Peace comes from within. Do not seek it without.", author: "Buddha" },
+  ];
+  
+  // Get quote based on day of year for daily rotation
+  const getDailyQuote = () => {
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const diff = now.getTime() - startOfYear.getTime();
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+    return dailyQuotes[dayOfYear % dailyQuotes.length];
   };
   
-  const userName = profile?.name || user?.email?.split('@')[0] || 'there';
+  const todayQuote = getDailyQuote();
 
   const handleEntrySaved = useCallback(() => {
     refreshData();
@@ -40,16 +76,13 @@ export default function DashboardPage() {
       <DashboardHeader />
       
       <main className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-16 pb-12">
-        {/* Welcome section */}
+        {/* Daily quote section */}
         <div className="mb-10 animate-fade-in">
-          <h1 className="text-ink mb-2" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
-            {getGreeting()}, {userName}
-          </h1>
-          <p className="font-display-italic text-cedar" style={{ fontSize: '15px' }}>
-            {jobDescription?.title && jobDescription?.company 
-              ? `${jobDescription.title} at ${jobDescription.company}`
-              : 'Ready to capture your achievements?'
-            }
+          <blockquote className="text-ink font-display-italic" style={{ fontSize: '24px', fontWeight: 300, letterSpacing: '-0.3px', lineHeight: 1.4 }}>
+            "{todayQuote.quote}"
+          </blockquote>
+          <p className="text-cedar mt-2" style={{ fontSize: '14px' }}>
+            — {todayQuote.author}
           </p>
         </div>
         
