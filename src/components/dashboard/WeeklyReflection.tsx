@@ -1,6 +1,7 @@
 import { Sparkles, TrendingUp, Heart, Zap, Shield, Users, Target } from '@/components/ui/icons';
 import { useMemo } from 'react';
 import type { Entry } from '@/types';
+import type { RecapPeriod } from '@/types';
 
 const TRAIT_ICONS: Record<string, React.ElementType> = {
   thoughtful: Heart,
@@ -52,23 +53,34 @@ function getWeekRange(date: Date): { start: Date; end: Date } {
   return { start, end };
 }
 
-interface WeeklyReflectionProps {
-  entries: Entry[];
+function getMonthRange(date: Date): { start: Date; end: Date } {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1);
+  start.setHours(0, 0, 0, 0);
+  
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  end.setHours(23, 59, 59, 999);
+  
+  return { start, end };
 }
 
-export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
+interface RecapReflectionProps {
+  entries: Entry[];
+  period?: RecapPeriod;
+}
+
+export function WeeklyReflection({ entries, period = 'monthly' }: RecapReflectionProps) {
   
-  const weeklyData = useMemo(() => {
-    const { start, end } = getWeekRange(new Date());
+  const recapData = useMemo(() => {
+    const { start, end } = period === 'weekly' ? getWeekRange(new Date()) : getMonthRange(new Date());
     
-    const weekEntries = entries.filter(entry => {
+    const periodEntries = entries.filter(entry => {
       const entryDate = new Date(entry.date);
       return entryDate >= start && entryDate <= end;
     });
     
-    if (weekEntries.length === 0) return null;
+    if (periodEntries.length === 0) return null;
     
-    const allText = weekEntries.flatMap(e => [
+    const allText = periodEntries.flatMap(e => [
       ...e.achievements,
       ...e.learnings,
       ...e.insights,
@@ -77,22 +89,22 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     
     const traits = analyzeEntryForTraits(allText);
     
-    const totalItems = weekEntries.reduce((sum, e) => 
+    const totalItems = periodEntries.reduce((sum, e) => 
       sum + e.achievements.length + e.learnings.length + e.insights.length + e.decisions.length, 0
     );
     
     // Count unique days (not entries) - multiple entries on same day = 1 day
     const uniqueDays = new Set(
-      weekEntries.map(e => new Date(e.date).toDateString())
+      periodEntries.map(e => new Date(e.date).toDateString())
     ).size;
     
-    const aiReflections = weekEntries
+    const aiReflections = periodEntries
       .filter(e => e.aiReflection)
       .map(e => e.aiReflection!);
     
     const allStrengths = [...new Set(aiReflections.flatMap(r => r.strengths || []))];
     
-    // Collect all individual summaries from the week's entries
+    // Collect all individual summaries from the period's entries
     const allSummaries = aiReflections
       .map(r => r.summary)
       .filter(Boolean) as string[];
@@ -107,15 +119,15 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
       dayCount: uniqueDays,
       itemCount: totalItems,
       traits,
-      weekStart: start,
-      weekEnd: end,
+      periodStart: start,
+      periodEnd: end,
       aiReflections,
       allStrengths,
       allSummaries,
       latestEncouragement,
-      entryCount: weekEntries.length,
+      entryCount: periodEntries.length,
     };
-  }, [entries]);
+  }, [entries, period]);
 
   // Get contextual emoji based on summary content
   const getContextualEmoji = (text: string): string => {
@@ -134,31 +146,41 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
     if (lower.includes('launch') || lower.includes('release')) return '🚀';
     return '✨';
   };
+
+  const periodLabel = period === 'weekly' ? "This Week's Growth" : "This Month's Review";
+  const emptyMessage = period === 'weekly' 
+    ? "Start capturing entries to see your weekly reflection and growth insights."
+    : "Start capturing entries to see your monthly review and growth insights.";
   
-  if (!weeklyData || weeklyData.itemCount === 0) {
+  if (!recapData || recapData.itemCount === 0) {
     return (
       <div className="sidebar-card">
         <div className="flex items-center gap-3 mb-4">
           <div className="icon-container">
             <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
           </div>
-          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>This Week's Growth</h3>
+          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>{periodLabel}</h3>
         </div>
         <p className="text-warm-secondary" style={{ fontSize: '14px', lineHeight: 1.6 }}>
-          Start capturing entries to see your weekly reflection and growth insights.
+          {emptyMessage}
         </p>
       </div>
     );
   }
   
   const formatDateRange = () => {
-    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-    return `${weeklyData.weekStart.toLocaleDateString('en-US', options)} - ${weeklyData.weekEnd.toLocaleDateString('en-US', options)}`;
+    if (period === 'weekly') {
+      const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+      return `${recapData.periodStart.toLocaleDateString('en-US', options)} - ${recapData.periodEnd.toLocaleDateString('en-US', options)}`;
+    } else {
+      const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
+      return recapData.periodStart.toLocaleDateString('en-US', options);
+    }
   };
 
-  const displayTraits = weeklyData.allStrengths.length > 0 
-    ? weeklyData.allStrengths.slice(0, 4)
-    : weeklyData.traits;
+  const displayTraits = recapData.allStrengths.length > 0 
+    ? recapData.allStrengths.slice(0, 4)
+    : recapData.traits;
   
   return (
     <div className="sidebar-card">
@@ -167,22 +189,22 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
           <div className="icon-container">
             <Sparkles className="w-5 h-5 text-moss" strokeLinecap="round" />
           </div>
-          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>This Week's Growth</h3>
+          <h3 className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>{periodLabel}</h3>
         </div>
         <span className="text-warm-muted" style={{ fontSize: '13px' }}>{formatDateRange()}</span>
       </div>
       
       {/* Encouragement - directly under headline */}
-      {weeklyData.latestEncouragement && (
+      {recapData.latestEncouragement && (
         <p className="text-moss mb-5 px-1" style={{ fontSize: '13px', fontWeight: 500, lineHeight: 1.5 }}>
-          {weeklyData.latestEncouragement}
+          {recapData.latestEncouragement}
         </p>
       )}
       
       {/* AI Summaries - each as separate talking point with emoji */}
-      {weeklyData.allSummaries.length > 0 && (
+      {recapData.allSummaries.length > 0 && (
         <div className="space-y-3 mb-4">
-          {weeklyData.allSummaries.map((summary, index) => (
+          {recapData.allSummaries.map((summary, index) => (
             <div key={index} className="sidebar-inner-card flex gap-3">
               <span className="text-lg flex-shrink-0">{getContextualEmoji(summary)}</span>
               <p className="text-warm-body" style={{ fontSize: '14px', lineHeight: 1.6 }}>
@@ -216,7 +238,7 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
               </div>
             </>
           )}
-          {displayTraits.length === 0 && weeklyData.itemCount > 0 && (
+          {displayTraits.length === 0 && recapData.itemCount > 0 && (
             <p className="text-warm-muted" style={{ fontSize: '12px' }}>
               Add details to see strengths
             </p>
@@ -227,15 +249,15 @@ export function WeeklyReflection({ entries }: WeeklyReflectionProps) {
         <div className="text-right">
           <div className="mb-2">
             <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
-              {weeklyData.dayCount}
+              {recapData.dayCount}
             </p>
             <p className="text-warm-muted" style={{ fontSize: '12px' }}>
-              {weeklyData.dayCount === 1 ? 'day captured' : 'days captured'}
+              {recapData.dayCount === 1 ? 'day captured' : 'days captured'}
             </p>
           </div>
           <div>
             <p className="text-warm-primary" style={{ fontSize: '24px', fontWeight: 500, lineHeight: 1 }}>
-              {weeklyData.itemCount}
+              {recapData.itemCount}
             </p>
             <p className="text-warm-muted" style={{ fontSize: '12px' }}>
               moments logged

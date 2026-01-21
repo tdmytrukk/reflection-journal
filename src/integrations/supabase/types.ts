@@ -240,6 +240,7 @@ export type Database = {
           id: string
           monthly_pulse_enabled: boolean
           quarterly_checkin_enabled: boolean
+          recap_period: string
           reminder_day: string | null
           reminder_time: string | null
           shareable_recap: boolean
@@ -254,6 +255,7 @@ export type Database = {
           id?: string
           monthly_pulse_enabled?: boolean
           quarterly_checkin_enabled?: boolean
+          recap_period?: string
           reminder_day?: string | null
           reminder_time?: string | null
           shareable_recap?: boolean
@@ -268,6 +270,7 @@ export type Database = {
           id?: string
           monthly_pulse_enabled?: boolean
           quarterly_checkin_enabled?: boolean
+          recap_period?: string
           reminder_day?: string | null
           reminder_time?: string | null
           shareable_recap?: boolean
