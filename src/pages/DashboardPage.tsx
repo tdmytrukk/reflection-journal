@@ -65,6 +65,15 @@ export default function DashboardPage() {
   };
   
   const todayQuote = getDailyQuote();
+  
+  const getGreeting = () => {
+    const hour = now.getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+  
+  const userName = profile?.name || user?.email?.split('@')[0] || 'there';
 
   const handleEntrySaved = useCallback(() => {
     refreshData();
@@ -76,14 +85,24 @@ export default function DashboardPage() {
       <DashboardHeader />
       
       <main className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-16 pb-12">
+        {/* Welcome section */}
+        <div className="mb-6 animate-fade-in">
+          <h1 className="text-ink mb-1" style={{ fontSize: '36px', fontWeight: 300, letterSpacing: '-0.5px' }}>
+            {getGreeting()}, {userName}
+          </h1>
+          <p className="font-display-italic text-cedar" style={{ fontSize: '15px' }}>
+            {jobDescription?.title && jobDescription?.company 
+              ? `${jobDescription.title} at ${jobDescription.company}`
+              : 'Ready to capture your achievements?'
+            }
+          </p>
+        </div>
+        
         {/* Daily quote section */}
         <div className="mb-10 animate-fade-in">
-          <blockquote className="text-ink font-display-italic" style={{ fontSize: '24px', fontWeight: 300, letterSpacing: '-0.3px', lineHeight: 1.4 }}>
-            "{todayQuote.quote}"
+          <blockquote className="text-warm-muted font-display-italic" style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.5 }}>
+            "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
           </blockquote>
-          <p className="text-cedar mt-2" style={{ fontSize: '14px' }}>
-            — {todayQuote.author}
-          </p>
         </div>
         
         {/* Quarterly Check-in Banner */}
