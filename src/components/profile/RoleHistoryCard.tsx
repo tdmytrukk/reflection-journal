@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { MonthYearPicker } from '@/components/ui/month-year-picker';
 import {
   Dialog,
   DialogContent,
@@ -137,22 +138,20 @@ export function RoleHistoryCard({ roles, isEditing, onAddRole }: RoleHistoryCard
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="role-start">Start Date</Label>
-                <Input
-                  id="role-start"
-                  type="month"
+                <MonthYearPicker
                   value={newRole.startDate}
-                  onChange={(e) => setNewRole({ ...newRole, startDate: e.target.value })}
-                  className="input-paper"
+                  onChange={(value) => setNewRole({ ...newRole, startDate: value })}
+                  placeholder="Select start"
+                  maxDate={new Date()}
                 />
               </div>
               <div>
                 <Label htmlFor="role-end">End Date</Label>
-                <Input
-                  id="role-end"
-                  type="month"
+                <MonthYearPicker
                   value={newRole.endDate}
-                  onChange={(e) => setNewRole({ ...newRole, endDate: e.target.value })}
-                  className="input-paper"
+                  onChange={(value) => setNewRole({ ...newRole, endDate: value })}
+                  placeholder="Present"
+                  maxDate={new Date()}
                 />
               </div>
             </div>

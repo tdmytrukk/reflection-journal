@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Target, Plus, Check, MoreHorizontal, Trash2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { MonthYearPicker } from '@/components/ui/month-year-picker';
 import {
   Dialog,
   DialogContent,
@@ -238,12 +238,10 @@ export function GoalsCard({ goals, isEditing, onAddGoal, onUpdateGoal, onDeleteG
               </div>
               <div>
                 <Label htmlFor="goal-date">Target Date (optional)</Label>
-                <Input
-                  id="goal-date"
-                  type="month"
+                <MonthYearPicker
                   value={newGoal.targetDate}
-                  onChange={(e) => setNewGoal({ ...newGoal, targetDate: e.target.value })}
-                  className="input-paper"
+                  onChange={(value) => setNewGoal({ ...newGoal, targetDate: value })}
+                  placeholder="Select target"
                 />
               </div>
             </div>
