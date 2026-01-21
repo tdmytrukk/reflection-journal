@@ -171,6 +171,32 @@ export default function SettingsPage() {
               </h3>
               
               <div className="space-y-6">
+                {/* Recap Period */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-base">
+                      Recap period
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Choose weekly or monthly recap view on your dashboard
+                    </p>
+                  </div>
+                  <Select
+                    value={preferences.recapPeriod}
+                    onValueChange={(value) => handleSelectChange('recapPeriod', value)}
+                  >
+                    <SelectTrigger className="w-[130px] input-paper">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="brush-divider !my-4" />
+
                 {/* AI Prompts */}
                 <div className="flex items-center justify-between">
                   <div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import type { Goal, UserPreferences, ProfileStats, JobDescription } from '@/types';
+import type { Goal, UserPreferences, ProfileStats, JobDescription, RecapPeriod } from '@/types';
 
 export function useProfileData() {
   const { user } = useAuth();
@@ -115,6 +115,7 @@ export function useProfileData() {
         quarterlyCheckinEnabled: data.quarterly_checkin_enabled ?? true,
         monthlyPulseEnabled: data.monthly_pulse_enabled ?? false,
         emailRemindersEnabled: data.email_reminders_enabled ?? false,
+        recapPeriod: (data.recap_period as RecapPeriod) ?? 'monthly',
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at),
       });
@@ -131,6 +132,7 @@ export function useProfileData() {
         quarterlyCheckinEnabled: true,
         monthlyPulseEnabled: false,
         emailRemindersEnabled: false,
+        recapPeriod: 'monthly',
         createdAt: new Date(),
         updatedAt: new Date(),
       });
@@ -377,6 +379,7 @@ export function useProfileData() {
     if (updates.quarterlyCheckinEnabled !== undefined) updateData.quarterly_checkin_enabled = updates.quarterlyCheckinEnabled;
     if (updates.monthlyPulseEnabled !== undefined) updateData.monthly_pulse_enabled = updates.monthlyPulseEnabled;
     if (updates.emailRemindersEnabled !== undefined) updateData.email_reminders_enabled = updates.emailRemindersEnabled;
+    if (updates.recapPeriod !== undefined) updateData.recap_period = updates.recapPeriod;
     
     // Upsert - insert if not exists, update if exists
     const { error } = await supabase

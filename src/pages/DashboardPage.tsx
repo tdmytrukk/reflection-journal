@@ -9,6 +9,7 @@ import { NewEntryModal } from '@/components/entry/NewEntryModal';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useResponsibilities } from '@/hooks/useResponsibilities';
+import { useProfileData } from '@/hooks/useProfileData';
 import { Plus, Sparkles, FileText } from '@/components/ui/icons';
 
 export default function DashboardPage() {
@@ -16,6 +17,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { profile, jobDescription, entries, isLoading, refreshData, updateEntry, deleteEntry } = useUserData();
   const { matches, refreshData: refreshResponsibilities } = useResponsibilities();
+  const { preferences } = useProfileData();
   
   // Get current quarter
   const now = new Date();
@@ -164,9 +166,9 @@ export default function DashboardPage() {
             />
           </div>
           
-          {/* Right column - Weekly Reflection */}
+          {/* Right column - Recap Reflection */}
           <div className="space-y-6 order-3 lg:order-3">
-            <WeeklyReflection entries={entries} />
+            <WeeklyReflection entries={entries} period={preferences?.recapPeriod || 'monthly'} />
           </div>
         </div>
       </main>

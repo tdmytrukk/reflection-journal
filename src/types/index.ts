@@ -84,6 +84,8 @@ export interface Goal {
   updatedAt: Date;
 }
 
+export type RecapPeriod = 'weekly' | 'monthly';
+
 export interface UserPreferences {
   id: string;
   userId: string;
@@ -95,6 +97,7 @@ export interface UserPreferences {
   quarterlyCheckinEnabled: boolean;
   monthlyPulseEnabled: boolean;
   emailRemindersEnabled: boolean;
+  recapPeriod: RecapPeriod;
   createdAt: Date;
   updatedAt: Date;
 }
