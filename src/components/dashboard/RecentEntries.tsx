@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2 } from 'lucide-react';
+import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2, ChevronDown } from 'lucide-react';
 import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
 import { Badge } from '@/components/ui/badge';
 import type { Entry, ResponsibilityMatch } from '@/types';
@@ -23,6 +23,9 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
+// Check if text exceeds approximately 3 lines (rough estimate ~150 chars)
+const isTextLong = (text: string) => text.length > 150;
+
 interface EntryCardProps {
   entry: Entry;
   onClick: () => void;
@@ -37,8 +40,13 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
     ...entry.decisions.map(text => ({ category: 'decisions', text })),
   ];
   
-  const displayItems = allItems.slice(0, 3);
-  const remainingCount = allItems.length - 3;
+  // Show first item only per entry for compact view
+  const primaryItem = allItems[0];
+  const hasLongText = primaryItem && isTextLong(primaryItem.text);
+  
+  if (!primaryItem) return null;
+  
+  const Icon = getCategoryIcon(primaryItem.category);
   
   return (
     <button
@@ -61,25 +69,22 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
         )}
       </div>
       
-      {/* Entry content */}
-      <div className="entry-card-body space-y-3">
-        {displayItems.map((item, idx) => {
-          const Icon = getCategoryIcon(item.category);
-          return (
-            <div key={idx} className="flex items-start gap-3">
-              <Icon className="w-5 h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
-              <p className="text-warm-body line-clamp-1" style={{ fontSize: '14px', lineHeight: 1.6, paddingLeft: '4px' }}>
-                {item.text}
-              </p>
-            </div>
-          );
-        })}
-        
-        {remainingCount > 0 && (
-          <p className="text-warm-muted pl-8" style={{ fontSize: '13px' }}>
-            +{remainingCount} more
-          </p>
-        )}
+      {/* Entry content - show 3 lines */}
+      <div className="entry-card-body">
+        <div className="flex items-start gap-3">
+          <Icon className="w-5 h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
+          <div className="flex-1 min-w-0">
+            <p className="text-warm-body line-clamp-3" style={{ fontSize: '14px', lineHeight: 1.6 }}>
+              {primaryItem.text}
+            </p>
+            {hasLongText && (
+              <div className="flex items-center gap-1 mt-2 text-moss">
+                <ChevronDown className="w-4 h-4" />
+                <span style={{ fontSize: '12px', fontWeight: 500 }}>Expand</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </button>
   );

@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <QuarterlyCheckinBanner />
         
         {/* Main 3-column grid on desktop, stacked on mobile */}
-        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_320px] gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_380px] gap-6 lg:gap-8">
           {/* Left column - Greeting, New Entry, Calendar, Quick Actions */}
           <div className="space-y-6 order-1 lg:order-1">
             {/* Welcome section with quote */}
