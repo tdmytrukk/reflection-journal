@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown } from '@/components/ui/icons';
+import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -452,8 +452,18 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                     </div>
                     <button
                       onClick={stopListening}
-                      className="p-1 rounded-full hover:bg-primary/20 transition-colors text-primary"
-                      title="Stop recording"
+                      className="p-1 rounded-full hover:bg-moss/20 transition-colors text-moss"
+                      title="Save recording"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        stopListening();
+                        pendingTranscriptRef.current = '';
+                      }}
+                      className="p-1 rounded-full hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
+                      title="Cancel recording"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
