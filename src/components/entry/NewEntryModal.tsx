@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Mic, MicOff, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown } from '@/components/ui/icons';
+import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -52,7 +52,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   const { triggerMatching, responsibilities } = useResponsibilities();
   const [input, setInput] = useState('');
   const [entries, setEntries] = useState<string[]>([]);
-  const [showReflection, setShowReflection] = useState(false);
+  
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isCorrectingGrammar, setIsCorrectingGrammar] = useState(false);
@@ -182,7 +182,6 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       startListening();
     }
   };
-
   const handleSubmitEntry = () => {
     if (!input.trim()) return;
     setEntries(prev => [...prev, input.trim()]);
@@ -289,11 +288,6 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     }
   };
   
-  const usePrompt = () => {
-    setInput(REFLECTION_PROMPTS[currentPromptIndex]);
-    setShowReflection(false);
-    textareaRef.current?.focus();
-  };
 
   const nextPrompt = () => {
     setCurrentPromptIndex(prev => (prev + 1) % REFLECTION_PROMPTS.length);
@@ -332,39 +326,23 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
           </div>
         )}
 
-        {/* Reflection prompt */}
-        {showReflection && (
-          <div className="mb-3 p-4 rounded-xl bg-sage-light/80 backdrop-blur border border-sage-light shadow-sm animate-fade-in">
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-foreground mb-3">
-                  {REFLECTION_PROMPTS[currentPromptIndex]}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={usePrompt}
-                    className="text-xs px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                  >
-                    Use this prompt
-                  </button>
-                  <button
-                    onClick={nextPrompt}
-                    className="text-xs text-primary hover:text-primary/80 transition-colors px-2"
-                  >
-                    Try another →
-                  </button>
-                </div>
-              </div>
+        {/* Inspiration prompt - always visible */}
+        <div className="mb-3 p-4 rounded-xl bg-sage-light/80 backdrop-blur border border-sage-light shadow-sm">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm text-foreground mb-2">
+                {REFLECTION_PROMPTS[currentPromptIndex]}
+              </p>
               <button
-                onClick={() => setShowReflection(false)}
-                className="p-1 rounded hover:bg-sage-light transition-colors"
+                onClick={nextPrompt}
+                className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
               >
-                <X className="w-4 h-4 text-muted-foreground" />
+                Try another <ArrowRight className="w-3 h-3" />
               </button>
             </div>
           </div>
-        )}
+        </div>
         
         {/* Main input card */}
         <div className="journal-card shadow-lg">
@@ -452,38 +430,51 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
 
           {/* Footer actions */}
           <div className="flex items-center justify-between">
-            <div className="flex gap-1">
-              <button
-                onClick={() => setShowReflection(!showReflection)}
-                className={`p-2 rounded-lg transition-colors ${showReflection ? 'bg-sage-light text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-                title="Help me reflect"
-              >
-                <Sparkles className="w-4 h-4" />
-              </button>
+            <div className="flex gap-1 items-center">
               {isSpeechSupported ? (
-                <button 
-                  onClick={handleVoiceToggle}
-                  disabled={isCorrectingGrammar}
-                  className={`p-2 rounded-lg transition-colors relative ${
-                    isListening 
-                      ? 'bg-destructive/10 text-destructive' 
-                      : isCorrectingGrammar
-                        ? 'bg-primary/10 text-primary'
-                        : 'hover:bg-muted text-muted-foreground'
-                  }`}
-                  title={isCorrectingGrammar ? 'Correcting grammar...' : isListening ? 'Stop recording' : 'Start voice input'}
-                >
-                  {isCorrectingGrammar ? (
+                isListening ? (
+                  /* Recording in progress - waveform UI */
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 animate-fade-in">
+                    <Mic className="w-4 h-4 text-primary" />
+                    {/* Animated waveform */}
+                    <div className="flex items-center gap-0.5 h-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-0.5 bg-primary rounded-full animate-pulse"
+                          style={{
+                            height: `${Math.random() * 12 + 6}px`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: `${0.4 + Math.random() * 0.3}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={stopListening}
+                      className="p-1 rounded-full hover:bg-primary/20 transition-colors text-primary"
+                      title="Stop recording"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : isCorrectingGrammar ? (
+                  <button 
+                    disabled
+                    className="p-2 rounded-lg bg-primary/10 text-primary"
+                    title="Correcting grammar..."
+                  >
                     <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : isListening ? (
-                    <>
-                      <MicOff className="w-4 h-4" />
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />
-                    </>
-                  ) : (
+                  </button>
+                ) : (
+                  <button 
+                    onClick={startListening}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                    title="Start voice input"
+                  >
                     <Mic className="w-4 h-4" />
-                  )}
-                </button>
+                  </button>
+                )
               ) : (
                 <button 
                   className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors opacity-50 cursor-not-allowed" 
