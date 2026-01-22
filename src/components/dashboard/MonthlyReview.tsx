@@ -1,4 +1,4 @@
-import { Sparkles, RefreshCw, Copy, Star, Check, Sprout } from '@/components/ui/icons';
+import { Sparkles, RefreshCw, Copy } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { useMonthlyReview } from '@/hooks/useMonthlyReview';
 import type { Entry, MonthlyReviewAchievement } from '@/types';
@@ -20,11 +20,9 @@ function AchievementItem({ achievement }: { achievement: MonthlyReviewAchievemen
         : 'bg-[rgba(139,111,71,0.04)]'
     }`}>
       <div className="flex gap-2 md:gap-3">
-        {isNew ? (
-          <Star className="w-4 h-4 md:w-5 md:h-5 text-moss flex-shrink-0 mt-0.5" fill="currentColor" />
-        ) : (
-          <Check className="w-4 h-4 md:w-5 md:h-5 text-cedar flex-shrink-0 mt-0.5" />
-        )}
+        <span className="flex-shrink-0 mt-0.5 text-sm md:text-base">
+          {isNew ? '⭐' : '✅'}
+        </span>
         <div className="flex-1 min-w-0">
           {isNew && (
             <span className="text-moss text-[10px] md:text-xs font-medium uppercase tracking-wide mb-1 block">
@@ -192,14 +190,27 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   return (
     <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-1.5 md:mb-2">
+      <div className="flex items-center justify-between mb-1 md:mb-1.5">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
           </div>
           <h3 className="text-warm-primary text-base md:text-lg" style={{ fontWeight: 500 }}>{periodLabel}</h3>
         </div>
-        <span className="text-warm-muted text-xs md:text-[13px]">{monthYear}</span>
+        <button
+          onClick={generateReview}
+          disabled={isGenerating}
+          className="p-1.5 rounded-lg hover:bg-[rgba(107,122,90,0.08)] transition-colors text-cedar hover:text-moss"
+          title="Regenerate review"
+        >
+          <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+      
+      {/* Subtitle and date */}
+      <div className="flex items-center justify-between mb-3 md:mb-4">
+        <p className="text-warm-muted text-[11px] md:text-xs">Generated from your entries this month.</p>
+        <span className="text-warm-muted text-[11px] md:text-xs">{monthYear}</span>
       </div>
       
       {/* Opening insight - prominent */}
@@ -242,13 +253,13 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
       {reviewData.growth.length > 0 && (
         <div className="mb-4 md:mb-5">
           <div className="flex items-center gap-2 mb-2 md:mb-3">
-            <Sprout className="w-4 h-4 text-moss" />
+            <span className="text-base">🌱</span>
             <h4 className="text-warm-primary text-xs md:text-sm font-medium">Growth This Month</h4>
           </div>
           <ul className="space-y-1.5">
             {reviewData.growth.map((item, index) => (
               <li key={index} className="text-warm-body text-xs md:text-sm flex items-start gap-2">
-                <span className="text-cedar mt-1">•</span>
+                <span className="flex-shrink-0">📈</span>
                 <span style={{ lineHeight: 1.5 }}>{item}</span>
               </li>
             ))}
@@ -298,23 +309,13 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
         )}
       </div>
       
-      {/* Action buttons */}
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={generateReview}
-          disabled={isGenerating}
-          className="flex-1 text-xs"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isGenerating ? 'animate-spin' : ''}`} />
-          Regenerate
-        </Button>
+      {/* Action button - just copy */}
+      <div className="flex justify-end">
         <Button
           variant="outline"
           size="sm"
           onClick={handleCopyToClipboard}
-          className="flex-1 text-xs"
+          className="text-xs"
         >
           <Copy className="w-3.5 h-3.5 mr-1.5" />
           Copy

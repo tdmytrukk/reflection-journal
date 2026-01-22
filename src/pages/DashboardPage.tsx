@@ -111,24 +111,36 @@ export default function DashboardPage() {
             </div>
             
             {/* New entry card */}
-            <button
-              onClick={() => setIsNewEntryOpen(true)}
-              className="w-full new-entry-card !p-5 md:!p-6 lg:!p-10 text-left group focus:outline-none focus:ring-0"
-            >
-              <div className="flex items-center gap-3 md:gap-4">
-                <div className="plus-icon-container !w-10 !h-10 md:!w-12 md:!h-12 lg:!w-14 lg:!h-14">
-                  <Plus className="w-5 h-5 md:w-6 md:h-6 text-moss" strokeWidth={2.5} strokeLinecap="round" />
-                </div>
-                <div>
-                  <h3 className="text-warm-primary group-hover:text-moss transition-colors text-base md:text-[17px]" style={{ fontWeight: 500 }}>
-                    New Entry
-                  </h3>
-                  <p className="text-warm-muted mt-0.5 text-xs md:text-[13px]">
-                    Capture today's achievements
-                  </p>
-                </div>
-              </div>
-            </button>
+            {(() => {
+              const entryPrompts = [
+                "Wins, decisions, or moments you noticed.",
+                "Not every entry has to be a win.",
+                "Small moments count.",
+                "Log it as you remember it.",
+                "What stood out today is enough."
+              ];
+              const promptIndex = now.getDate() % entryPrompts.length;
+              return (
+                <button
+                  onClick={() => setIsNewEntryOpen(true)}
+                  className="w-full new-entry-card !p-5 md:!p-6 lg:!p-10 text-left group focus:outline-none focus:ring-0"
+                >
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="plus-icon-container !w-10 !h-10 md:!w-12 md:!h-12 lg:!w-14 lg:!h-14">
+                      <Plus className="w-5 h-5 md:w-6 md:h-6 text-moss" strokeWidth={2.5} strokeLinecap="round" />
+                    </div>
+                    <div>
+                      <h3 className="text-warm-primary group-hover:text-moss transition-colors text-base md:text-[17px]" style={{ fontWeight: 500 }}>
+                        New Entry
+                      </h3>
+                      <p className="text-warm-muted mt-0.5 text-xs md:text-[13px]">
+                        {entryPrompts[promptIndex]}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })()}
             
             {/* Calendar - visible on tablet+ */}
             <div className="hidden md:block">

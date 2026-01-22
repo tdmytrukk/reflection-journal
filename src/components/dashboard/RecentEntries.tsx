@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Calendar, Target, Lightbulb, Compass, BookOpen, Link2, ChevronRight } from 'lucide-react';
+import { Calendar, Trophy, Lightbulb, Compass, BookOpen, Link2, ChevronRight } from 'lucide-react';
 import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
 import { Badge } from '@/components/ui/badge';
 import type { Entry, ResponsibilityMatch } from '@/types';
@@ -15,11 +15,11 @@ const formatDate = (date: Date) => {
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case 'achievements': return Target;
+    case 'achievements': return Trophy;
     case 'learnings': return Lightbulb;
     case 'insights': return Compass;
     case 'decisions': return BookOpen;
-    default: return Target;
+    default: return Trophy;
   }
 };
 
@@ -159,10 +159,23 @@ export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry,
     );
   }
 
+  // Dynamic copy for the section
+  const sectionCopyOptions = [
+    "Small notes today become clarity at review time.",
+    "Capture moments now so progress doesn't fade later.",
+    "This is where your work stops disappearing."
+  ];
+  const copyIndex = new Date().getDate() % sectionCopyOptions.length;
+
   return (
     <>
       <div className="space-y-3 md:space-y-4">
-        <h3 className="text-warm-primary px-1 text-sm md:text-[15px]" style={{ fontWeight: 500 }}>Recent Entries</h3>
+        <div className="px-1">
+          <h3 className="text-warm-primary text-sm md:text-[15px]" style={{ fontWeight: 500 }}>Recent Entries</h3>
+          <p className="text-warm-muted text-xs mt-1" style={{ lineHeight: 1.5 }}>
+            {sectionCopyOptions[copyIndex]}
+          </p>
+        </div>
         <div className="space-y-3 md:space-y-4">
           {recentEntries.map((entry) => (
             <EntryCard 
