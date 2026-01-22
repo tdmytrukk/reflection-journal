@@ -36,6 +36,7 @@ import {
   Star,
   RefreshCw,
   Sprout,
+  CornerDownLeft,
 } from "lucide-react";
 
 export {
@@ -76,4 +77,5 @@ export {
   Star,
   RefreshCw,
   Sprout,
+  CornerDownLeft,
 };
