@@ -28,10 +28,18 @@ const REFLECTION_PROMPTS = [
 ];
 
 const PLACEHOLDER_PROMPTS = [
-  "What did you accomplish today?",
-  "Share a win, learning, or insight...",
-  "What's something you're proud of?",
-  "Describe a challenge you overcame...",
+  "Moments that stayed with you.",
+  "Things you noticed along the way.",
+  "What felt worth remembering.",
+  "A few lines is plenty.",
+  "Noticing is enough.",
+  "You don't need the full story.",
+  "What caught your attention.",
+  "Just enough to remember later.",
+  "Write it the way it comes.",
+  "This isn't a highlight reel.",
+  "What felt different today.",
+  "Even partial thoughts count.",
 ];
 
 function getYesterday(): Date {
@@ -56,7 +64,9 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isCorrectingGrammar, setIsCorrectingGrammar] = useState(false);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+  const [placeholderIndex, setPlaceholderIndex] = useState(() => 
+    Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length)
+  );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -156,23 +166,16 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     }
   }, [input]);
 
-  // Focus textarea and reset date when modal opens
+  // Focus textarea, reset date, and randomize placeholder when modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedDate(new Date());
+      setPlaceholderIndex(Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length));
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
     }
   }, [isOpen]);
-
-  // Rotate placeholder
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex(prev => (prev + 1) % PLACEHOLDER_PROMPTS.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Toggle voice recording
   const handleVoiceToggle = () => {
