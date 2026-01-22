@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
@@ -42,6 +42,34 @@ const PLACEHOLDER_PROMPTS = [
   "Even partial thoughts count.",
 ];
 
+// Follow-up prompts based on detected signals in entry content
+const FOLLOWUP_PROMPTS = {
+  decision: [
+    "What made this decision not straightforward?",
+    "What were the alternatives you considered?",
+  ],
+  uncertainty: [
+    "What were you unsure about at the start?",
+    "What helped you move forward despite the uncertainty?",
+  ],
+  outcome: [
+    "What outcome mattered most here?",
+    "What changed after you made the call?",
+  ],
+  challenge: [
+    "What made this particularly difficult?",
+    "What would you do differently next time?",
+  ],
+};
+
+// Signal detection patterns
+const SIGNAL_PATTERNS = {
+  decision: /\b(decided|chose|picked|went with|opted|selected|made the call|call to)\b/i,
+  uncertainty: /\b(wasn't sure|unsure|uncertain|didn't know|not sure|hesitant|torn between|debated)\b/i,
+  outcome: /\b(resulted in|led to|ended up|turned out|outcome|worked out|succeeded|failed|achieved)\b/i,
+  challenge: /\b(difficult|hard|challenging|struggled|obstacle|problem|issue|tough|tricky)\b/i,
+};
+
 function getYesterday(): Date {
   const d = new Date();
   d.setDate(d.getDate() - 1);
@@ -69,6 +97,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [dismissedPrompts, setDismissedPrompts] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const pendingTranscriptRef = useRef<string>('');
   
@@ -171,11 +200,55 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     if (isOpen) {
       setSelectedDate(new Date());
       setPlaceholderIndex(Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length));
+      setDismissedPrompts(false);
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
     }
   }, [isOpen]);
+
+  // Detect signals in current input to show follow-up prompts
+  const detectedSignals = useMemo(() => {
+    const allText = [...entries, input].join(' ');
+    if (allText.length < 20) return []; // Don't show for very short entries
+    
+    const signals: (keyof typeof SIGNAL_PATTERNS)[] = [];
+    for (const [signal, pattern] of Object.entries(SIGNAL_PATTERNS)) {
+      if (pattern.test(allText)) {
+        signals.push(signal as keyof typeof SIGNAL_PATTERNS);
+      }
+    }
+    return signals.slice(0, 2); // Max 2 signal types
+  }, [entries, input]);
+
+  // Get follow-up prompts based on detected signals
+  const followUpPrompts = useMemo(() => {
+    if (dismissedPrompts || detectedSignals.length === 0) return [];
+    
+    const prompts: string[] = [];
+    for (const signal of detectedSignals) {
+      const signalPrompts = FOLLOWUP_PROMPTS[signal];
+      if (signalPrompts.length > 0) {
+        // Pick one random prompt per signal
+        prompts.push(signalPrompts[Math.floor(Math.random() * signalPrompts.length)]);
+      }
+    }
+    return prompts.slice(0, 2); // Max 2 prompts total
+  }, [detectedSignals, dismissedPrompts]);
+
+  // Handle clicking a follow-up prompt
+  const handlePromptClick = (prompt: string) => {
+    const promptText = `\n\n${prompt} `;
+    setInput(prev => prev + promptText);
+    // Focus and move cursor to end
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        textareaRef.current.selectionStart = textareaRef.current.value.length;
+        textareaRef.current.selectionEnd = textareaRef.current.value.length;
+      }
+    }, 0);
+  };
 
   // Toggle voice recording
   const handleVoiceToggle = () => {
@@ -427,6 +500,34 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               </button>
             )}
           </div>
+
+          {/* Optional follow-up prompts */}
+          {followUpPrompts.length > 0 && (
+            <div className="mt-4 animate-fade-in">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground/70">
+                  Want to add more context?
+                </span>
+                <button
+                  onClick={() => setDismissedPrompts(true)}
+                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                >
+                  Dismiss
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {followUpPrompts.map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePromptClick(prompt)}
+                    className="text-xs px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-left"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Divider */}
           <div className="h-px bg-border my-4" />
