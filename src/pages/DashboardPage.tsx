@@ -108,15 +108,12 @@ export default function DashboardPage() {
               <blockquote className="text-warm-muted font-display-italic text-xs md:text-sm" style={{ fontWeight: 300, lineHeight: 1.5 }}>
                 "{todayQuote.quote}" <span className="text-cedar">— {todayQuote.author}</span>
               </blockquote>
-              <p className="text-warm-muted/70 text-[11px] md:text-xs mt-3 md:mt-4" style={{ lineHeight: 1.5 }}>
-                Small notes now become clarity later.
-              </p>
             </div>
             
             {/* New entry card */}
             <button
               onClick={() => setIsNewEntryOpen(true)}
-              className="w-full new-entry-card !p-5 md:!p-6 lg:!p-8 text-left group focus:outline-none focus:ring-0"
+              className="w-full new-entry-card !p-5 md:!p-6 lg:!p-10 text-left group focus:outline-none focus:ring-0"
             >
               <div className="flex items-center gap-3 md:gap-4">
                 <div className="plus-icon-container !w-10 !h-10 md:!w-12 md:!h-12 lg:!w-14 lg:!h-14">
@@ -127,13 +124,10 @@ export default function DashboardPage() {
                     New Entry
                   </h3>
                   <p className="text-warm-muted mt-0.5 text-xs md:text-[13px]">
-                    Wins, learnings, or moments that mattered
+                    Capture today's achievements
                   </p>
                 </div>
               </div>
-              <p className="text-warm-muted/60 text-[10px] md:text-[11px] mt-3 md:mt-4 pl-[52px] md:pl-[64px] lg:pl-[70px]" style={{ lineHeight: 1.4 }}>
-                Short is fine. This is for noticing, not perfect summaries.
-              </p>
             </button>
             
             {/* Calendar - visible on tablet+ */}
