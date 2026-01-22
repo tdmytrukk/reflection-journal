@@ -102,51 +102,53 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   if (!reviewData) {
     return (
       <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
+        {/* Header with refresh icon */}
+        <div className="flex items-center justify-between mb-1 md:mb-1.5">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
               <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
             </div>
             <h3 className="text-warm-primary text-base md:text-lg" style={{ fontWeight: 500 }}>{periodLabel}</h3>
           </div>
-          <span className="text-warm-muted text-xs md:text-[13px]">{monthYear}</span>
+          <button
+            onClick={generateReview}
+            disabled={isGenerating || !canGenerate}
+            className="p-1.5 rounded-lg hover:bg-[rgba(107,122,90,0.08)] transition-colors text-cedar hover:text-moss disabled:opacity-50"
+            title="Generate AI review"
+          >
+            <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+          </button>
         </div>
         
-        {/* Local summaries from individual entries */}
-        {localStats.summaries.length > 0 && (
-          <div className="space-y-2 md:space-y-3 mb-4">
-            {localStats.summaries.map((summary, index) => (
-              <div key={index} className="sidebar-inner-card !p-3 md:!p-4">
-                <p className="text-warm-body text-xs md:text-sm" style={{ lineHeight: 1.6 }}>
-                  {summary}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-        
-        {/* Generate button */}
-        <Button
-          onClick={generateReview}
-          disabled={isGenerating || !canGenerate}
-          className="w-full btn-primary mb-4"
-          size="sm"
-        >
-          {isGenerating ? (
-            <>
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate AI Review
-            </>
-          )}
-        </Button>
+        {/* Subtitle and date */}
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <p className="text-warm-muted text-[11px] md:text-xs">Generated from your entries this month.</p>
+          <span className="text-warm-muted text-[11px] md:text-xs">{monthYear}</span>
+        </div>
         
         {error && (
           <p className="text-red-600 text-xs mb-3">{error}</p>
+        )}
+        
+        {/* Local summaries from individual entries with emojis */}
+        {localStats.summaries.length > 0 && (
+          <div className="space-y-2 md:space-y-3 mb-4">
+            {localStats.summaries.map((summary, index) => {
+              // Assign contextual emojis based on index/content
+              const emojis = ['🎯', '💡', '🚀', '✨', '🏆'];
+              const emoji = emojis[index % emojis.length];
+              return (
+                <div key={index} className="sidebar-inner-card !p-3 md:!p-4">
+                  <div className="flex gap-2 md:gap-3">
+                    <span className="flex-shrink-0 text-sm md:text-base">{emoji}</span>
+                    <p className="text-warm-body text-xs md:text-sm" style={{ lineHeight: 1.6 }}>
+                      {summary}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
         
         {/* Basic stats */}
