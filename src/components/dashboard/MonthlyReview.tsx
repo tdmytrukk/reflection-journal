@@ -104,7 +104,7 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   if (!reviewData) {
     return (
       <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
               <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
@@ -113,6 +113,9 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
           </div>
           <span className="text-warm-muted text-xs md:text-[13px]">{monthYear}</span>
         </div>
+        <p className="text-warm-muted/60 text-[10px] md:text-[11px] mb-3 md:mb-4 pl-10 md:pl-[52px]" style={{ lineHeight: 1.4 }}>
+          A snapshot of patterns emerging from your entries.
+        </p>
         
         {/* Local summaries from individual entries */}
         {localStats.summaries.length > 0 && (
@@ -192,7 +195,7 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   return (
     <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-1.5 md:mb-2">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
@@ -201,6 +204,9 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
         </div>
         <span className="text-warm-muted text-xs md:text-[13px]">{monthYear}</span>
       </div>
+      <p className="text-warm-muted/60 text-[10px] md:text-[11px] mb-4 md:mb-5 pl-10 md:pl-[52px]" style={{ lineHeight: 1.4 }}>
+        Generated from your reflections this month.
+      </p>
       
       {/* Opening insight - prominent */}
       <p className="text-warm-body text-sm md:text-base mb-4 md:mb-5" style={{ lineHeight: 1.7 }}>
