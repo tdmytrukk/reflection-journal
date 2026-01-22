@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check } from '@/components/ui/icons';
+import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check, CornerDownLeft } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -42,33 +42,65 @@ const PLACEHOLDER_PROMPTS = [
   "Even partial thoughts count.",
 ];
 
-// Follow-up prompts based on detected signals in entry content
-const FOLLOWUP_PROMPTS = {
-  decision: [
-    "What made this decision not straightforward?",
-    "What were the alternatives you considered?",
-  ],
-  uncertainty: [
-    "What were you unsure about at the start?",
-    "What helped you move forward despite the uncertainty?",
-  ],
-  outcome: [
-    "What outcome mattered most here?",
-    "What changed after you made the call?",
-  ],
-  challenge: [
-    "What made this particularly difficult?",
-    "What would you do differently next time?",
-  ],
-};
-
-// Signal detection patterns
-const SIGNAL_PATTERNS = {
-  decision: /\b(decided|chose|picked|went with|opted|selected|made the call|call to)\b/i,
-  uncertainty: /\b(wasn't sure|unsure|uncertain|didn't know|not sure|hesitant|torn between|debated)\b/i,
-  outcome: /\b(resulted in|led to|ended up|turned out|outcome|worked out|succeeded|failed|achieved)\b/i,
-  challenge: /\b(difficult|hard|challenging|struggled|obstacle|problem|issue|tough|tricky)\b/i,
-};
+// Contextual follow-up prompts based on detected content patterns
+const CONTEXTUAL_PROMPTS: { pattern: RegExp; prompts: string[] }[] = [
+  {
+    pattern: /\b(met|achieved|hit|reached|exceeded)\s+(goal|target|milestone|quota)/i,
+    prompts: [
+      "What was the specific goal you achieved?",
+      "What helped you reach this goal?",
+    ],
+  },
+  {
+    pattern: /\b(decided|chose|picked|made the call|went with)\b/i,
+    prompts: [
+      "What made this decision difficult at the time?",
+      "What alternatives did you consider?",
+    ],
+  },
+  {
+    pattern: /\b(worried|uncertain|unsure|nervous|anxious|hesitant)\b/i,
+    prompts: [
+      "What did you think might not work at the start?",
+      "What were you most uncertain about?",
+    ],
+  },
+  {
+    pattern: /\b(worked|went well|succeeded|success|won|nailed)\b/i,
+    prompts: [
+      "What signal told you this was working?",
+      "What specifically made this successful?",
+    ],
+  },
+  {
+    pattern: /\b(failed|didn't work|struggled|difficult|hard|challenging)\b/i,
+    prompts: [
+      "What made this particularly difficult?",
+      "What would you try differently next time?",
+    ],
+  },
+  {
+    pattern: /\b(learned|realized|discovered|noticed|understood)\b/i,
+    prompts: [
+      "What surprised you about this?",
+      "How will this change what you do next?",
+    ],
+  },
+  {
+    pattern: /\b(feedback|review|critique|input)\b/i,
+    prompts: [
+      "What was the most useful part of the feedback?",
+      "What will you do with this feedback?",
+    ],
+  },
+  {
+    pattern: /\b(meeting|conversation|discussion|talked|spoke)\b/i,
+    prompts: [
+      "What was the key takeaway from this conversation?",
+      "What came up that you didn't expect?",
+    ],
+  },
+];
 
 function getYesterday(): Date {
   const d = new Date();
@@ -81,6 +113,8 @@ function isSameDay(a: Date, b: Date): boolean {
          a.getMonth() === b.getMonth() &&
          a.getDate() === b.getDate();
 }
+
+type ModalStep = 'writing' | 'followup';
 
 export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
   const { user } = useAuth();
@@ -97,8 +131,16 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [dismissedPrompts, setDismissedPrompts] = useState(false);
+  
+  // Two-step flow state
+  const [modalStep, setModalStep] = useState<ModalStep>('writing');
+  const [savedEntries, setSavedEntries] = useState<string[]>([]);
+  const [followUpContext, setFollowUpContext] = useState('');
+  const [selectedFollowUpPrompt, setSelectedFollowUpPrompt] = useState<string | null>(null);
+  const [dismissedFollowUp, setDismissedFollowUp] = useState(false);
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const followUpTextareaRef = useRef<HTMLTextAreaElement>(null);
   const pendingTranscriptRef = useRef<string>('');
   
   // Speech recognition
@@ -170,16 +212,24 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       
       const correctedText = await correctGrammar(pendingText);
       
-      setInput(prev => {
-        const separator = prev && !prev.endsWith(' ') ? ' ' : '';
-        return prev + separator + correctedText;
-      });
+      if (modalStep === 'writing') {
+        setInput(prev => {
+          const separator = prev && !prev.endsWith(' ') ? ' ' : '';
+          return prev + separator + correctedText;
+        });
+      } else {
+        setFollowUpContext(prev => {
+          const separator = prev && !prev.endsWith(' ') ? ' ' : '';
+          return prev + separator + correctedText;
+        });
+      }
     };
 
     if (!isListening && pendingTranscriptRef.current) {
       applyGrammarCorrection();
     }
-  }, [isListening, correctGrammar]);
+  }, [isListening, correctGrammar, modalStep]);
+
   // Show speech error as toast
   useEffect(() => {
     if (speechError) {
@@ -195,106 +245,95 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     }
   }, [input]);
 
-  // Focus textarea, reset date, and randomize placeholder when modal opens
+  // Auto-resize follow-up textarea
+  useEffect(() => {
+    if (followUpTextareaRef.current) {
+      followUpTextareaRef.current.style.height = 'auto';
+      followUpTextareaRef.current.style.height = `${Math.min(followUpTextareaRef.current.scrollHeight, 150)}px`;
+    }
+  }, [followUpContext]);
+
+  // Focus textarea, reset state when modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedDate(new Date());
       setPlaceholderIndex(Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length));
-      setDismissedPrompts(false);
+      setModalStep('writing');
+      setSavedEntries([]);
+      setFollowUpContext('');
+      setSelectedFollowUpPrompt(null);
+      setDismissedFollowUp(false);
+      setInput('');
+      setEntries([]);
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
     }
   }, [isOpen]);
 
-  // Detect signals in current input to show follow-up prompts
-  const detectedSignals = useMemo(() => {
-    const allText = [...entries, input].join(' ');
-    if (allText.length < 20) return []; // Don't show for very short entries
+  // Focus follow-up textarea when a prompt is selected
+  useEffect(() => {
+    if (selectedFollowUpPrompt && followUpTextareaRef.current) {
+      followUpTextareaRef.current.focus();
+    }
+  }, [selectedFollowUpPrompt]);
+
+  // Detect contextual follow-up prompts based on saved content
+  const contextualPrompts = useMemo(() => {
+    const allText = savedEntries.join(' ');
+    if (allText.length < 15) return [];
     
-    const signals: (keyof typeof SIGNAL_PATTERNS)[] = [];
-    for (const [signal, pattern] of Object.entries(SIGNAL_PATTERNS)) {
+    const matchedPrompts: string[] = [];
+    for (const { pattern, prompts } of CONTEXTUAL_PROMPTS) {
       if (pattern.test(allText)) {
-        signals.push(signal as keyof typeof SIGNAL_PATTERNS);
+        // Pick one random prompt from this category
+        matchedPrompts.push(prompts[Math.floor(Math.random() * prompts.length)]);
       }
     }
-    return signals.slice(0, 2); // Max 2 signal types
-  }, [entries, input]);
+    return matchedPrompts.slice(0, 2); // Max 2 prompts
+  }, [savedEntries]);
 
-  // Get follow-up prompts based on detected signals
-  const followUpPrompts = useMemo(() => {
-    if (dismissedPrompts || detectedSignals.length === 0) return [];
-    
-    const prompts: string[] = [];
-    for (const signal of detectedSignals) {
-      const signalPrompts = FOLLOWUP_PROMPTS[signal];
-      if (signalPrompts.length > 0) {
-        // Pick one random prompt per signal
-        prompts.push(signalPrompts[Math.floor(Math.random() * signalPrompts.length)]);
-      }
-    }
-    return prompts.slice(0, 2); // Max 2 prompts total
-  }, [detectedSignals, dismissedPrompts]);
-
-  // Handle clicking a follow-up prompt
-  const handlePromptClick = (prompt: string) => {
-    const promptText = `\n\n${prompt} `;
-    setInput(prev => prev + promptText);
-    // Focus and move cursor to end
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.selectionStart = textareaRef.current.value.length;
-        textareaRef.current.selectionEnd = textareaRef.current.value.length;
-      }
-    }, 0);
-  };
-
-  // Toggle voice recording
-  const handleVoiceToggle = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
-  const handleSubmitEntry = () => {
-    if (!input.trim()) return;
-    setEntries(prev => [...prev, input.trim()]);
-    setInput('');
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmitEntry();
-    }
-  };
-
-  const removeEntry = (index: number) => {
-    setEntries(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSave = async () => {
-    if (!user) {
-      toast.error('You must be logged in to save entries');
-      return;
-    }
-    
-    // Include current input if there's content
+  // Handle first save (moves to follow-up step)
+  const handleInitialSave = () => {
     const allEntries = input.trim() 
       ? [...entries, input.trim()] 
       : entries;
 
     if (allEntries.length === 0) return;
     
+    setSavedEntries(allEntries);
+    setEntries([]);
+    setInput('');
+    
+    // Check if there are contextual prompts to show
+    const allText = allEntries.join(' ');
+    const hasPrompts = CONTEXTUAL_PROMPTS.some(({ pattern }) => pattern.test(allText));
+    
+    if (hasPrompts) {
+      setModalStep('followup');
+    } else {
+      // No contextual prompts, save immediately
+      performFinalSave(allEntries, '');
+    }
+  };
+
+  // Perform final save to database
+  const performFinalSave = async (entriesToSave: string[], additionalContext: string) => {
+    if (!user) {
+      toast.error('You must be logged in to save entries');
+      return;
+    }
+    
     setIsSaving(true);
     
+    // Merge entries with additional context if provided
+    let finalEntries = [...entriesToSave];
+    if (additionalContext.trim()) {
+      finalEntries.push(additionalContext.trim());
+    }
+    
     const entryData = {
-      achievements: allEntries,
+      achievements: finalEntries,
       learnings: [] as string[],
       insights: [] as string[],
       decisions: [] as string[],
@@ -320,21 +359,31 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       // Match to responsibilities if available
       if (responsibilities.length > 0) {
         triggerMatching(result.entryId).then(() => {
-          // Refresh to show match indicator
           onEntrySaved?.();
         });
       }
     }
     
     setIsSaving(false);
-    
-    // Notify parent to refresh data
     onEntrySaved?.();
     
-    // Reset form
+    // Reset and close
     setInput('');
     setEntries([]);
+    setSavedEntries([]);
+    setFollowUpContext('');
+    setModalStep('writing');
     onClose();
+  };
+
+  // Handle final save with context
+  const handleFinalSaveWithContext = () => {
+    performFinalSave(savedEntries, followUpContext);
+  };
+
+  // Skip follow-up and save without additional context
+  const handleSkipFollowUp = () => {
+    performFinalSave(savedEntries, '');
   };
 
   const generateReflection = async (entryId: string, entryData: {
@@ -356,21 +405,204 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
         return;
       }
 
-      // Refresh data to show the new reflection
       onEntrySaved?.();
       toast.success('AI reflection generated! ✨');
     } catch (error) {
       console.error('Reflection generation error:', error);
     }
   };
-  
+
+  const handleSubmitEntry = () => {
+    if (!input.trim()) return;
+    setEntries(prev => [...prev, input.trim()]);
+    setInput('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitEntry();
+    }
+  };
+
+  const removeEntry = (index: number) => {
+    setEntries(prev => prev.filter((_, i) => i !== index));
+  };
 
   const nextPrompt = () => {
     setCurrentPromptIndex(prev => (prev + 1) % REFLECTION_PROMPTS.length);
   };
+
+  const handleSelectFollowUpPrompt = (prompt: string) => {
+    setSelectedFollowUpPrompt(prompt);
+  };
   
   if (!isOpen) return null;
+
+  // Follow-up step UI
+  if (modalStep === 'followup') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-ink/20 backdrop-blur-sm"
+          onClick={() => handleSkipFollowUp()}
+        />
+        
+        {/* Modal */}
+        <div className="relative w-full max-w-2xl animate-slide-up">
+          {/* Original entry preview */}
+          <div className="mb-3 p-4 rounded-xl bg-card/95 backdrop-blur border border-border shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">Your entry</span>
+            </div>
+            <div className="space-y-1">
+              {savedEntries.map((entry, index) => (
+                <p key={index} className="text-sm text-foreground leading-relaxed">{entry}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* Follow-up section */}
+          <div className="journal-card shadow-lg">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+              </span>
+              <button
+                onClick={handleSkipFollowUp}
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {!selectedFollowUpPrompt && !dismissedFollowUp && contextualPrompts.length > 0 && (
+              <div className="animate-fade-in">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Want to add more context? This can help surface clearer insights later.
+                </p>
+                <div className="space-y-2 mb-4">
+                  {contextualPrompts.map((prompt, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleSelectFollowUpPrompt(prompt)}
+                      className="w-full text-left px-4 py-3 rounded-lg bg-muted/30 hover:bg-muted/50 text-sm text-foreground transition-colors border border-transparent hover:border-border"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedFollowUpPrompt && (
+              <div className="animate-fade-in">
+                <div className="flex items-start gap-2 mb-3">
+                  <CornerDownLeft className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-foreground font-medium">{selectedFollowUpPrompt}</p>
+                </div>
+                <textarea
+                  ref={followUpTextareaRef}
+                  value={followUpContext}
+                  onChange={(e) => setFollowUpContext(e.target.value)}
+                  placeholder="Add your response..."
+                  className="w-full resize-none bg-muted/30 border border-border rounded-lg px-4 py-3 outline-none text-foreground placeholder:text-muted-foreground/60 text-sm leading-relaxed min-h-[80px] max-h-[150px] focus:border-primary/50 transition-colors"
+                  rows={3}
+                />
+              </div>
+            )}
+
+            {/* Divider */}
+            <div className="h-px bg-border my-4" />
+
+            {/* Footer actions */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 items-center">
+                {isSpeechSupported && !isListening && !isCorrectingGrammar && selectedFollowUpPrompt && (
+                  <button 
+                    onClick={startListening}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                    title="Start voice input"
+                  >
+                    <Mic className="w-4 h-4" />
+                  </button>
+                )}
+                {isListening && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 animate-fade-in">
+                    <Mic className="w-4 h-4 text-primary" />
+                    <div className="flex items-center gap-0.5 h-4">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="w-0.5 bg-primary rounded-full animate-pulse"
+                          style={{
+                            height: `${Math.random() * 12 + 6}px`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: `${0.4 + Math.random() * 0.3}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={stopListening}
+                      className="p-1 rounded-full hover:bg-moss/20 transition-colors text-moss"
+                      title="Save recording"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        stopListening();
+                        pendingTranscriptRef.current = '';
+                      }}
+                      className="p-1 rounded-full hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
+                      title="Cancel recording"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+                {isCorrectingGrammar && (
+                  <button 
+                    disabled
+                    className="p-2 rounded-lg bg-primary/10 text-primary"
+                    title="Correcting grammar..."
+                  >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </button>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSkipFollowUp}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={handleFinalSaveWithContext}
+                  disabled={isSaving}
+                  className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isSaving ? 'Saving...' : 'Save Entry'}
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
+  // Writing step UI (default)
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
       {/* Backdrop */}
@@ -490,44 +722,17 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               rows={1}
             />
             
-            {/* Submit button */}
+            {/* Add entry button (arrow) */}
             {input.trim() && (
               <button
                 onClick={handleSubmitEntry}
-                className="absolute right-0 bottom-0 p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all animate-fade-in"
+                className="absolute right-0 bottom-0 p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all animate-fade-in"
+                title="Add to entry (Enter)"
               >
                 <ArrowRight className="w-4 h-4" />
               </button>
             )}
           </div>
-
-          {/* Optional follow-up prompts */}
-          {followUpPrompts.length > 0 && (
-            <div className="mt-4 animate-fade-in">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-muted-foreground/70">
-                  Want to add more context?
-                </span>
-                <button
-                  onClick={() => setDismissedPrompts(true)}
-                  className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-                >
-                  Dismiss
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {followUpPrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handlePromptClick(prompt)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-left"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Divider */}
           <div className="h-px bg-border my-4" />
@@ -605,11 +810,12 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                 {entries.length > 0 && `${entries.length} item${entries.length > 1 ? 's' : ''}`}
               </span>
               <button
-                onClick={handleSave}
+                onClick={handleInitialSave}
                 disabled={isSaving || (entries.length === 0 && !input.trim())}
-                className="btn-serene text-sm disabled:opacity-50"
+                className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? 'Saving...' : 'Save Entry'}
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
