@@ -703,8 +703,8 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
             </button>
           </div>
 
-          {/* Command line input */}
-          <div className="relative">
+          {/* Command line input with inline actions */}
+          <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
               value={input}
@@ -718,41 +718,24 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               data-lpignore="true"
               data-1p-ignore="true"
               data-form-type="other"
-              className="w-full resize-none bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 text-base leading-relaxed min-h-[24px] max-h-[200px] pr-12"
+              className="flex-1 resize-none bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 text-base leading-relaxed min-h-[24px] max-h-[200px]"
               rows={1}
             />
             
-            {/* Add entry button (arrow) */}
-            {input.trim() && (
-              <button
-                onClick={handleSubmitEntry}
-                className="absolute right-0 bottom-0 p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-all animate-fade-in"
-                title="Add to entry (Enter)"
-              >
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="h-px bg-border my-4" />
-
-          {/* Footer actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1 items-center">
+            {/* Inline action buttons */}
+            <div className="flex items-center gap-1 flex-shrink-0 pb-0.5">
+              {/* Voice input */}
               {isSpeechSupported ? (
                 isListening ? (
-                  /* Recording in progress - waveform UI */
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 animate-fade-in">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 animate-fade-in">
                     <Mic className="w-4 h-4 text-primary" />
-                    {/* Animated waveform */}
                     <div className="flex items-center gap-0.5 h-4">
-                      {[...Array(5)].map((_, i) => (
+                      {[...Array(3)].map((_, i) => (
                         <div
                           key={i}
                           className="w-0.5 bg-primary rounded-full animate-pulse"
                           style={{
-                            height: `${Math.random() * 12 + 6}px`,
+                            height: `${Math.random() * 10 + 4}px`,
                             animationDelay: `${i * 0.1}s`,
                             animationDuration: `${0.4 + Math.random() * 0.3}s`,
                           }}
@@ -761,20 +744,20 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                     </div>
                     <button
                       onClick={stopListening}
-                      className="p-1 rounded-full hover:bg-moss/20 transition-colors text-moss"
+                      className="p-0.5 rounded hover:bg-moss/20 transition-colors text-moss"
                       title="Save recording"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3 h-3" />
                     </button>
                     <button
                       onClick={() => {
                         stopListening();
                         pendingTranscriptRef.current = '';
                       }}
-                      className="p-1 rounded-full hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
-                      title="Cancel recording"
+                      className="p-0.5 rounded hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
+                      title="Cancel"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
                 ) : isCorrectingGrammar ? (
@@ -794,36 +777,23 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                     <Mic className="w-4 h-4" />
                   </button>
                 )
-              ) : (
-                <button 
-                  className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors opacity-50 cursor-not-allowed" 
-                  disabled
-                  title="Voice input not supported in this browser"
-                >
-                  <Mic className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">
-                {entries.length > 0 && `${entries.length} item${entries.length > 1 ? 's' : ''}`}
-              </span>
+              ) : null}
+              
+              {/* Submit button - Return icon in sage green */}
               <button
                 onClick={handleInitialSave}
                 disabled={isSaving || (entries.length === 0 && !input.trim())}
-                className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
+                className="p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Save entry"
               >
-                {isSaving ? 'Saving...' : 'Save Entry'}
-                <ArrowRight className="w-4 h-4" />
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CornerDownLeft className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
-          
-          {/* Hint text */}
-          <p className="text-xs text-muted-foreground/60 mt-3 text-center">
-            Press Enter to add • Shift+Enter for new line
-          </p>
         </div>
       </div>
     </div>
