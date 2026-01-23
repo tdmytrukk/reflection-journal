@@ -507,14 +507,76 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                   <CornerDownLeft className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                   <p className="text-sm text-foreground font-medium">{selectedFollowUpPrompt}</p>
                 </div>
-                <textarea
-                  ref={followUpTextareaRef}
-                  value={followUpContext}
-                  onChange={(e) => setFollowUpContext(e.target.value)}
-                  placeholder="Add your response..."
-                  className="w-full resize-none bg-muted/30 border border-border rounded-lg px-4 py-3 outline-none text-foreground placeholder:text-muted-foreground/60 text-sm leading-relaxed min-h-[80px] max-h-[150px] focus:border-primary/50 transition-colors"
-                  rows={3}
-                />
+                
+                {/* Input with inline actions - matches initial entry layout */}
+                <div className="flex items-end gap-2 bg-muted/30 border border-border rounded-lg px-4 py-3 focus-within:border-primary/50 transition-colors">
+                  <textarea
+                    ref={followUpTextareaRef}
+                    value={followUpContext}
+                    onChange={(e) => setFollowUpContext(e.target.value)}
+                    placeholder="Add your response..."
+                    className="flex-1 resize-none bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/60 text-sm leading-relaxed min-h-[60px] max-h-[150px]"
+                    rows={2}
+                  />
+                  
+                  {/* Inline action buttons */}
+                  <div className="flex items-center gap-1 flex-shrink-0 pb-0.5">
+                    {/* Voice input */}
+                    {isSpeechSupported ? (
+                      isListening ? (
+                        <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/10 animate-fade-in">
+                          <Mic className="w-4 h-4 text-primary" />
+                          <div className="flex items-center gap-0.5 h-4">
+                            {[...Array(3)].map((_, i) => (
+                              <div
+                                key={i}
+                                className="w-0.5 bg-primary rounded-full animate-pulse"
+                                style={{
+                                  height: `${Math.random() * 10 + 4}px`,
+                                  animationDelay: `${i * 0.1}s`,
+                                  animationDuration: `${0.4 + Math.random() * 0.3}s`,
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <button
+                            onClick={stopListening}
+                            className="p-2 rounded-lg hover:bg-moss/20 transition-colors text-moss"
+                            title="Save recording"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              stopListening();
+                              pendingTranscriptRef.current = '';
+                            }}
+                            className="p-2 rounded-lg hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
+                            title="Cancel"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : isCorrectingGrammar ? (
+                        <button 
+                          disabled
+                          className="p-2 rounded-lg bg-primary/10 text-primary"
+                          title="Correcting grammar..."
+                        >
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={startListening}
+                          className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                          title="Start voice input"
+                        >
+                          <Mic className="w-4 h-4" />
+                        </button>
+                      )
+                    ) : null}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -522,79 +584,21 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
             <div className="h-px bg-border my-4" />
 
             {/* Footer actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-1 items-center">
-                {isSpeechSupported && !isListening && !isCorrectingGrammar && selectedFollowUpPrompt && (
-                  <button 
-                    onClick={startListening}
-                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
-                    title="Start voice input"
-                  >
-                    <Mic className="w-4 h-4" />
-                  </button>
-                )}
-                {isListening && (
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 animate-fade-in">
-                    <Mic className="w-4 h-4 text-primary" />
-                    <div className="flex items-center gap-0.5 h-4">
-                      {[...Array(5)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-0.5 bg-primary rounded-full animate-pulse"
-                          style={{
-                            height: `${Math.random() * 12 + 6}px`,
-                            animationDelay: `${i * 0.1}s`,
-                            animationDuration: `${0.4 + Math.random() * 0.3}s`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <button
-                      onClick={stopListening}
-                      className="p-1 rounded-full hover:bg-moss/20 transition-colors text-moss"
-                      title="Save recording"
-                    >
-                      <Check className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        stopListening();
-                        pendingTranscriptRef.current = '';
-                      }}
-                      className="p-1 rounded-full hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
-                      title="Cancel recording"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-                {isCorrectingGrammar && (
-                  <button 
-                    disabled
-                    className="p-2 rounded-lg bg-primary/10 text-primary"
-                    title="Correcting grammar..."
-                  >
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  </button>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleSkipFollowUp}
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Skip
-                </button>
-                <button
-                  onClick={handleFinalSaveWithContext}
-                  disabled={isSaving}
-                  className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
-                >
-                  {isSaving ? 'Saving...' : 'Save Entry'}
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={handleSkipFollowUp}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Skip
+              </button>
+              <button
+                onClick={handleFinalSaveWithContext}
+                disabled={isSaving}
+                className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {isSaving ? 'Saving...' : 'Save Entry'}
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
