@@ -43,96 +43,125 @@ const PLACEHOLDER_PROMPTS = [
 ];
 
 // Contextual follow-up prompts based on detected content patterns
-const CONTEXTUAL_PROMPTS: { pattern: RegExp; prompts: string[] }[] = [
-  // Launch/ship - ask for artifacts and metrics
+// Priority 1 = reflection/mindfulness prompts (shown first)
+// Priority 2 = tangible/metrics/artifacts prompts (shown when "going deeper")
+const CONTEXTUAL_PROMPTS: { pattern: RegExp; prompts: { text: string; priority: 1 | 2 }[] }[] = [
+  // Launch/ship
   {
     pattern: /\b(launched|shipped|released|published|deployed|live|went live)\b/i,
     prompts: [
-      "Have a link to share? (video, article, or doc)",
-      "What was the target metric you were aiming for?",
-      "What's one thing you'd describe about the process in a sentence?",
+      { text: "What did you think might not work at the start?", priority: 1 },
+      { text: "How will this change what you do next?", priority: 1 },
+      { text: "What was the target metric you were aiming for?", priority: 2 },
+      { text: "Have a link to share? (video, article, or doc)", priority: 2 },
     ],
   },
   // Campaign/creative work
   {
     pattern: /\b(campaign|creative|ad|banner|video|content|post)\b/i,
     prompts: [
-      "Have a link to the creative you can share?",
-      "What metric did you beat (or aim for)?",
-      "What was the brief in one sentence?",
+      { text: "What were you most uncertain about?", priority: 1 },
+      { text: "What signal told you this was working?", priority: 1 },
+      { text: "What metric did you beat (or aim for)?", priority: 2 },
+      { text: "Have a link to the creative you can share?", priority: 2 },
     ],
   },
   // Goals/targets achieved
   {
     pattern: /\b(met|achieved|hit|reached|exceeded|beat|surpassed)\s*(the\s+)?(goal|target|milestone|quota|kpi|benchmark)/i,
     prompts: [
-      "What was the specific target vs actual result?",
-      "What process change helped you get there?",
+      { text: "What helped you push through to reach this?", priority: 1 },
+      { text: "How will this change what you aim for next?", priority: 1 },
+      { text: "What was the specific target vs actual result?", priority: 2 },
     ],
   },
   // Successful outcomes
   {
     pattern: /\b(worked|went well|succeeded|success|successful|won|nailed|crushed)\b/i,
     prompts: [
-      "Any artifact you can link to? (deck, doc, or recording)",
-      "What was the measurable outcome?",
-      "What signal told you this was working?",
+      { text: "What signal told you this was working?", priority: 1 },
+      { text: "What surprised you about how it turned out?", priority: 1 },
+      { text: "What was the measurable outcome?", priority: 2 },
+      { text: "Any artifact you can link to? (deck, doc, or recording)", priority: 2 },
     ],
   },
   // Results/metrics mentioned
   {
     pattern: /\b(\d+%|\d+x|percent|conversion|ctr|roas|revenue|growth|increase|decrease)\b/i,
     prompts: [
-      "What was the target you were aiming for?",
-      "What drove this result?",
+      { text: "What drove this result?", priority: 1 },
+      { text: "How will you build on this?", priority: 1 },
+      { text: "What was the target you were aiming for?", priority: 2 },
     ],
   },
   // Decisions
   {
     pattern: /\b(decided|chose|picked|made the call|went with|pivoted)\b/i,
     prompts: [
-      "What alternatives did you consider?",
-      "Any doc or notes you can link for future reference?",
+      { text: "What made this decision difficult at the time?", priority: 1 },
+      { text: "What alternatives did you consider?", priority: 1 },
+      { text: "Any doc or notes you can link for future reference?", priority: 2 },
     ],
   },
-  // Uncertainty/worry - continue that thread
+  // Uncertainty/worry
   {
     pattern: /\b(worried|uncertain|unsure|nervous|anxious|hesitant|risky|risk)\b/i,
     prompts: [
-      "What made you push forward despite the uncertainty?",
-      "How will this change what you do next?",
+      { text: "What did you think might not work at the start?", priority: 1 },
+      { text: "What made you push forward despite the uncertainty?", priority: 1 },
+      { text: "How will this change what you do next?", priority: 1 },
     ],
   },
   // Learnings
   {
     pattern: /\b(learned|realized|discovered|noticed|understood|insight)\b/i,
     prompts: [
-      "How will this change what you do next?",
-      "Any resource that helped? (article, video, person)",
+      { text: "What surprised you about this?", priority: 1 },
+      { text: "How will this change what you do next?", priority: 1 },
+      { text: "Any resource that helped? (article, video, person)", priority: 2 },
     ],
   },
   // Feedback
   {
     pattern: /\b(feedback|review|critique|input|approved|rejected)\b/i,
     prompts: [
-      "What will you do differently based on this?",
-      "Any artifacts from this review you can link?",
+      { text: "What will you do differently based on this?", priority: 1 },
+      { text: "What part of the feedback surprised you?", priority: 1 },
+      { text: "Any artifacts from this review you can link?", priority: 2 },
     ],
   },
   // Presentation/meeting
   {
     pattern: /\b(presented|presentation|deck|meeting|stakeholder|exec|leadership)\b/i,
     prompts: [
-      "Have a link to the deck or recording?",
-      "What was the key takeaway or decision?",
+      { text: "What was the key takeaway or decision?", priority: 1 },
+      { text: "What came up that you didn't expect?", priority: 1 },
+      { text: "Have a link to the deck or recording?", priority: 2 },
     ],
   },
   // Document/write-up
   {
     pattern: /\b(wrote|written|document|doc|brief|strategy|plan|proposal)\b/i,
     prompts: [
-      "Have a link to the document?",
-      "What's the one-line summary?",
+      { text: "What's the one-line summary?", priority: 1 },
+      { text: "What was the hardest part to articulate?", priority: 1 },
+      { text: "Have a link to the document?", priority: 2 },
+    ],
+  },
+  // Failed/struggled
+  {
+    pattern: /\b(failed|didn't work|struggled|difficult|hard|challenging)\b/i,
+    prompts: [
+      { text: "What made this particularly difficult?", priority: 1 },
+      { text: "What would you try differently next time?", priority: 1 },
+    ],
+  },
+  // Collaboration
+  {
+    pattern: /\b(team|collaborated|together|helped|supported|partnership)\b/i,
+    prompts: [
+      { text: "What did you learn from working with others on this?", priority: 1 },
+      { text: "How did this shape how you'll collaborate next time?", priority: 1 },
     ],
   },
 ];
@@ -351,21 +380,30 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   }, [selectedFollowUpPrompt]);
 
   // Detect contextual follow-up prompts based on saved content (excluding already used prompts)
+  // Priority 1 (reflection) prompts are shown first, priority 2 (tangible) come later
   const contextualPrompts = useMemo(() => {
     const allText = [...savedEntries, ...followUpQAs.map(qa => qa.answer)].join(' ');
     if (allText.length < 15) return [];
     
-    const matchedPrompts: string[] = [];
+    // Collect all matching prompts with their priority
+    const allMatchedPrompts: { text: string; priority: 1 | 2 }[] = [];
+    
     for (const { pattern, prompts } of CONTEXTUAL_PROMPTS) {
       if (pattern.test(allText)) {
-        // Pick prompts that haven't been used yet
-        const unusedPrompts = prompts.filter(p => !usedPrompts.includes(p));
-        if (unusedPrompts.length > 0) {
-          matchedPrompts.push(unusedPrompts[Math.floor(Math.random() * unusedPrompts.length)]);
-        }
+        // Add prompts that haven't been used yet
+        prompts.forEach(prompt => {
+          if (!usedPrompts.includes(prompt.text) && !allMatchedPrompts.find(p => p.text === prompt.text)) {
+            allMatchedPrompts.push(prompt);
+          }
+        });
       }
     }
-    return matchedPrompts.filter(p => !usedPrompts.includes(p)).slice(0, 2); // Max 2 prompts
+    
+    // Sort by priority (1 = reflection first, 2 = tangible later), then shuffle within priority
+    const sortedPrompts = allMatchedPrompts.sort((a, b) => a.priority - b.priority);
+    
+    // Return up to 2 prompts, preferring priority 1 first
+    return sortedPrompts.slice(0, 2).map(p => p.text);
   }, [savedEntries, followUpQAs, usedPrompts]);
 
   // Handle first save (moves to follow-up step)
