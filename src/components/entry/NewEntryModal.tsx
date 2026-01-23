@@ -727,7 +727,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               {/* Voice input */}
               {isSpeechSupported ? (
                 isListening ? (
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 animate-fade-in">
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/10 animate-fade-in">
                     <Mic className="w-4 h-4 text-primary" />
                     <div className="flex items-center gap-0.5 h-4">
                       {[...Array(3)].map((_, i) => (
@@ -744,20 +744,20 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                     </div>
                     <button
                       onClick={stopListening}
-                      className="p-0.5 rounded hover:bg-moss/20 transition-colors text-moss"
+                      className="p-2 rounded-lg hover:bg-moss/20 transition-colors text-moss"
                       title="Save recording"
                     >
-                      <Check className="w-3 h-3" />
+                      <Check className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => {
                         stopListening();
                         pendingTranscriptRef.current = '';
                       }}
-                      className="p-0.5 rounded hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
+                      className="p-2 rounded-lg hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive"
                       title="Cancel"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : isCorrectingGrammar ? (
