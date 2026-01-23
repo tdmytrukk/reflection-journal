@@ -56,9 +56,12 @@ export const useSpeechRecognition = (): UseSpeechRecognitionResult => {
         }
       }
 
-      // Update transcript with final results
+      // Update transcript with final results, or interim if we have them
       if (finalTranscript) {
-        setTranscript(prev => prev + finalTranscript);
+        setTranscript(finalTranscript);
+      } else if (interimTranscript) {
+        // Store interim results so they're not lost if recognition stops abruptly
+        setTranscript(interimTranscript);
       }
     };
 
