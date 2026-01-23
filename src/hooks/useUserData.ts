@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import type { Entry, JobDescription } from '@/types';
+import type { Entry, JobDescription, WorkArtifact } from '@/types';
+import type { Json } from '@/integrations/supabase/types';
 
 function parseDateOnlyToLocal(dateStr: string): Date {
   // DB stores `date` as YYYY-MM-DD (no timezone). `new Date(YYYY-MM-DD)` is treated as UTC
@@ -75,6 +76,7 @@ export function useUserData() {
         learnings: e.learnings || [],
         insights: e.insights || [],
         decisions: e.decisions || [],
+        workArtifacts: (e.work_artifacts as unknown as Entry['workArtifacts']) || [],
         aiReflection: e.ai_reflection as unknown as Entry['aiReflection'],
         createdAt: new Date(e.created_at),
         updatedAt: new Date(e.updated_at),
@@ -126,21 +128,14 @@ export function useUserData() {
   const addEntry = async (entry: Omit<Entry, 'id' | 'userId' | 'createdAt' | 'updatedAt'>): Promise<{ error?: Error; entryId?: string }> => {
     if (!user) return { error: new Error('Not authenticated') };
     
-    const insertData: {
-      user_id: string;
-      date: string;
-      achievements: string[];
-      learnings: string[];
-      insights: string[];
-      decisions: string[];
-      ai_reflection?: null;
-    } = {
+    const insertData = {
       user_id: user.id,
       date: `${entry.date.getFullYear()}-${String(entry.date.getMonth() + 1).padStart(2, '0')}-${String(entry.date.getDate()).padStart(2, '0')}`,
       achievements: entry.achievements,
       learnings: entry.learnings,
       insights: entry.insights,
       decisions: entry.decisions,
+      work_artifacts: (entry.workArtifacts || []) as unknown as Json,
     };
     
     const { data, error } = await supabase

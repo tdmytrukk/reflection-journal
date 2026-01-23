@@ -37,6 +37,8 @@ import {
   RefreshCw,
   Sprout,
   CornerDownLeft,
+  Link2,
+  ExternalLink,
 } from "lucide-react";
 
 export {
@@ -78,4 +80,6 @@ export {
   RefreshCw,
   Sprout,
   CornerDownLeft,
+  Link2,
+  ExternalLink,
 };

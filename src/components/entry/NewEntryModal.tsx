@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check, CornerDownLeft, Plus } from '@/components/ui/icons';
+import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check, CornerDownLeft, Plus, Link2, ExternalLink, Trash2 } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -44,60 +44,95 @@ const PLACEHOLDER_PROMPTS = [
 
 // Contextual follow-up prompts based on detected content patterns
 const CONTEXTUAL_PROMPTS: { pattern: RegExp; prompts: string[] }[] = [
+  // Launch/ship - ask for artifacts and metrics
   {
-    pattern: /\b(met|achieved|hit|reached|exceeded)\s+(goal|target|milestone|quota)/i,
+    pattern: /\b(launched|shipped|released|published|deployed|live|went live)\b/i,
     prompts: [
-      "What was the specific goal you achieved?",
-      "What helped you reach this goal?",
+      "Have a link to share? (video, article, or doc)",
+      "What was the target metric you were aiming for?",
+      "What's one thing you'd describe about the process in a sentence?",
     ],
   },
+  // Campaign/creative work
   {
-    pattern: /\b(decided|chose|picked|made the call|went with)\b/i,
+    pattern: /\b(campaign|creative|ad|banner|video|content|post)\b/i,
     prompts: [
-      "What made this decision difficult at the time?",
-      "What alternatives did you consider?",
+      "Have a link to the creative you can share?",
+      "What metric did you beat (or aim for)?",
+      "What was the brief in one sentence?",
     ],
   },
+  // Goals/targets achieved
   {
-    pattern: /\b(worried|uncertain|unsure|nervous|anxious|hesitant)\b/i,
+    pattern: /\b(met|achieved|hit|reached|exceeded|beat|surpassed)\s*(the\s+)?(goal|target|milestone|quota|kpi|benchmark)/i,
     prompts: [
-      "What did you think might not work at the start?",
-      "What were you most uncertain about?",
+      "What was the specific target vs actual result?",
+      "What process change helped you get there?",
     ],
   },
+  // Successful outcomes
   {
-    pattern: /\b(worked|went well|succeeded|success|won|nailed)\b/i,
+    pattern: /\b(worked|went well|succeeded|success|successful|won|nailed|crushed)\b/i,
     prompts: [
+      "Any artifact you can link to? (deck, doc, or recording)",
+      "What was the measurable outcome?",
       "What signal told you this was working?",
-      "What specifically made this successful?",
     ],
   },
+  // Results/metrics mentioned
   {
-    pattern: /\b(failed|didn't work|struggled|difficult|hard|challenging)\b/i,
+    pattern: /\b(\d+%|\d+x|percent|conversion|ctr|roas|revenue|growth|increase|decrease)\b/i,
     prompts: [
-      "What made this particularly difficult?",
-      "What would you try differently next time?",
+      "What was the target you were aiming for?",
+      "What drove this result?",
     ],
   },
+  // Decisions
   {
-    pattern: /\b(learned|realized|discovered|noticed|understood)\b/i,
+    pattern: /\b(decided|chose|picked|made the call|went with|pivoted)\b/i,
     prompts: [
-      "What surprised you about this?",
+      "What alternatives did you consider?",
+      "Any doc or notes you can link for future reference?",
+    ],
+  },
+  // Uncertainty/worry - continue that thread
+  {
+    pattern: /\b(worried|uncertain|unsure|nervous|anxious|hesitant|risky|risk)\b/i,
+    prompts: [
+      "What made you push forward despite the uncertainty?",
       "How will this change what you do next?",
     ],
   },
+  // Learnings
   {
-    pattern: /\b(feedback|review|critique|input)\b/i,
+    pattern: /\b(learned|realized|discovered|noticed|understood|insight)\b/i,
     prompts: [
-      "What was the most useful part of the feedback?",
-      "What will you do with this feedback?",
+      "How will this change what you do next?",
+      "Any resource that helped? (article, video, person)",
     ],
   },
+  // Feedback
   {
-    pattern: /\b(meeting|conversation|discussion|talked|spoke)\b/i,
+    pattern: /\b(feedback|review|critique|input|approved|rejected)\b/i,
     prompts: [
-      "What was the key takeaway from this conversation?",
-      "What came up that you didn't expect?",
+      "What will you do differently based on this?",
+      "Any artifacts from this review you can link?",
+    ],
+  },
+  // Presentation/meeting
+  {
+    pattern: /\b(presented|presentation|deck|meeting|stakeholder|exec|leadership)\b/i,
+    prompts: [
+      "Have a link to the deck or recording?",
+      "What was the key takeaway or decision?",
+    ],
+  },
+  // Document/write-up
+  {
+    pattern: /\b(wrote|written|document|doc|brief|strategy|plan|proposal)\b/i,
+    prompts: [
+      "Have a link to the document?",
+      "What's the one-line summary?",
     ],
   },
 ];
@@ -120,6 +155,28 @@ type ModalStep = 'writing' | 'followup';
 interface FollowUpQA {
   question: string;
   answer: string;
+}
+
+// Work artifact link
+interface WorkArtifact {
+  url: string;
+  label?: string;
+  type: 'video' | 'article' | 'document' | 'other';
+}
+
+// Helper to detect artifact type from URL
+function detectArtifactType(url: string): WorkArtifact['type'] {
+  const lower = url.toLowerCase();
+  if (lower.includes('youtube.com') || lower.includes('youtu.be') || lower.includes('vimeo.com') || lower.includes('loom.com')) {
+    return 'video';
+  }
+  if (lower.includes('medium.com') || lower.includes('substack.com') || lower.includes('blog') || lower.includes('article')) {
+    return 'article';
+  }
+  if (lower.includes('docs.google.com') || lower.includes('notion.') || lower.includes('drive.google.com') || lower.includes('figma.com') || lower.includes('.pdf')) {
+    return 'document';
+  }
+  return 'other';
 }
 
 export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
@@ -146,6 +203,11 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   const [selectedFollowUpPrompt, setSelectedFollowUpPrompt] = useState<string | null>(null);
   const [usedPrompts, setUsedPrompts] = useState<string[]>([]); // Track used prompts
   const [dismissedFollowUp, setDismissedFollowUp] = useState(false);
+  
+  // Work artifacts state
+  const [workArtifacts, setWorkArtifacts] = useState<WorkArtifact[]>([]);
+  const [artifactInput, setArtifactInput] = useState('');
+  const [showArtifactInput, setShowArtifactInput] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const followUpTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -326,12 +388,12 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       setModalStep('followup');
     } else {
       // No contextual prompts, save immediately
-      performFinalSave(allEntries, []);
+      performFinalSave(allEntries, [], []);
     }
   };
 
   // Perform final save to database
-  const performFinalSave = async (entriesToSave: string[], qaPairs: FollowUpQA[]) => {
+  const performFinalSave = async (entriesToSave: string[], qaPairs: FollowUpQA[], artifacts: WorkArtifact[]) => {
     if (!user) {
       toast.error('You must be logged in to save entries');
       return;
@@ -354,6 +416,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       learnings: [] as string[],
       insights: [] as string[],
       decisions: [] as string[],
+      workArtifacts: artifacts,
     };
     
     const result = await addEntry({
@@ -391,6 +454,9 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     setFollowUpQAs([]);
     setFollowUpContext('');
     setUsedPrompts([]);
+    setWorkArtifacts([]);
+    setArtifactInput('');
+    setShowArtifactInput(false);
     setModalStep('writing');
     onClose();
   };
@@ -421,12 +487,12 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
         answer: followUpContext.trim()
       });
     }
-    performFinalSave(savedEntries, allQAs);
+    performFinalSave(savedEntries, allQAs, workArtifacts);
   };
 
   // Skip follow-up and save without additional context
   const handleSkipFollowUp = () => {
-    performFinalSave(savedEntries, followUpQAs);
+    performFinalSave(savedEntries, followUpQAs, workArtifacts);
   };
 
   const generateReflection = async (entryId: string, entryData: {
@@ -645,6 +711,102 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                 </div>
               </div>
             )}
+
+            {/* Work Artifacts Section */}
+            <div className="mb-4">
+              {/* Show added artifacts */}
+              {workArtifacts.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {workArtifacts.map((artifact, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center gap-2 px-3 py-2 bg-muted/30 rounded-lg text-sm group"
+                    >
+                      <Link2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                      <a 
+                        href={artifact.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex-1 truncate text-foreground hover:text-primary transition-colors"
+                      >
+                        {artifact.label || artifact.url}
+                      </a>
+                      <span className="text-xs text-muted-foreground capitalize">{artifact.type}</span>
+                      <button
+                        onClick={() => setWorkArtifacts(prev => prev.filter((_, i) => i !== index))}
+                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add artifact input */}
+              {showArtifactInput ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex items-center gap-2 bg-muted/30 border border-border rounded-lg px-3 py-2 focus-within:border-primary/50 transition-colors">
+                    <Link2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <input
+                      type="url"
+                      value={artifactInput}
+                      onChange={(e) => setArtifactInput(e.target.value)}
+                      placeholder="Paste link (video, article, doc, etc.)"
+                      className="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/60"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && artifactInput.trim()) {
+                          const url = artifactInput.trim();
+                          setWorkArtifacts(prev => [...prev, {
+                            url,
+                            type: detectArtifactType(url),
+                          }]);
+                          setArtifactInput('');
+                          setShowArtifactInput(false);
+                        } else if (e.key === 'Escape') {
+                          setArtifactInput('');
+                          setShowArtifactInput(false);
+                        }
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (artifactInput.trim()) {
+                        const url = artifactInput.trim();
+                        setWorkArtifacts(prev => [...prev, {
+                          url,
+                          type: detectArtifactType(url),
+                        }]);
+                        setArtifactInput('');
+                      }
+                      setShowArtifactInput(false);
+                    }}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setArtifactInput('');
+                      setShowArtifactInput(false);
+                    }}
+                    className="p-2 rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowArtifactInput(true)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+                >
+                  <Link2 className="w-3.5 h-3.5" />
+                  Add work artifact link
+                </button>
+              )}
+            </div>
 
             {/* Divider */}
             <div className="h-px bg-border my-4" />

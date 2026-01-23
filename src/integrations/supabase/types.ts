@@ -26,6 +26,7 @@ export type Database = {
           learnings: string[] | null
           updated_at: string
           user_id: string
+          work_artifacts: Json | null
         }
         Insert: {
           achievements?: string[] | null
@@ -38,6 +39,7 @@ export type Database = {
           learnings?: string[] | null
           updated_at?: string
           user_id: string
+          work_artifacts?: Json | null
         }
         Update: {
           achievements?: string[] | null
@@ -50,6 +52,7 @@ export type Database = {
           learnings?: string[] | null
           updated_at?: string
           user_id?: string
+          work_artifacts?: Json | null
         }
         Relationships: []
       }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { 
   Target, Lightbulb, Compass, BookOpen, Sparkles, Calendar, Star, 
-  Edit3, Trash2, X, Check, Plus, Loader2 
+  Edit3, Trash2, X, Check, Plus, Loader2, Link2, ExternalLink 
 } from '@/components/ui/icons';
 import {
   AlertDialog,
@@ -278,6 +278,31 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
                   </div>
                 );
               })}
+
+          {/* Work Artifacts Section */}
+          {!isEditing && entry.workArtifacts && entry.workArtifacts.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-border">
+              <div className="flex items-center gap-2 mb-3">
+                <Link2 className="w-4 h-4 text-primary" />
+                <h3 className="text-sm font-medium text-foreground">Work Artifacts</h3>
+              </div>
+              <div className="space-y-2">
+                {entry.workArtifacts.map((artifact, idx) => (
+                  <a
+                    key={idx}
+                    href={artifact.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-muted/30 rounded-lg text-sm group hover:bg-muted/50 transition-colors"
+                  >
+                    <span className="flex-1 truncate text-foreground">{artifact.label || artifact.url}</span>
+                    <span className="text-xs text-muted-foreground capitalize">{artifact.type}</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           </div>
 
           {/* AI Reflection Section - only show when not editing */}
