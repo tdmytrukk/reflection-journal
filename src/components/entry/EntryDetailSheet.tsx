@@ -225,11 +225,21 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
                     </div>
                   ) : (
                     <ul className="space-y-2 pl-6">
-                      {items.map((item, idx) => (
-                        <li key={idx} className="text-sm text-foreground/90 leading-relaxed list-disc">
-                          {item}
-                        </li>
-                      ))}
+                      {items.map((item, idx) => {
+                        // Check if this is a follow-up question (prefixed with [Q])
+                        const isQuestion = item.startsWith('[Q] ');
+                        const displayText = isQuestion ? item.slice(4) : item;
+                        
+                        return isQuestion ? (
+                          <li key={idx} className="text-sm text-primary/80 italic leading-relaxed list-none -ml-6 px-3 py-1.5 rounded-lg bg-primary/5 border-l-2 border-primary/30">
+                            {displayText}
+                          </li>
+                        ) : (
+                          <li key={idx} className="text-sm text-foreground/90 leading-relaxed list-disc">
+                            {displayText}
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
