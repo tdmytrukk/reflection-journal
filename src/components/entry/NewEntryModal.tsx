@@ -116,6 +116,12 @@ function isSameDay(a: Date, b: Date): boolean {
 
 type ModalStep = 'writing' | 'followup';
 
+// Represents a Q&A pair for follow-up questions
+interface FollowUpQA {
+  question: string;
+  answer: string;
+}
+
 export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalProps) {
   const { user } = useAuth();
   const { addEntry } = useUserData();
@@ -135,8 +141,10 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   // Two-step flow state
   const [modalStep, setModalStep] = useState<ModalStep>('writing');
   const [savedEntries, setSavedEntries] = useState<string[]>([]);
+  const [followUpQAs, setFollowUpQAs] = useState<FollowUpQA[]>([]); // Accumulated Q&A pairs
   const [followUpContext, setFollowUpContext] = useState('');
   const [selectedFollowUpPrompt, setSelectedFollowUpPrompt] = useState<string | null>(null);
+  const [usedPrompts, setUsedPrompts] = useState<string[]>([]); // Track used prompts
   const [dismissedFollowUp, setDismissedFollowUp] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -260,8 +268,10 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       setPlaceholderIndex(Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length));
       setModalStep('writing');
       setSavedEntries([]);
+      setFollowUpQAs([]);
       setFollowUpContext('');
       setSelectedFollowUpPrompt(null);
+      setUsedPrompts([]);
       setDismissedFollowUp(false);
       setInput('');
       setEntries([]);
@@ -278,20 +288,23 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     }
   }, [selectedFollowUpPrompt]);
 
-  // Detect contextual follow-up prompts based on saved content
+  // Detect contextual follow-up prompts based on saved content (excluding already used prompts)
   const contextualPrompts = useMemo(() => {
-    const allText = savedEntries.join(' ');
+    const allText = [...savedEntries, ...followUpQAs.map(qa => qa.answer)].join(' ');
     if (allText.length < 15) return [];
     
     const matchedPrompts: string[] = [];
     for (const { pattern, prompts } of CONTEXTUAL_PROMPTS) {
       if (pattern.test(allText)) {
-        // Pick one random prompt from this category
-        matchedPrompts.push(prompts[Math.floor(Math.random() * prompts.length)]);
+        // Pick prompts that haven't been used yet
+        const unusedPrompts = prompts.filter(p => !usedPrompts.includes(p));
+        if (unusedPrompts.length > 0) {
+          matchedPrompts.push(unusedPrompts[Math.floor(Math.random() * unusedPrompts.length)]);
+        }
       }
     }
-    return matchedPrompts.slice(0, 2); // Max 2 prompts
-  }, [savedEntries]);
+    return matchedPrompts.filter(p => !usedPrompts.includes(p)).slice(0, 2); // Max 2 prompts
+  }, [savedEntries, followUpQAs, usedPrompts]);
 
   // Handle first save (moves to follow-up step)
   const handleInitialSave = () => {
@@ -313,12 +326,12 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
       setModalStep('followup');
     } else {
       // No contextual prompts, save immediately
-      performFinalSave(allEntries, '');
+      performFinalSave(allEntries, []);
     }
   };
 
   // Perform final save to database
-  const performFinalSave = async (entriesToSave: string[], additionalContext: string) => {
+  const performFinalSave = async (entriesToSave: string[], qaPairs: FollowUpQA[]) => {
     if (!user) {
       toast.error('You must be logged in to save entries');
       return;
@@ -326,11 +339,15 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     
     setIsSaving(true);
     
-    // Merge entries with additional context if provided
+    // Build final entries: original entries as paragraphs, then Q&A pairs formatted
     let finalEntries = [...entriesToSave];
-    if (additionalContext.trim()) {
-      finalEntries.push(additionalContext.trim());
-    }
+    
+    // Add Q&A pairs as formatted content with special markers for questions
+    qaPairs.forEach(qa => {
+      // Format: question on its own line (will be styled differently), then answer
+      finalEntries.push(`[Q] ${qa.question}`);
+      finalEntries.push(qa.answer);
+    });
     
     const entryData = {
       achievements: finalEntries,
@@ -371,19 +388,45 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
     setInput('');
     setEntries([]);
     setSavedEntries([]);
+    setFollowUpQAs([]);
     setFollowUpContext('');
+    setUsedPrompts([]);
     setModalStep('writing');
     onClose();
   };
 
-  // Handle final save with context
+  // Add current follow-up answer and trigger another question
+  const handleAddAnotherFollowUp = () => {
+    if (!selectedFollowUpPrompt || !followUpContext.trim()) return;
+    
+    // Add current Q&A to the list
+    setFollowUpQAs(prev => [...prev, {
+      question: selectedFollowUpPrompt,
+      answer: followUpContext.trim()
+    }]);
+    setUsedPrompts(prev => [...prev, selectedFollowUpPrompt]);
+    
+    // Reset for next question
+    setFollowUpContext('');
+    setSelectedFollowUpPrompt(null);
+  };
+
+  // Handle final save with all accumulated context
   const handleFinalSaveWithContext = () => {
-    performFinalSave(savedEntries, followUpContext);
+    // If there's a current answer being typed, include it
+    let allQAs = [...followUpQAs];
+    if (selectedFollowUpPrompt && followUpContext.trim()) {
+      allQAs.push({
+        question: selectedFollowUpPrompt,
+        answer: followUpContext.trim()
+      });
+    }
+    performFinalSave(savedEntries, allQAs);
   };
 
   // Skip follow-up and save without additional context
   const handleSkipFollowUp = () => {
-    performFinalSave(savedEntries, '');
+    performFinalSave(savedEntries, followUpQAs);
   };
 
   const generateReflection = async (entryId: string, entryData: {
@@ -454,15 +497,26 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
         
         {/* Modal */}
         <div className="relative w-full max-w-2xl animate-slide-up">
-          {/* Original entry preview */}
-          <div className="mb-3 p-4 rounded-xl bg-card/95 backdrop-blur border border-border shadow-sm">
+          {/* Original entry preview with accumulated Q&As */}
+          <div className="mb-3 p-4 rounded-xl bg-card/95 backdrop-blur border border-border shadow-sm max-h-[40vh] overflow-y-auto">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full bg-primary" />
               <span className="text-xs text-muted-foreground uppercase tracking-wider">Your entry</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-3">
+              {/* Original entries */}
               {savedEntries.map((entry, index) => (
-                <p key={index} className="text-sm text-foreground leading-relaxed">{entry}</p>
+                <p key={`entry-${index}`} className="text-sm text-foreground leading-relaxed">{entry}</p>
+              ))}
+              
+              {/* Accumulated Q&A pairs with pale sage styling for questions */}
+              {followUpQAs.map((qa, index) => (
+                <div key={`qa-${index}`} className="space-y-1.5">
+                  <p className="text-sm text-primary/80 italic px-3 py-1.5 rounded-lg bg-primary/5 border-l-2 border-primary/30">
+                    {qa.question}
+                  </p>
+                  <p className="text-sm text-foreground leading-relaxed pl-3">{qa.answer}</p>
+                </div>
               ))}
             </div>
           </div>
@@ -482,10 +536,13 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
               </button>
             </div>
 
+            {/* Show prompt selection if no prompt selected and there are available prompts */}
             {!selectedFollowUpPrompt && !dismissedFollowUp && contextualPrompts.length > 0 && (
               <div className="animate-fade-in">
                 <p className="text-sm text-muted-foreground mb-3">
-                  Want to add more context? This can help surface clearer insights later.
+                  {followUpQAs.length > 0 
+                    ? "Want to add more context?" 
+                    : "Want to add more context? This can help surface clearer insights later."}
                 </p>
                 <div className="space-y-2 mb-4">
                   {contextualPrompts.map((prompt, index) => (
@@ -498,6 +555,15 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Show message when no more prompts available */}
+            {!selectedFollowUpPrompt && contextualPrompts.length === 0 && followUpQAs.length > 0 && (
+              <div className="animate-fade-in">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Great context added! Ready to save your entry.
+                </p>
               </div>
             )}
 
@@ -583,21 +649,34 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
             {/* Divider */}
             <div className="h-px bg-border my-4" />
 
-            {/* Footer actions */}
+            {/* Footer actions - show appropriate buttons based on state */}
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={handleSkipFollowUp}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Skip
+                {followUpQAs.length > 0 || (selectedFollowUpPrompt && followUpContext.trim()) ? 'Save Entry' : 'Skip'}
               </button>
+              
+              {/* Add another button - only show when there's a current answer and more prompts available */}
+              {selectedFollowUpPrompt && followUpContext.trim() && (
+                <button
+                  onClick={handleAddAnotherFollowUp}
+                  className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                >
+                  Add another
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+              )}
+              
+              {/* Save button */}
               <button
                 onClick={handleFinalSaveWithContext}
                 disabled={isSaving}
                 className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? 'Saving...' : 'Save Entry'}
-                <ArrowRight className="w-4 h-4" />
+                <CornerDownLeft className="w-4 h-4" />
               </button>
             </div>
           </div>
