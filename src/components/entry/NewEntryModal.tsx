@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check, CornerDownLeft } from '@/components/ui/icons';
+import { X, Mic, Sparkles, ArrowRight, Loader2, CalendarIcon, ChevronDown, Check, CornerDownLeft, Plus } from '@/components/ui/icons';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
@@ -649,23 +649,16 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
             {/* Divider */}
             <div className="h-px bg-border my-4" />
 
-            {/* Footer actions - show appropriate buttons based on state */}
+            {/* Footer actions */}
             <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={handleSkipFollowUp}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {followUpQAs.length > 0 || (selectedFollowUpPrompt && followUpContext.trim()) ? 'Save Entry' : 'Skip'}
-              </button>
-              
-              {/* Add another button - only show when there's a current answer and more prompts available */}
-              {selectedFollowUpPrompt && followUpContext.trim() && (
+              {/* Go deeper button - only show when there's a current answer and more prompts available */}
+              {selectedFollowUpPrompt && followUpContext.trim() && contextualPrompts.length > 0 && (
                 <button
                   onClick={handleAddAnotherFollowUp}
-                  className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                 >
-                  Add another
-                  <ArrowRight className="w-3 h-3" />
+                  <span className="text-primary">+</span>
+                  Go deeper
                 </button>
               )}
               
@@ -675,7 +668,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
                 disabled={isSaving}
                 className="btn-serene text-sm disabled:opacity-50 flex items-center gap-2"
               >
-                {isSaving ? 'Saving...' : 'Save Entry'}
+                {isSaving ? 'Saving...' : 'Save'}
                 <CornerDownLeft className="w-4 h-4" />
               </button>
             </div>
