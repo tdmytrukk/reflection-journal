@@ -63,6 +63,12 @@ export interface MonthlyReview {
   updatedAt: Date;
 }
 
+export interface WorkArtifact {
+  url: string;
+  label?: string;
+  type: 'video' | 'article' | 'document' | 'other';
+}
+
 export interface Entry {
   id: string;
   userId: string;
@@ -71,6 +77,7 @@ export interface Entry {
   learnings: string[];
   insights: string[];
   decisions: string[];
+  workArtifacts?: WorkArtifact[];
   aiReflection?: AIReflection;
   createdAt: Date;
   updatedAt: Date;
