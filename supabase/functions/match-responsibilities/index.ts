@@ -20,20 +20,45 @@ serve(async (req) => {
   }
 
   try {
-    const { entryId, userId } = await req.json();
-    
-    if (!entryId || !userId) {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: "entryId and userId are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
+
+    // Verify user with anon client
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { entryId } = await req.json();
+    const userId = user.id; // Use authenticated user's ID, not from request body
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    if (!entryId) {
+      return new Response(
+        JSON.stringify({ error: "entryId is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Use service role for database operations after auth is verified
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch the entry
     const { data: entry, error: entryError } = await supabase

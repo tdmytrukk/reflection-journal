@@ -20,19 +20,44 @@ serve(async (req) => {
   }
 
   try {
-    const { userId, quarter, year } = await req.json();
-    
-    if (!userId || !quarter || !year) {
+    // Authentication check
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: "userId, quarter, and year are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Verify user with anon client
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { quarter, year } = await req.json();
+    const userId = user.id; // Use authenticated user's ID, not from request body
     
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    if (!quarter || !year) {
+      return new Response(
+        JSON.stringify({ error: "quarter and year are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    
+    // Use service role for database operations after auth is verified
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get quarter date range
     const startMonth = (quarter - 1) * 3; // 0, 3, 6, 9
