@@ -1,6 +1,6 @@
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
-import { KagamiLogo } from '@/components/icons/KagamiLogo';
+import { DaoLogo } from '@/components/icons/DaoLogo';
 import { Settings, LogOut, User } from '@/components/ui/icons';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -34,9 +34,9 @@ export function DashboardHeader() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-10 h-10 rounded-xl bg-[rgba(254,253,251,0.9)] flex items-center justify-center shadow-subtle border border-[rgba(139,111,71,0.1)]">
-              <KagamiLogo size={22} className="text-moss" />
+              <DaoLogo size={22} className="text-moss" />
             </div>
-            <span className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>Kagami</span>
+            <span className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>Dao</span>
           </button>
           
           {/* User menu */}

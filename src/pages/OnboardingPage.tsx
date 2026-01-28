@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
-import { KagamiLogo } from '@/components/icons/KagamiLogo';
+import { DaoLogo } from '@/components/icons/DaoLogo';
 import { ArrowRight, FileText, Loader2, Sparkles, Upload, X, Edit3, Check } from '@/components/ui/icons';
 import { useToast } from '@/hooks/use-toast';
 
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-card border border-border mb-4">
-            <KagamiLogo size={24} className="text-primary" />
+            <DaoLogo size={24} className="text-primary" />
           </div>
           
           {step === 1 && (
