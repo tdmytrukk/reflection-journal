@@ -8,34 +8,44 @@ export function DaoLogo({ className = "", size = 32 }: DaoLogoProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="0 0 120 120"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Winding path - two parallel tapered strokes forming a road */}
-      {/* Left edge - thin tapered stroke */}
+      {/* Left thin tapered edge of path */}
       <path
-        d="M25 95 
-           Q35 75, 22 60
-           Q10 45, 30 30
-           Q45 18, 38 5"
+        d="M30 110 
+           C38 90, 20 75, 32 55 
+           C44 35, 28 20, 45 5"
         stroke="currentColor"
-        strokeWidth="3"
+        strokeWidth="2"
         strokeLinecap="round"
         fill="none"
-        opacity="0.7"
       />
-      {/* Right edge / main body - thicker tapered stroke */}
+      
+      {/* Main road body - filled shape tapering from wide to narrow */}
       <path
-        d="M55 95 
-           Q65 75, 52 60
-           Q40 45, 60 30
-           Q75 18, 62 5"
+        d="M42 115 
+           C55 95, 35 78, 50 58 
+           C65 38, 45 22, 55 5
+           L72 5
+           C62 22, 82 38, 67 58
+           C52 78, 72 95, 58 115
+           Z"
+        fill="currentColor"
+      />
+      
+      {/* Right thin edge accent */}
+      <path
+        d="M70 115 
+           C80 95, 65 78, 78 58 
+           C91 38, 72 20, 82 5"
         stroke="currentColor"
-        strokeWidth="12"
+        strokeWidth="1.5"
         strokeLinecap="round"
         fill="none"
+        opacity="0.5"
       />
     </svg>
   );
