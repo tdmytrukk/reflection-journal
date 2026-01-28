@@ -144,7 +144,7 @@ export default function OnboardingPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-card border border-border mb-4">
-            <DaoLogo size={24} className="text-primary" />
+            <DaoLogo size={24} className="text-muted-foreground" />
           </div>
           
           {step === 1 && (
