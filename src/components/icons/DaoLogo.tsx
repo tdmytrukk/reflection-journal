@@ -8,38 +8,49 @@ export function DaoLogo({ className = "", size = 32 }: DaoLogoProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 48 48"
+      viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Winding road - perspective path going into distance */}
-      {/* Left edge of road */}
+      {/* Left tapered stroke - winding path edge */}
       <path
-        d="M12 42 C16 34, 10 28, 18 22 C26 16, 18 10, 22 4"
+        d="M18 56 
+           C22 48, 14 42, 20 34 
+           C26 26, 18 20, 24 12
+           C28 6, 26 4, 28 2"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2.5"
         strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
-        opacity="0.4"
+        style={{ strokeWidth: '2.5px' }}
       />
-      {/* Main road body */}
+      {/* Right tapered stroke - parallel path edge */}
       <path
-        d="M18 44 C24 36, 16 30, 24 24 C32 18, 22 12, 24 2"
+        d="M38 58 
+           C42 50, 34 44, 40 36 
+           C46 28, 38 22, 44 14
+           C48 8, 46 4, 48 2"
         stroke="currentColor"
-        strokeWidth="8"
+        strokeWidth="6"
         strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
-        opacity="0.85"
       />
-      {/* Right edge of road */}
+      {/* Connecting fill for the road body */}
       <path
-        d="M36 42 C32 34, 38 28, 30 22 C22 16, 30 10, 26 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.4"
+        d="M18 56 
+           C22 48, 14 42, 20 34 
+           C26 26, 18 20, 24 12
+           C28 6, 26 4, 28 2
+           L48 2
+           C46 4, 48 8, 44 14
+           C38 22, 46 28, 40 36
+           C34 44, 42 50, 38 58
+           Z"
+        fill="currentColor"
+        opacity="0.9"
       />
     </svg>
   );
