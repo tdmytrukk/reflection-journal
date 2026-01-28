@@ -50,7 +50,7 @@ export default function AuthPage() {
         {/* Logo and tagline */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border mb-6">
-            <DaoLogo size={32} className="text-muted-foreground" />
+            <DaoLogo size={32} className="text-primary" />
           </div>
           <h1 className="text-3xl font-medium text-foreground mb-2 tracking-tight">
             Dao

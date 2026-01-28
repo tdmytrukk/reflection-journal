@@ -34,7 +34,7 @@ export function DashboardHeader() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="w-10 h-10 rounded-xl bg-[rgba(254,253,251,0.9)] flex items-center justify-center shadow-subtle border border-[rgba(139,111,71,0.1)]">
-              <DaoLogo size={22} className="text-muted-foreground" />
+              <DaoLogo size={22} className="text-moss" />
             </div>
             <span className="text-warm-primary" style={{ fontSize: '18px', fontWeight: 500 }}>Dao</span>
           </button>

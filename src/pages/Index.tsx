@@ -38,7 +38,7 @@ export default function Index() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
-          <DaoLogo size={24} className="text-muted-foreground" />
+          <DaoLogo size={24} className="text-primary" />
           <span className="font-medium text-foreground">Dao</span>
         </div>
         <button
@@ -54,7 +54,7 @@ export default function Index() {
         <div className="max-w-2xl mx-auto text-center animate-fade-in">
           {/* Logo */}
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-card border border-border mb-8 shadow-sm">
-            <DaoLogo size={40} className="text-muted-foreground" />
+            <DaoLogo size={40} className="text-primary" />
           </div>
           
           {/* Headline */}
