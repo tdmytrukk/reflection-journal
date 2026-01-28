@@ -8,49 +8,34 @@ export function DaoLogo({ className = "", size = 32 }: DaoLogoProps) {
     <svg
       width={size}
       height={size}
-      viewBox="0 0 64 64"
+      viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Left tapered stroke - winding path edge */}
+      {/* Winding path - two parallel tapered strokes forming a road */}
+      {/* Left edge - thin tapered stroke */}
       <path
-        d="M18 56 
-           C22 48, 14 42, 20 34 
-           C26 26, 18 20, 24 12
-           C28 6, 26 4, 28 2"
+        d="M25 95 
+           Q35 75, 22 60
+           Q10 45, 30 30
+           Q45 18, 38 5"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
-        style={{ strokeWidth: '2.5px' }}
+        opacity="0.7"
       />
-      {/* Right tapered stroke - parallel path edge */}
+      {/* Right edge / main body - thicker tapered stroke */}
       <path
-        d="M38 58 
-           C42 50, 34 44, 40 36 
-           C46 28, 38 22, 44 14
-           C48 8, 46 4, 48 2"
+        d="M55 95 
+           Q65 75, 52 60
+           Q40 45, 60 30
+           Q75 18, 62 5"
         stroke="currentColor"
-        strokeWidth="6"
+        strokeWidth="12"
         strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
-      />
-      {/* Connecting fill for the road body */}
-      <path
-        d="M18 56 
-           C22 48, 14 42, 20 34 
-           C26 26, 18 20, 24 12
-           C28 6, 26 4, 28 2
-           L48 2
-           C46 4, 48 8, 44 14
-           C38 22, 46 28, 40 36
-           C34 44, 42 50, 38 58
-           Z"
-        fill="currentColor"
-        opacity="0.9"
       />
     </svg>
   );
