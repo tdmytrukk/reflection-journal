@@ -592,7 +592,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   // Follow-up step UI
   if (modalStep === 'followup') {
     return (
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
+      <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center px-4 pt-[10vh] sm:pt-0 pb-4 sm:pb-0 overflow-y-auto">
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-ink/20 backdrop-blur-sm"
@@ -880,7 +880,7 @@ export function NewEntryModal({ isOpen, onClose, onEntrySaved }: NewEntryModalPr
   
   // Writing step UI (default)
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-4 sm:pb-0">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center px-4 pt-[15vh] sm:pt-0 pb-4 sm:pb-0 overflow-y-auto">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-ink/20 backdrop-blur-sm"
