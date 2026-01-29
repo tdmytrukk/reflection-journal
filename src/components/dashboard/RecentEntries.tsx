@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Calendar, Trophy, Lightbulb, Compass, BookOpen, Link2, ChevronRight } from 'lucide-react';
 import { EntryDetailSheet } from '@/components/entry/EntryDetailSheet';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Entry, ResponsibilityMatch } from '@/types';
 
 const formatDate = (date: Date) => {
@@ -23,13 +24,52 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
+interface ResponsibilityPreviewProps {
+  matches: ResponsibilityMatch[];
+  onSeeMore?: () => void;
+}
+
+function ResponsibilityPreview({ matches, onSeeMore }: ResponsibilityPreviewProps) {
+  // Get unique responsibilities
+  const uniqueResponsibilities = Array.from(
+    new Map(matches.map(m => [m.responsibilityIndex, m.responsibilityText])).entries()
+  ).map(([index, text]) => ({ index, text }));
+  
+  const displayCount = 2;
+  const displayItems = uniqueResponsibilities.slice(0, displayCount);
+  const hasMore = uniqueResponsibilities.length > displayCount;
+  
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] text-warm-muted font-medium mb-2">Linked responsibilities</p>
+      <ul className="space-y-1.5">
+        {displayItems.map(({ index, text }) => (
+          <li key={index} className="text-xs text-warm-body flex items-start gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-moss/60 flex-shrink-0 mt-1.5" />
+            <span className="line-clamp-2">{text}</span>
+          </li>
+        ))}
+      </ul>
+      {hasMore && onSeeMore && (
+        <button 
+          onClick={onSeeMore}
+          className="text-[11px] text-moss hover:text-moss/80 font-medium mt-2 transition-colors"
+        >
+          See {uniqueResponsibilities.length - displayCount} more →
+        </button>
+      )}
+    </div>
+  );
+}
+
 interface EntryCardProps {
   entry: Entry;
   onClick: () => void;
   matchCount?: number;
+  entryMatches?: ResponsibilityMatch[];
 }
 
-function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
+function EntryCard({ entry, onClick, matchCount = 0, entryMatches = [] }: EntryCardProps) {
   const textRef = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
   
@@ -60,28 +100,44 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
   const Icon = getCategoryIcon(primaryItem.category);
   
   return (
-    <button
-      onClick={onClick}
-      className={`w-full text-left entry-card cursor-pointer group ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}
-    >
+    <div className={`w-full text-left entry-card cursor-pointer group ${matchCount > 0 ? 'ring-1 ring-moss/30' : ''}`}>
       {/* Date header with cream background */}
       <div className="entry-card-header !py-2 !px-3 md:!py-2.5 md:!px-4 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 md:gap-2">
+        <button onClick={onClick} className="flex items-center gap-1.5 md:gap-2 hover:opacity-80 transition-opacity">
           <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-cedar" strokeLinecap="round" />
           <span className="text-warm-secondary text-xs md:text-sm" style={{ fontWeight: 500 }}>
             {formatDate(entry.date)}
           </span>
-        </div>
+        </button>
         {matchCount > 0 && (
-          <Badge variant="outline" className="text-[10px] md:text-xs border-moss/50 text-moss bg-moss/5 !py-0.5 !px-1.5 md:!py-1 md:!px-2">
-            <Link2 className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
-            {matchCount} {matchCount === 1 ? 'resp.' : 'resp.'}
-          </Badge>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button 
+                onClick={(e) => e.stopPropagation()}
+                className="focus:outline-none"
+              >
+                <Badge variant="outline" className="text-[10px] md:text-xs border-moss/50 text-moss bg-moss/5 !py-0.5 !px-1.5 md:!py-1 md:!px-2 cursor-pointer hover:bg-moss/10 transition-colors">
+                  <Link2 className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5 md:mr-1" />
+                  {matchCount}
+                </Badge>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-64 p-3" 
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ResponsibilityPreview 
+                matches={entryMatches} 
+                onSeeMore={onClick}
+              />
+            </PopoverContent>
+          </Popover>
         )}
       </div>
       
       {/* Entry content - show 3 lines */}
-      <div className="entry-card-body !p-3 md:!p-4 relative">
+      <button onClick={onClick} className="entry-card-body !p-3 md:!p-4 relative w-full text-left">
         <div className="flex items-start gap-2 md:gap-3">
           <Icon className="w-4 h-4 md:w-5 md:h-5 text-moss flex-shrink-0 mt-0.5" strokeLinecap="round" />
           <div className="flex-1 min-w-0 pr-6 md:pr-8">
@@ -104,8 +160,8 @@ function EntryCard({ entry, onClick, matchCount = 0 }: EntryCardProps) {
         <div className="absolute bottom-0 right-0 p-1 text-cedar/60 group-hover:text-moss transition-colors">
           <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
         </div>
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -120,10 +176,14 @@ interface RecentEntriesProps {
 export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry, onDeleteEntry }: RecentEntriesProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
-  // Count matches per entry
+  // Get matches for an entry
+  const getMatchesForEntry = (entryId: string) => {
+    return matches.filter(m => m.entryId === entryId);
+  };
+
+  // Count unique responsibilities per entry
   const getMatchCountForEntry = (entryId: string) => {
-    const entryMatches = matches.filter(m => m.entryId === entryId);
-    // Count unique responsibilities
+    const entryMatches = getMatchesForEntry(entryId);
     const uniqueResponsibilities = new Set(entryMatches.map(m => m.responsibilityIndex));
     return uniqueResponsibilities.size;
   };
@@ -183,6 +243,7 @@ export function RecentEntries({ entries, isLoading, matches = [], onUpdateEntry,
               entry={entry} 
               onClick={() => setSelectedEntry(entry)}
               matchCount={getMatchCountForEntry(entry.id)}
+              entryMatches={getMatchesForEntry(entry.id)}
             />
           ))}
         </div>
