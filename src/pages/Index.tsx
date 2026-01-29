@@ -50,74 +50,59 @@ export default function Index() {
       </header>
       
       {/* Hero section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-16">
-        <div className="max-w-2xl mx-auto text-center animate-fade-in">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 -mt-16">
+        <div className="max-w-3xl mx-auto text-center animate-fade-in">
           {/* Logo */}
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-card border border-border mb-8 shadow-sm">
-            <DaoLogo size={40} className="text-primary" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border mb-6 shadow-subtle">
+            <DaoLogo size={32} className="text-primary" />
           </div>
           
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl font-medium text-foreground mb-4 tracking-tight">
+          <h1 className="text-4xl sm:text-5xl font-medium text-foreground mb-3 tracking-tight">
             Dao
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-2 font-serif-jp">
+          <p className="text-lg text-muted-foreground mb-8">
             Your career journey, mindfully tracked
-          </p>
-          
-          <p className="text-base text-muted-foreground mb-10 max-w-md mx-auto">
-            A serene space to capture achievements, reflect on learnings, and prepare for your next milestone.
           </p>
           
           {/* CTA */}
           <button
             onClick={() => navigate('/auth')}
-            className="btn-serene text-base px-8 py-3 group"
+            className="btn-serene text-base px-8 py-3 group mb-16"
           >
-            Begin your journey
+            Start reflecting
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </button>
-        </div>
-      </main>
-      
-      {/* Features hint */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid sm:grid-cols-3 gap-6">
-            <div className="journal-card p-6 text-center">
-              <div className="text-2xl mb-3">📝</div>
-              <h3 className="font-medium text-foreground mb-1">Capture</h3>
-              <p className="text-sm text-muted-foreground">
+          
+          {/* Features */}
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="journal-card p-5 text-center">
+              <div className="text-xl mb-2">📝</div>
+              <h3 className="font-medium text-foreground text-sm mb-1">Capture</h3>
+              <p className="text-xs text-muted-foreground">
                 Record achievements and learnings as they happen
               </p>
             </div>
             
-            <div className="journal-card p-6 text-center">
-              <div className="text-2xl mb-3">✨</div>
-              <h3 className="font-medium text-foreground mb-1">Reflect</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="journal-card p-5 text-center">
+              <div className="text-xl mb-2">✨</div>
+              <h3 className="font-medium text-foreground text-sm mb-1">Reflect</h3>
+              <p className="text-xs text-muted-foreground">
                 AI-guided prompts help you dig deeper
               </p>
             </div>
             
-            <div className="journal-card p-6 text-center">
-              <div className="text-2xl mb-3">📊</div>
-              <h3 className="font-medium text-foreground mb-1">Generate</h3>
-              <p className="text-sm text-muted-foreground">
+            <div className="journal-card p-5 text-center">
+              <div className="text-xl mb-2">📊</div>
+              <h3 className="font-medium text-foreground text-sm mb-1">Generate</h3>
+              <p className="text-xs text-muted-foreground">
                 Automatic reviews and resume bullets
               </p>
             </div>
           </div>
         </div>
-      </section>
-      
-      {/* Footer */}
-      <footer className="py-8 text-center">
-        <p className="text-xs text-muted-foreground">
-          Built for professionals who value intentional career growth
-        </p>
-      </footer>
+      </main>
     </div>
   );
 }
