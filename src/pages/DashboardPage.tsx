@@ -153,25 +153,27 @@ export default function DashboardPage() {
                 Quick Actions
               </h3>
               
-              <button className="w-full btn-ghost justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-60 cursor-default">
                 <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
                   <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
                   <p className="text-warm-muted text-[11px] lg:text-xs">Create your quarterly summary</p>
                 </div>
-              </button>
+                <span className="text-[10px] lg:text-[11px] text-warm-muted bg-warm-cream/80 px-2 py-0.5 rounded-full border border-warm-sand/50">Coming soon</span>
+              </div>
               
-              <button className="w-full btn-ghost justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl hover:bg-[rgba(107,122,90,0.08)]">
+              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-60 cursor-default">
                 <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
                   <FileText className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Resume Bullets</p>
                   <p className="text-warm-muted text-[11px] lg:text-xs">Export achievements as bullets</p>
                 </div>
-              </button>
+                <span className="text-[10px] lg:text-[11px] text-warm-muted bg-warm-cream/80 px-2 py-0.5 rounded-full border border-warm-sand/50">Coming soon</span>
+              </div>
             </div>
           </div>
           
