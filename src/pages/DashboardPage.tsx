@@ -149,30 +149,31 @@ export default function DashboardPage() {
             
             {/* Quick actions - visible on tablet+ */}
             <div className="hidden md:block sidebar-card !p-4 lg:!p-6 space-y-2">
-              <h3 className="text-warm-primary mb-2 lg:mb-3 text-sm lg:text-[15px]" style={{ fontWeight: 500 }}>
-                Quick Actions
-              </h3>
-              
-              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-60 cursor-default">
-                <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
-                  <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
-                  <p className="text-warm-muted text-[11px] lg:text-xs">Create your quarterly summary</p>
-                </div>
+              <div className="flex items-center justify-between mb-2 lg:mb-3">
+                <h3 className="text-warm-primary text-sm lg:text-[15px]" style={{ fontWeight: 500 }}>
+                  Quick Actions
+                </h3>
                 <span className="text-[10px] lg:text-[11px] text-warm-muted bg-warm-cream/80 px-2 py-0.5 rounded-full border border-warm-sand/50">Coming soon</span>
               </div>
               
-              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-60 cursor-default">
+              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-50 cursor-default">
+                <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
+                  <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
+                </div>
+                <div>
+                  <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Generate Q{currentQuarter} Review</p>
+                  <p className="text-warm-muted text-[11px] lg:text-xs">Create your quarterly summary</p>
+                </div>
+              </div>
+              
+              <div className="w-full flex items-center justify-start text-left gap-2 lg:gap-3 py-2 lg:py-2.5 rounded-xl opacity-50 cursor-default">
                 <div className="icon-container !w-7 !h-7 lg:!w-8 lg:!h-8">
                   <FileText className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-moss" strokeLinecap="round" />
                 </div>
-                <div className="flex-1">
+                <div>
                   <p className="text-warm-primary text-xs lg:text-[13px]" style={{ fontWeight: 500 }}>Resume Bullets</p>
                   <p className="text-warm-muted text-[11px] lg:text-xs">Export achievements as bullets</p>
                 </div>
-                <span className="text-[10px] lg:text-[11px] text-warm-muted bg-warm-cream/80 px-2 py-0.5 rounded-full border border-warm-sand/50">Coming soon</span>
               </div>
             </div>
           </div>
