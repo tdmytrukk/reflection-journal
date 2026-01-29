@@ -81,7 +81,7 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   // Empty state - not enough entries
   if (entriesCount < 3 && !reviewData) {
     return (
-      <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
+      <div className="bg-white rounded-2xl shadow-md border border-warm-sand/30 p-4 md:p-5 lg:p-6">
         <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
           <div className="icon-container !w-8 !h-8 md:!w-10 md:!h-10">
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-moss" strokeLinecap="round" />
@@ -101,7 +101,7 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
   // Show local aggregation while no AI review has been generated
   if (!reviewData) {
     return (
-      <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
+      <div className="bg-white rounded-2xl shadow-md border border-warm-sand/30 p-4 md:p-5 lg:p-6">
         {/* Header with refresh icon */}
         <div className="flex items-center justify-between mb-1 md:mb-1.5">
           <div className="flex items-center gap-2 md:gap-3">
@@ -190,7 +190,7 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
 
   // Full AI-generated review
   return (
-    <div className="sidebar-card !p-4 md:!p-5 lg:!p-6">
+    <div className="bg-white rounded-2xl shadow-md border border-warm-sand/30 p-4 md:p-5 lg:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-1 md:mb-1.5">
         <div className="flex items-center gap-2 md:gap-3">
