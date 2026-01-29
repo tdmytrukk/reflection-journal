@@ -309,17 +309,23 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
                   </div>
                 )}
 
-                {/* AI Reflection - Simplified & Calm */}
+                {/* AI Reflection - Visually Separate Frame */}
                 {aiReflection && (
-                  <div className="pt-6 border-t border-border space-y-4">
+                  <div className="mt-6 p-4 rounded-xl bg-background border border-border/60 shadow-sm space-y-4">
+                    {/* Section Header */}
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Reflection</h3>
+                    </div>
+
                     {/* Summary - Single sentence, no quotes */}
                     {aiReflection.summary && (
-                      <p className="text-sm text-foreground/80 leading-relaxed">
+                      <p className="text-sm text-foreground/90 leading-relaxed">
                         {aiReflection.summary}
                       </p>
                     )}
 
-                    {/* Strengths Demonstrated - Kept as-is */}
+                    {/* Strengths Demonstrated */}
                     {aiReflection.strengths && aiReflection.strengths.length > 0 && (
                       <div>
                         <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
@@ -339,17 +345,17 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
                       </div>
                     )}
 
-                    {/* Key Highlights - Max 2 items */}
+                    {/* Key Highlights - Max 2 items, bullets centered */}
                     {aiReflection.highlights && aiReflection.highlights.length > 0 && (
                       <div>
                         <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
                           Key Highlights
                         </h4>
-                        <ul className="space-y-1.5">
+                        <ul className="space-y-2">
                           {aiReflection.highlights.slice(0, 2).map((highlight, idx) => (
-                            <li key={idx} className="text-sm text-foreground/80 flex items-start gap-2">
-                              <span className="text-muted-foreground mt-1">•</span>
-                              {highlight}
+                            <li key={idx} className="text-sm text-foreground/90 flex items-center gap-2.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 flex-shrink-0" />
+                              <span>{highlight}</span>
                             </li>
                           ))}
                         </ul>
@@ -358,11 +364,9 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
 
                     {/* Encouragement - Short, supportive */}
                     {aiReflection.encouragement && (
-                      <div className="p-3 rounded-lg bg-muted/30">
-                        <p className="text-sm text-foreground/80 leading-relaxed">
-                          💪 {aiReflection.encouragement}
-                        </p>
-                      </div>
+                      <p className="text-sm text-foreground/70 leading-relaxed pt-2 border-t border-border/40">
+                        💪 {aiReflection.encouragement}
+                      </p>
                     )}
                   </div>
                 )}
