@@ -175,202 +175,200 @@ export function EntryDetailSheet({ entry, isOpen, onClose, onUpdate, onDelete }:
             {!isEditing && <SheetTitle className="sr-only">Journal Entry</SheetTitle>}
           </SheetHeader>
 
-          {/* Entry Content by Category */}
+          {/* Entry Content - Simplified View */}
           <div className="space-y-6">
-            {categories.map(({ key, items }) => {
-              const { Icon, label, color } = getCategoryDetails(key);
-              return (
-                <div key={key}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Icon className={`w-4 h-4 ${color}`} />
-                    <h3 className="text-sm font-medium text-foreground">{label}</h3>
-                  </div>
-                  
-                  {isEditing ? (
-                    <div className="space-y-2">
-                      {items.map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-2 group">
-                          <p className="flex-1 text-sm text-foreground/90 leading-relaxed p-2 bg-muted/50 rounded-lg">
-                            {item}
-                          </p>
-                          <button
-                            onClick={() => handleRemoveItem(key, idx)}
-                            className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
-                            title="Remove item"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+            {isEditing ? (
+              /* Edit Mode - Show all categories */
+              <>
+                {categories.map(({ key, items }) => {
+                  const { Icon, label, color } = getCategoryDetails(key);
+                  return (
+                    <div key={key}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Icon className={`w-4 h-4 ${color}`} />
+                        <h3 className="text-sm font-medium text-foreground">{label}</h3>
+                      </div>
+                      <div className="space-y-2">
+                        {items.map((item, idx) => (
+                          <div key={idx} className="flex items-start gap-2 group">
+                            <p className="flex-1 text-sm text-foreground/90 leading-relaxed p-2 bg-muted/50 rounded-lg">
+                              {item}
+                            </p>
+                            <button
+                              onClick={() => handleRemoveItem(key, idx)}
+                              className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                              title="Remove item"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {/* Add new item input */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newItems[key]}
+                            onChange={(e) => setNewItems({ ...newItems, [key]: e.target.value })}
+                            onKeyDown={(e) => handleKeyDown(e, key)}
+                            placeholder={`Add ${label.toLowerCase().slice(0, -1)}...`}
+                            className="flex-1 text-sm p-2 bg-transparent border border-dashed border-border rounded-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary"
+                          />
+                          {newItems[key].trim() && (
+                            <button
+                              onClick={() => handleAddItem(key)}
+                              className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </div>
-                      ))}
-                      
-                      {/* Add new item input */}
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={newItems[key]}
-                          onChange={(e) => setNewItems({ ...newItems, [key]: e.target.value })}
-                          onKeyDown={(e) => handleKeyDown(e, key)}
-                          placeholder={`Add ${label.toLowerCase().slice(0, -1)}...`}
-                          className="flex-1 text-sm p-2 bg-transparent border border-dashed border-border rounded-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary"
-                        />
-                        {newItems[key].trim() && (
-                          <button
-                            onClick={() => handleAddItem(key)}
-                            className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
-                        )}
                       </div>
                     </div>
-                  ) : (
-                    <ul className="space-y-2 pl-6">
-                      {items.map((item, idx) => {
-                        // Check if this is a follow-up question (prefixed with [Q])
-                        const isQuestion = item.startsWith('[Q] ');
-                        const displayText = isQuestion ? item.slice(4) : item;
-                        
-                        return isQuestion ? (
-                          <li key={idx} className="text-sm text-primary/80 italic leading-relaxed list-none -ml-6 px-3 py-1.5 rounded-lg bg-primary/5 border-l-2 border-primary/30">
-                            {displayText}
-                          </li>
-                        ) : (
-                          <li key={idx} className="text-sm text-foreground/90 leading-relaxed list-disc">
-                            {displayText}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
-            
-            {/* Show empty categories in edit mode */}
-            {isEditing && CATEGORIES
-              .filter(key => !categories.find(c => c.key === key))
-              .map(key => {
-                const { Icon, label, color } = getCategoryDetails(key);
-                return (
-                  <div key={key}>
+                  );
+                })}
+                
+                {/* Show empty categories in edit mode */}
+                {CATEGORIES
+                  .filter(key => !categories.find(c => c.key === key))
+                  .map(key => {
+                    const { Icon, label, color } = getCategoryDetails(key);
+                    return (
+                      <div key={key}>
+                        <div className="flex items-center gap-2 mb-3">
+                          <Icon className={`w-4 h-4 ${color}`} />
+                          <h3 className="text-sm font-medium text-foreground">{label}</h3>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newItems[key]}
+                            onChange={(e) => setNewItems({ ...newItems, [key]: e.target.value })}
+                            onKeyDown={(e) => handleKeyDown(e, key)}
+                            placeholder={`Add ${label.toLowerCase().slice(0, -1)}...`}
+                            className="flex-1 text-sm p-2 bg-transparent border border-dashed border-border rounded-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary"
+                          />
+                          {newItems[key].trim() && (
+                            <button
+                              onClick={() => handleAddItem(key)}
+                              className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
+            ) : (
+              /* View Mode - Simplified, calm layout */
+              <>
+                {/* Primary Entry Content - No heading, just the user's words */}
+                {(() => {
+                  const allItems = [
+                    ...currentData.achievements,
+                    ...currentData.learnings,
+                    ...currentData.insights,
+                    ...currentData.decisions,
+                  ].filter(item => !item.startsWith('[Q] '));
+                  
+                  return allItems.length > 0 && (
+                    <div className="space-y-2">
+                      {allItems.map((item, idx) => (
+                        <p key={idx} className="text-sm text-foreground/90 leading-relaxed">
+                          {item}
+                        </p>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Work Artifacts Section */}
+                {entry.workArtifacts && entry.workArtifacts.length > 0 && (
+                  <div className="pt-4 border-t border-border">
                     <div className="flex items-center gap-2 mb-3">
-                      <Icon className={`w-4 h-4 ${color}`} />
-                      <h3 className="text-sm font-medium text-foreground">{label}</h3>
+                      <Link2 className="w-4 h-4 text-primary" />
+                      <h3 className="text-sm font-medium text-foreground">Work Artifacts</h3>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newItems[key]}
-                        onChange={(e) => setNewItems({ ...newItems, [key]: e.target.value })}
-                        onKeyDown={(e) => handleKeyDown(e, key)}
-                        placeholder={`Add ${label.toLowerCase().slice(0, -1)}...`}
-                        className="flex-1 text-sm p-2 bg-transparent border border-dashed border-border rounded-lg placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary"
-                      />
-                      {newItems[key].trim() && (
-                        <button
-                          onClick={() => handleAddItem(key)}
-                          className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                    <div className="space-y-2">
+                      {entry.workArtifacts.map((artifact, idx) => (
+                        <a
+                          key={idx}
+                          href={artifact.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 bg-muted/30 rounded-lg text-sm group hover:bg-muted/50 transition-colors"
                         >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      )}
+                          <span className="flex-1 truncate text-foreground">{artifact.label || artifact.url}</span>
+                          <span className="text-xs text-muted-foreground capitalize">{artifact.type}</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </a>
+                      ))}
                     </div>
                   </div>
-                );
-              })}
+                )}
 
-          {/* Work Artifacts Section */}
-          {!isEditing && entry.workArtifacts && entry.workArtifacts.length > 0 && (
-            <div className="mt-6 pt-4 border-t border-border">
-              <div className="flex items-center gap-2 mb-3">
-                <Link2 className="w-4 h-4 text-primary" />
-                <h3 className="text-sm font-medium text-foreground">Work Artifacts</h3>
-              </div>
-              <div className="space-y-2">
-                {entry.workArtifacts.map((artifact, idx) => (
-                  <a
-                    key={idx}
-                    href={artifact.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 bg-muted/30 rounded-lg text-sm group hover:bg-muted/50 transition-colors"
-                  >
-                    <span className="flex-1 truncate text-foreground">{artifact.label || artifact.url}</span>
-                    <span className="text-xs text-muted-foreground capitalize">{artifact.type}</span>
-                    <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-          </div>
+                {/* AI Reflection - Simplified & Calm */}
+                {aiReflection && (
+                  <div className="pt-6 border-t border-border space-y-4">
+                    {/* Summary - Single sentence, no quotes */}
+                    {aiReflection.summary && (
+                      <p className="text-sm text-foreground/80 leading-relaxed">
+                        {aiReflection.summary}
+                      </p>
+                    )}
 
-          {/* AI Reflection Section - only show when not editing */}
-          {!isEditing && aiReflection && (
-            <div className="mt-8 pt-6 border-t border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                </div>
-                <h3 className="text-base font-medium text-foreground">AI Analysis</h3>
-              </div>
+                    {/* Strengths Demonstrated - Kept as-is */}
+                    {aiReflection.strengths && aiReflection.strengths.length > 0 && (
+                      <div>
+                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                          Strengths Demonstrated
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {aiReflection.strengths.map((strength, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+                            >
+                              <Star className="w-3 h-3" />
+                              {strength}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-              {/* Summary */}
-              {aiReflection.summary && (
-                <div className="mb-4">
-                  <p className="text-sm text-foreground/90 leading-relaxed italic">
-                    "{aiReflection.summary}"
-                  </p>
-                </div>
-              )}
+                    {/* Key Highlights - Max 2 items */}
+                    {aiReflection.highlights && aiReflection.highlights.length > 0 && (
+                      <div>
+                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                          Key Highlights
+                        </h4>
+                        <ul className="space-y-1.5">
+                          {aiReflection.highlights.slice(0, 2).map((highlight, idx) => (
+                            <li key={idx} className="text-sm text-foreground/80 flex items-start gap-2">
+                              <span className="text-muted-foreground mt-1">•</span>
+                              {highlight}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-              {/* Strengths */}
-              {aiReflection.strengths && aiReflection.strengths.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                    Strengths Demonstrated
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {aiReflection.strengths.map((strength, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
-                      >
-                        <Star className="w-3 h-3" />
-                        {strength}
-                      </span>
-                    ))}
+                    {/* Encouragement - Short, supportive */}
+                    {aiReflection.encouragement && (
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <p className="text-sm text-foreground/80 leading-relaxed">
+                          💪 {aiReflection.encouragement}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-
-              {/* Highlights */}
-              {aiReflection.highlights && aiReflection.highlights.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                    Key Highlights
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {aiReflection.highlights.map((highlight, idx) => (
-                      <li key={idx} className="text-sm text-foreground/90 flex items-start gap-2">
-                        <span className="text-primary mt-1">•</span>
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Encouragement */}
-              {aiReflection.encouragement && (
-                <div className="p-4 rounded-lg bg-sage-light/50 border border-sage-light">
-                  <p className="text-sm text-foreground/90 leading-relaxed">
-                    💪 {aiReflection.encouragement}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </>
+            )}
+          </div>
 
           {/* Action buttons - bottom right */}
           <div className="flex items-center justify-end gap-2 pt-6 mt-auto border-t border-border">
