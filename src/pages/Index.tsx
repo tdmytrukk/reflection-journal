@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { ArrowRight } from '@/components/ui/icons';
+import { ArrowRight, Edit3, Sparkles, TrendingUp } from '@/components/ui/icons';
 
 export default function Index() {
   const { user, isLoading: authLoading } = useAuth();
@@ -78,7 +78,9 @@ export default function Index() {
           {/* Features */}
           <div className="grid sm:grid-cols-3 gap-4">
             <div className="journal-card p-5 text-center">
-              <div className="text-xl mb-2">📝</div>
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
+                <Edit3 className="w-5 h-5 text-primary" />
+              </div>
               <h3 className="font-medium text-foreground text-sm mb-1">Capture</h3>
               <p className="text-xs text-muted-foreground">
                 Record achievements and learnings as they happen
@@ -86,7 +88,9 @@ export default function Index() {
             </div>
             
             <div className="journal-card p-5 text-center">
-              <div className="text-xl mb-2">✨</div>
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
               <h3 className="font-medium text-foreground text-sm mb-1">Reflect</h3>
               <p className="text-xs text-muted-foreground">
                 AI-guided prompts help you dig deeper
@@ -94,7 +98,9 @@ export default function Index() {
             </div>
             
             <div className="journal-card p-5 text-center">
-              <div className="text-xl mb-2">📊</div>
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
+                <TrendingUp className="w-5 h-5 text-primary" />
+              </div>
               <h3 className="font-medium text-foreground text-sm mb-1">Generate</h3>
               <p className="text-xs text-muted-foreground">
                 Automatic reviews and resume bullets
