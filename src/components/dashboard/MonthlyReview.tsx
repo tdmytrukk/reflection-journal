@@ -120,9 +120,8 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
           </button>
         </div>
         
-        {/* Subtitle and date */}
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <p className="text-warm-muted text-[11px] md:text-xs">Generated from your entries this month.</p>
+        {/* Date */}
+        <div className="flex justify-end mb-3 md:mb-4">
           <span className="text-warm-muted text-[11px] md:text-xs">{monthYear}</span>
         </div>
         
@@ -209,9 +208,8 @@ Stats: ${reviewData.stats.daysActive} days captured, ${reviewData.stats.totalEnt
         </button>
       </div>
       
-      {/* Subtitle and date */}
-      <div className="flex items-center justify-between mb-3 md:mb-4">
-        <p className="text-warm-muted text-[11px] md:text-xs">Generated from your entries this month.</p>
+      {/* Date */}
+      <div className="flex justify-end mb-3 md:mb-4">
         <span className="text-warm-muted text-[11px] md:text-xs">{monthYear}</span>
       </div>
       
