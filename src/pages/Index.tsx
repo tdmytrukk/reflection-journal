@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { Sparkles, CornerDownLeft, X } from '@/components/ui/icons';
+import { Sparkles, CornerDownLeft } from '@/components/ui/icons';
 
 const reflectionPrompts = [
   "What decision did you make this week that wasn't straightforward?",
@@ -63,10 +63,6 @@ export default function Index() {
     }
   };
 
-  const handleDismiss = () => {
-    // Could navigate to auth or just cycle
-    navigate('/auth');
-  };
   
   if (authLoading) {
     return (
@@ -117,19 +113,13 @@ export default function Index() {
           
           {/* Interactive reflection prompt box */}
           <div className="animate-fade-in animation-delay-200">
-            <div className="max-w-xl mx-auto bg-warm-sand/40 rounded-2xl overflow-hidden shadow-sm">
+            <div className="max-w-xl mx-auto bg-warm-sand/50 rounded-2xl overflow-hidden shadow-sm border border-warm-sand/60">
               {/* Question header */}
               <div className={`flex items-start gap-3 p-4 pb-3 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                 <Sparkles className="w-5 h-5 text-primary/70 mt-0.5 flex-shrink-0" />
                 <p className="text-foreground text-[15px] leading-relaxed text-left flex-1">
                   {reflectionPrompts[promptIndex]}
                 </p>
-                <button
-                  onClick={handleDismiss}
-                  className="text-muted-foreground/60 hover:text-muted-foreground transition-colors p-1 -m-1"
-                >
-                  <X className="w-4 h-4" />
-                </button>
               </div>
               
               {/* Input area */}
@@ -139,18 +129,18 @@ export default function Index() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Write it the way it comes."
-                  className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 text-[15px]"
+                  placeholder="Type your response..."
+                  className="flex-1 bg-card/80 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   autoFocus
                 />
                 <button
                   onClick={handleSubmit}
                   disabled={!inputValue.trim()}
                   className={`
-                    flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200
+                    flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200
                     ${inputValue.trim() 
-                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
-                      : 'bg-warm-sand/60 text-muted-foreground/40'}
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
+                      : 'bg-muted text-muted-foreground/40'}
                   `}
                 >
                   <CornerDownLeft className="w-4 h-4" />
