@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { ArrowRight, Edit3, Sparkles, TrendingUp } from '@/components/ui/icons';
+import { ArrowRight } from '@/components/ui/icons';
 
 export default function Index() {
   const { user, isLoading: authLoading } = useAuth();
@@ -24,91 +24,70 @@ export default function Index() {
     }
   }, [user, authLoading, hasCompletedOnboarding, dataLoading, navigate]);
   
-  // Show loading while checking auth
   if (authLoading) {
     return (
-      <div className="min-h-screen paper-texture flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-gradient-to-b from-background via-background to-warm-sand/20 flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen paper-texture flex flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
-          <DaoLogo size={24} className="text-primary" />
-          <span className="font-medium text-foreground">Dao</span>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-warm-sand/20 flex flex-col overflow-hidden">
+      {/* Subtle ambient glow */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/[0.03] rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/3 bg-gradient-to-t from-warm-sand/10 to-transparent" />
+      </div>
+      
+      {/* Minimal header */}
+      <header className="relative z-10 flex items-center justify-between px-6 sm:px-10 py-6">
+        <div className="flex items-center gap-2.5 opacity-80">
+          <DaoLogo size={22} />
+          <span className="text-sm font-medium text-foreground/80 tracking-wide">Dao</span>
         </div>
         <button
           onClick={() => navigate('/auth')}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-300"
         >
           Log in
         </button>
       </header>
       
-      {/* Hero section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 -mt-16">
-        <div className="max-w-3xl mx-auto text-center animate-fade-in">
-          {/* Logo */}
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-card border border-border mb-6 shadow-subtle">
-            <DaoLogo size={32} className="text-primary" />
+      {/* Hero - centered and breathing */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-12">
+        <div className="max-w-xl mx-auto text-center">
+          {/* Subtle floating logo */}
+          <div className="mb-10 animate-fade-in">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm">
+              <DaoLogo size={28} />
+            </div>
           </div>
           
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl font-medium text-foreground mb-3 tracking-tight">
-            Dao
+          {/* Single headline */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-light text-foreground mb-20 tracking-tight leading-tight animate-fade-in animation-delay-100">
+            Your career journey,
+            <br />
+            <span className="text-foreground/70">mindfully tracked</span>
           </h1>
           
-          <p className="text-lg text-muted-foreground mb-8">
-            Your career journey, mindfully tracked
-          </p>
-          
-          {/* CTA */}
-          <button
-            onClick={() => navigate('/auth')}
-            className="btn-serene text-base px-8 py-3 group mb-16"
-          >
-            Start reflecting
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </button>
-          
-          {/* Features */}
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="journal-card p-5 text-center">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
-                <Edit3 className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-medium text-foreground text-sm mb-1">Capture</h3>
-              <p className="text-xs text-muted-foreground">
-                Record achievements and learnings as they happen
-              </p>
-            </div>
-            
-            <div className="journal-card p-5 text-center">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
-                <Sparkles className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-medium text-foreground text-sm mb-1">Reflect</h3>
-              <p className="text-xs text-muted-foreground">
-                AI-guided prompts help you dig deeper
-              </p>
-            </div>
-            
-            <div className="journal-card p-5 text-center">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 mb-3">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="font-medium text-foreground text-sm mb-1">Generate</h3>
-              <p className="text-xs text-muted-foreground">
-                Automatic reviews and resume bullets
-              </p>
-            </div>
+          {/* Primary action - clean and inviting */}
+          <div className="animate-fade-in animation-delay-200">
+            <button
+              onClick={() => navigate('/auth')}
+              className="group inline-flex items-center gap-3 px-7 py-3.5 bg-foreground text-background rounded-full text-sm font-medium transition-all duration-300 hover:gap-4 hover:shadow-lg hover:shadow-foreground/10"
+            >
+              Begin
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </button>
           </div>
         </div>
       </main>
+      
+      {/* Breathing indicator - subtle life */}
+      <div className="relative z-10 flex justify-center pb-12">
+        <div className="w-1 h-1 rounded-full bg-primary/40 animate-pulse" />
+      </div>
     </div>
   );
 }
