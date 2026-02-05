@@ -1,14 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { ArrowRight } from '@/components/ui/icons';
+import { ArrowRight, Sparkles } from '@/components/ui/icons';
+
+const reflectionPrompts = [
+  "What decision did you make this week that wasn't straightforward?",
+  "What moved forward this week, even if it felt small?",
+  "What did you learn that changed how you think about your work?",
+  "What was harder than expected this week?",
+  "What are you proud of from this week?",
+  "What did you handle for the first time?",
+];
 
 export default function Index() {
   const { user, isLoading: authLoading } = useAuth();
   const { hasCompletedOnboarding, isLoading: dataLoading } = useUserData();
   const navigate = useNavigate();
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [inputValue, setInputValue] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   
   useEffect(() => {
     if (authLoading) return;
@@ -23,6 +35,30 @@ export default function Index() {
       }
     }
   }, [user, authLoading, hasCompletedOnboarding, dataLoading, navigate]);
+
+  const handleNextPrompt = () => {
+    setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleInputFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleStartReflecting = () => {
+    // Navigate to auth, could later pass prompt context
+    navigate('/auth');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleStartReflecting();
+    }
+  };
   
   if (authLoading) {
     return (
@@ -55,37 +91,88 @@ export default function Index() {
       </header>
       
       {/* Hero - centered and breathing */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-12">
-        <div className="max-w-xl mx-auto text-center">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-8">
+        <div className="max-w-xl mx-auto text-center w-full">
           {/* Subtle floating logo */}
-          <div className="mb-10 animate-fade-in">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm">
-              <DaoLogo size={28} />
+          <div className="mb-8 animate-fade-in">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm">
+              <DaoLogo size={24} />
             </div>
           </div>
           
           {/* Single headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-light text-foreground mb-20 tracking-tight leading-tight animate-fade-in animation-delay-100">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-foreground mb-12 tracking-tight leading-tight animate-fade-in animation-delay-100">
             Your career journey,
             <br />
-            <span className="text-foreground/70">mindfully tracked</span>
+            <span className="text-foreground/60">mindfully tracked</span>
           </h1>
           
-          {/* Primary action - clean and inviting */}
-          <div className="animate-fade-in animation-delay-200">
-            <button
-              onClick={() => navigate('/auth')}
-              className="group inline-flex items-center gap-3 px-7 py-3.5 bg-foreground text-background rounded-full text-sm font-medium transition-all duration-300 hover:gap-4 hover:shadow-lg hover:shadow-foreground/10"
+          {/* Interactive reflection prompt */}
+          <div className="animate-fade-in animation-delay-200 mb-8">
+            <div 
+              className={`
+                relative max-w-lg mx-auto bg-warm-sand/30 rounded-2xl p-5 
+                transition-all duration-300 cursor-text
+                ${isFocused ? 'bg-warm-sand/50 shadow-lg shadow-warm-sand/20' : 'hover:bg-warm-sand/40'}
+              `}
+              onClick={() => document.getElementById('reflection-input')?.focus()}
             >
-              Begin
+              {/* Sparkle icon */}
+              <div className="absolute left-5 top-5">
+                <Sparkles className="w-4 h-4 text-primary/60" />
+              </div>
+              
+              {/* Textarea */}
+              <textarea
+                id="reflection-input"
+                value={inputValue}
+                onChange={handleInputChange}
+                onFocus={handleInputFocus}
+                onBlur={() => setIsFocused(false)}
+                onKeyDown={handleKeyDown}
+                placeholder={reflectionPrompts[promptIndex]}
+                className="w-full bg-transparent border-none outline-none resize-none text-foreground placeholder:text-foreground/70 text-[15px] leading-relaxed pl-7 min-h-[28px] max-h-32"
+                rows={1}
+              />
+              
+              {/* Try another link */}
+              <div className="flex justify-start pl-7 mt-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleNextPrompt();
+                  }}
+                  className="inline-flex items-center gap-1.5 text-primary/70 hover:text-primary text-sm transition-colors duration-200 group"
+                >
+                  Try another
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Primary action - appears when typing */}
+          <div className={`animate-fade-in animation-delay-300 transition-all duration-300 ${inputValue ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+            <button
+              onClick={handleStartReflecting}
+              className="group inline-flex items-center gap-3 px-6 py-3 bg-foreground text-background rounded-full text-sm font-medium transition-all duration-300 hover:gap-4 hover:shadow-lg hover:shadow-foreground/10"
+            >
+              Continue reflecting
               <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </button>
+          </div>
+          
+          {/* Subtle hint when not typing */}
+          <div className={`transition-all duration-300 ${inputValue ? 'opacity-0' : 'opacity-100'}`}>
+            <p className="text-muted-foreground/60 text-xs mt-6">
+              Start typing to begin your reflection
+            </p>
           </div>
         </div>
       </main>
       
       {/* Breathing indicator - subtle life */}
-      <div className="relative z-10 flex justify-center pb-12">
+      <div className="relative z-10 flex justify-center pb-10">
         <div className="w-1 h-1 rounded-full bg-primary/40 animate-pulse" />
       </div>
     </div>
