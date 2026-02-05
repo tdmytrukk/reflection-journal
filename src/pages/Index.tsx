@@ -133,15 +133,15 @@ export default function Index() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-warm-sand/20 flex flex-col overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-warm-sand/20 flex flex-col">
       {/* Subtle ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/[0.03] rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/[0.03] rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/3 bg-gradient-to-t from-warm-sand/10 to-transparent" />
       </div>
       
-      {/* Minimal header */}
-      <header className="relative z-10 flex items-center justify-between px-6 sm:px-10 py-6">
+      {/* Minimal header - absolute so it doesn't affect centering */}
+      <header className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 sm:px-10 py-6">
         <div className="flex items-center gap-2.5 opacity-80">
           <DaoLogo size={22} />
           <span className="text-sm font-medium text-foreground/80 tracking-wide">Dao</span>
@@ -154,8 +154,8 @@ export default function Index() {
         </button>
       </header>
       
-      {/* Hero - centered */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-8">
+      {/* Hero - perfectly centered */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
         <div className="max-w-2xl mx-auto text-center w-full">
           {/* Subtle floating logo */}
           <div className="mb-8 animate-fade-in">
