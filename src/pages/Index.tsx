@@ -184,20 +184,31 @@ export default function Index() {
                 </p>
               </div>
               
-              {/* Input area */}
-              <div className="flex items-center gap-2 px-4 pb-4">
+              {/* Input area - wrapped in form to suppress password managers */}
+              <form 
+                className="flex items-center gap-2 px-4 pb-4"
+                autoComplete="off"
+                onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+              >
                 <input
                   type="text"
+                  name="reflection_note_field"
+                  id="reflection-note-input"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={handleInputFocus}
                   onBlur={handleInputBlur}
                   placeholder="Type your response..."
-                  autoComplete="off"
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
                   data-lpignore="true"
                   data-1p-ignore="true"
                   data-form-type="other"
+                  data-bwignore="true"
+                  aria-autocomplete="none"
                   className="flex-1 bg-card/80 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                 />
                 
@@ -231,7 +242,7 @@ export default function Index() {
                 >
                   <CornerDownLeft className="w-5 h-5" />
                 </button>
-              </div>
+              </form>
             </div>
             
             {/* Response count indicator */}
