@@ -46,12 +46,9 @@ export default function AuthPage() {
       <div className="w-full max-w-sm animate-fade-in">
         {/* Compact header */}
         <div className="text-center mb-8">
-          <h1 className="text-xl font-medium text-foreground mb-1 tracking-tight">
-            {isLogin ? 'Welcome back' : 'Create your account'}
+          <h1 className="text-xl font-medium text-foreground tracking-tight">
+            {isLogin ? 'Welcome back' : 'Get started'}
           </h1>
-          <p className="text-muted-foreground text-sm">
-            {isLogin ? 'Continue your journey' : 'Start tracking your growth'}
-          </p>
         </div>
 
         {/* Auth form - compact card */}
