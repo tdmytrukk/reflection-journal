@@ -133,9 +133,9 @@ export default function Index() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-warm-sand/20 flex flex-col">
+    <div className="min-h-screen w-full bg-gradient-to-b from-background via-background to-warm-sand/20 flex flex-col overflow-x-hidden">
       {/* Subtle ambient glow */}
-      <div className="fixed inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/[0.03] rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/3 bg-gradient-to-t from-warm-sand/10 to-transparent" />
       </div>
@@ -154,9 +154,9 @@ export default function Index() {
         </button>
       </header>
       
-      {/* Hero - perfectly centered */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
-        <div className="max-w-2xl mx-auto text-center w-full">
+      {/* Hero - perfectly centered using grid for true centering */}
+      <main className="relative z-10 flex-1 grid place-items-center px-6">
+        <div className="max-w-2xl w-full text-center">
           {/* Subtle floating logo */}
           <div className="mb-8 animate-fade-in">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm">
