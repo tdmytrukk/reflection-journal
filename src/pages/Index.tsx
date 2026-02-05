@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { Sparkles, CornerDownLeft } from '@/components/ui/icons';
+import { Sparkles, CornerDownLeft, Mic } from '@/components/ui/icons';
 
 const reflectionPrompts = [
   "What decision did you make this week that wasn't straightforward?",
@@ -37,6 +38,22 @@ export default function Index() {
     }
   }, [user, authLoading, hasCompletedOnboarding, dataLoading, navigate]);
 
+  const { 
+    isListening, 
+    transcript, 
+    isSupported: isSpeechSupported,
+    startListening, 
+    stopListening,
+    resetTranscript 
+  } = useSpeechRecognition();
+
+  // Sync speech transcript to input
+  useEffect(() => {
+    if (transcript) {
+      setInputValue(transcript);
+    }
+  }, [transcript]);
+
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
     
@@ -47,13 +64,16 @@ export default function Index() {
     };
     setResponses(prev => [...prev, newResponse]);
     
-    // Transition to next question
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setInputValue('');
-      setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
-      setIsTransitioning(false);
-    }, 150);
+    // Stop listening if active
+    if (isListening) {
+      stopListening();
+    }
+    
+    // Store response in sessionStorage for use after auth
+    sessionStorage.setItem('pendingReflection', JSON.stringify(newResponse));
+    
+    // Navigate to auth
+    navigate('/auth');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -62,6 +82,16 @@ export default function Index() {
       handleSubmit();
     }
   };
+
+  const toggleRecording = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      startListening();
+    }
+  };
+
 
   
   if (authLoading) {
@@ -123,7 +153,7 @@ export default function Index() {
               </div>
               
               {/* Input area */}
-              <div className="flex items-center gap-3 px-4 pb-4">
+              <div className="flex items-center gap-2 px-4 pb-4">
                 <input
                   type="text"
                   value={inputValue}
@@ -133,6 +163,24 @@ export default function Index() {
                   className="flex-1 bg-card/80 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   autoFocus
                 />
+                
+                {/* Mic button */}
+                {isSpeechSupported && (
+                  <button
+                    onClick={toggleRecording}
+                    className={`
+                      flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200
+                      ${isListening 
+                        ? 'bg-destructive/10 text-destructive animate-pulse' 
+                        : 'text-primary/70 hover:text-primary hover:bg-primary/10'}
+                    `}
+                    title={isListening ? "Stop recording" : "Start recording"}
+                  >
+                    <Mic className="w-5 h-5" />
+                  </button>
+                )}
+                
+                {/* Submit button */}
                 <button
                   onClick={handleSubmit}
                   disabled={!inputValue.trim()}
@@ -140,10 +188,11 @@ export default function Index() {
                     flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200
                     ${inputValue.trim() 
                       ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm' 
-                      : 'bg-muted text-muted-foreground/40'}
+                      : 'bg-primary/30 text-primary-foreground/50'}
                   `}
+                  title="Submit and continue"
                 >
-                  <CornerDownLeft className="w-4 h-4" />
+                  <CornerDownLeft className="w-5 h-5" />
                 </button>
               </div>
             </div>
