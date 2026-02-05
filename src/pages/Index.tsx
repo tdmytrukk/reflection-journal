@@ -174,10 +174,10 @@ export default function Index() {
           {/* Interactive reflection prompt box */}
           <div className="animate-fade-in animation-delay-200">
             <div className="max-w-xl mx-auto bg-warm-sand/50 rounded-2xl overflow-hidden shadow-sm border border-warm-sand/60">
-              {/* Question header with fade animation */}
-              <div className={`flex items-start gap-3 p-4 pb-3 transition-all duration-200 ${isTransitioning ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}>
+              {/* Question header - icon fixed, text animated */}
+              <div className="flex items-start gap-3 p-4 pb-3">
                 <Sparkles className="w-5 h-5 text-primary/70 mt-0.5 flex-shrink-0" />
-                <p className="text-foreground text-[15px] leading-relaxed text-left flex-1">
+                <p className={`text-foreground text-[15px] leading-relaxed text-left flex-1 transition-all duration-200 ${isTransitioning ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}>
                   {reflectionPrompts[promptIndex]}
                 </p>
               </div>
