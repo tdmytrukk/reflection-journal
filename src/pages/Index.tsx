@@ -194,6 +194,10 @@ export default function Index() {
                   onFocus={handleInputFocus}
                   onBlur={handleInputBlur}
                   placeholder="Type your response..."
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
                   className="flex-1 bg-card/80 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                 />
                 
