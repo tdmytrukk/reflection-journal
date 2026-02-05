@@ -87,19 +87,17 @@ export default function Index() {
       prompt: reflectionPrompts[promptIndex],
       response: inputValue.trim()
     };
-    setResponses(prev => [...prev, newResponse]);
     
     // Stop listening if active
     if (isListening) {
       stopListening();
     }
     
-    // Store all responses in sessionStorage
-    const allResponses = [...responses, newResponse];
-    sessionStorage.setItem('pendingReflections', JSON.stringify(allResponses));
+    // Store response in sessionStorage for use after auth
+    sessionStorage.setItem('pendingReflection', JSON.stringify(newResponse));
     
-    // Cycle to next question with animation
-    cycleToNextPrompt();
+    // Navigate to auth/login
+    navigate('/auth');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
