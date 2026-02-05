@@ -23,6 +23,7 @@ export default function Index() {
   const [inputValue, setInputValue] = useState('');
   const [responses, setResponses] = useState<{ prompt: string; response: string }[]>([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   
   useEffect(() => {
     if (authLoading) return;
@@ -47,6 +48,21 @@ export default function Index() {
     resetTranscript 
   } = useSpeechRecognition();
 
+  // Auto-rotate prompts every 2.5 seconds (unless user is typing or paused)
+  useEffect(() => {
+    if (isPaused || inputValue.trim() || isListening) return;
+    
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
+        setIsTransitioning(false);
+      }, 200);
+    }, 2500);
+    
+    return () => clearInterval(interval);
+  }, [isPaused, inputValue, isListening]);
+
   // Sync speech transcript to input
   useEffect(() => {
     if (transcript) {
@@ -54,10 +70,19 @@ export default function Index() {
     }
   }, [transcript]);
 
+  const cycleToNextPrompt = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setInputValue('');
+      setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
+      setIsTransitioning(false);
+    }, 200);
+  };
+
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
     
-    // Save response
+    // Save response locally
     const newResponse = {
       prompt: reflectionPrompts[promptIndex],
       response: inputValue.trim()
@@ -69,11 +94,12 @@ export default function Index() {
       stopListening();
     }
     
-    // Store response in sessionStorage for use after auth
-    sessionStorage.setItem('pendingReflection', JSON.stringify(newResponse));
+    // Store all responses in sessionStorage
+    const allResponses = [...responses, newResponse];
+    sessionStorage.setItem('pendingReflections', JSON.stringify(allResponses));
     
-    // Navigate to auth
-    navigate('/auth');
+    // Cycle to next question with animation
+    cycleToNextPrompt();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -92,7 +118,13 @@ export default function Index() {
     }
   };
 
-
+  // Pause auto-rotation when user focuses on input
+  const handleInputFocus = () => setIsPaused(true);
+  const handleInputBlur = () => {
+    if (!inputValue.trim()) {
+      setIsPaused(false);
+    }
+  };
   
   if (authLoading) {
     return (
@@ -144,8 +176,8 @@ export default function Index() {
           {/* Interactive reflection prompt box */}
           <div className="animate-fade-in animation-delay-200">
             <div className="max-w-xl mx-auto bg-warm-sand/50 rounded-2xl overflow-hidden shadow-sm border border-warm-sand/60">
-              {/* Question header */}
-              <div className={`flex items-start gap-3 p-4 pb-3 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              {/* Question header with fade animation */}
+              <div className={`flex items-start gap-3 p-4 pb-3 transition-all duration-200 ${isTransitioning ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}>
                 <Sparkles className="w-5 h-5 text-primary/70 mt-0.5 flex-shrink-0" />
                 <p className="text-foreground text-[15px] leading-relaxed text-left flex-1">
                   {reflectionPrompts[promptIndex]}
@@ -159,9 +191,10 @@ export default function Index() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
                   placeholder="Type your response..."
                   className="flex-1 bg-card/80 border border-border/50 rounded-lg px-3 py-2.5 text-foreground placeholder:text-muted-foreground/60 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-                  autoFocus
                 />
                 
                 {/* Mic button */}
