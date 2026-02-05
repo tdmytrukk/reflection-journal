@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useUserData } from '@/hooks/useUserData';
 import { DaoLogo } from '@/components/icons/DaoLogo';
-import { ArrowRight, Sparkles } from '@/components/ui/icons';
+import { Sparkles, CornerDownLeft, X } from '@/components/ui/icons';
 
 const reflectionPrompts = [
   "What decision did you make this week that wasn't straightforward?",
@@ -20,7 +20,8 @@ export default function Index() {
   const navigate = useNavigate();
   const [promptIndex, setPromptIndex] = useState(0);
   const [inputValue, setInputValue] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [responses, setResponses] = useState<{ prompt: string; response: string }[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   useEffect(() => {
     if (authLoading) return;
@@ -36,28 +37,35 @@ export default function Index() {
     }
   }, [user, authLoading, hasCompletedOnboarding, dataLoading, navigate]);
 
-  const handleNextPrompt = () => {
-    setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  const handleInputFocus = () => {
-    setIsFocused(true);
-  };
-
-  const handleStartReflecting = () => {
-    // Navigate to auth, could later pass prompt context
-    navigate('/auth');
+  const handleSubmit = () => {
+    if (!inputValue.trim()) return;
+    
+    // Save response
+    const newResponse = {
+      prompt: reflectionPrompts[promptIndex],
+      response: inputValue.trim()
+    };
+    setResponses(prev => [...prev, newResponse]);
+    
+    // Transition to next question
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setInputValue('');
+      setPromptIndex((prev) => (prev + 1) % reflectionPrompts.length);
+      setIsTransitioning(false);
+    }, 150);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleStartReflecting();
+      handleSubmit();
     }
+  };
+
+  const handleDismiss = () => {
+    // Could navigate to auth or just cycle
+    navigate('/auth');
   };
   
   if (authLoading) {
@@ -90,9 +98,9 @@ export default function Index() {
         </button>
       </header>
       
-      {/* Hero - centered and breathing */}
+      {/* Hero - centered */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 -mt-8">
-        <div className="max-w-xl mx-auto text-center w-full">
+        <div className="max-w-2xl mx-auto text-center w-full">
           {/* Subtle floating logo */}
           <div className="mb-8 animate-fade-in">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/50 shadow-sm">
@@ -101,77 +109,66 @@ export default function Index() {
           </div>
           
           {/* Single headline */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-foreground mb-12 tracking-tight leading-tight animate-fade-in animation-delay-100">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-foreground mb-10 tracking-tight leading-tight animate-fade-in animation-delay-100">
             Your career journey,
             <br />
             <span className="text-foreground/60">mindfully tracked</span>
           </h1>
           
-          {/* Interactive reflection prompt */}
-          <div className="animate-fade-in animation-delay-200 mb-8">
-            <div 
-              className={`
-                relative max-w-lg mx-auto bg-warm-sand/30 rounded-2xl p-5 
-                transition-all duration-300 cursor-text
-                ${isFocused ? 'bg-warm-sand/50 shadow-lg shadow-warm-sand/20' : 'hover:bg-warm-sand/40'}
-              `}
-              onClick={() => document.getElementById('reflection-input')?.focus()}
-            >
-              {/* Sparkle icon */}
-              <div className="absolute left-5 top-5">
-                <Sparkles className="w-4 h-4 text-primary/60" />
+          {/* Interactive reflection prompt box */}
+          <div className="animate-fade-in animation-delay-200">
+            <div className="max-w-xl mx-auto bg-warm-sand/40 rounded-2xl overflow-hidden shadow-sm">
+              {/* Question header */}
+              <div className={`flex items-start gap-3 p-4 pb-3 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                <Sparkles className="w-5 h-5 text-primary/70 mt-0.5 flex-shrink-0" />
+                <p className="text-foreground text-[15px] leading-relaxed text-left flex-1">
+                  {reflectionPrompts[promptIndex]}
+                </p>
+                <button
+                  onClick={handleDismiss}
+                  className="text-muted-foreground/60 hover:text-muted-foreground transition-colors p-1 -m-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
               
-              {/* Textarea */}
-              <textarea
-                id="reflection-input"
-                value={inputValue}
-                onChange={handleInputChange}
-                onFocus={handleInputFocus}
-                onBlur={() => setIsFocused(false)}
-                onKeyDown={handleKeyDown}
-                placeholder={reflectionPrompts[promptIndex]}
-                className="w-full bg-transparent border-none outline-none resize-none text-foreground placeholder:text-foreground/70 text-[15px] leading-relaxed pl-7 min-h-[28px] max-h-32"
-                rows={1}
-              />
-              
-              {/* Try another link */}
-              <div className="flex justify-start pl-7 mt-2">
+              {/* Input area */}
+              <div className="flex items-center gap-3 px-4 pb-4">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Write it the way it comes."
+                  className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 text-[15px]"
+                  autoFocus
+                />
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNextPrompt();
-                  }}
-                  className="inline-flex items-center gap-1.5 text-primary/70 hover:text-primary text-sm transition-colors duration-200 group"
+                  onClick={handleSubmit}
+                  disabled={!inputValue.trim()}
+                  className={`
+                    flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200
+                    ${inputValue.trim() 
+                      ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                      : 'bg-warm-sand/60 text-muted-foreground/40'}
+                  `}
                 >
-                  Try another
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  <CornerDownLeft className="w-4 h-4" />
                 </button>
               </div>
             </div>
-          </div>
-          
-          {/* Primary action - appears when typing */}
-          <div className={`animate-fade-in animation-delay-300 transition-all duration-300 ${inputValue ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
-            <button
-              onClick={handleStartReflecting}
-              className="group inline-flex items-center gap-3 px-6 py-3 bg-foreground text-background rounded-full text-sm font-medium transition-all duration-300 hover:gap-4 hover:shadow-lg hover:shadow-foreground/10"
-            >
-              Continue reflecting
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </button>
-          </div>
-          
-          {/* Subtle hint when not typing */}
-          <div className={`transition-all duration-300 ${inputValue ? 'opacity-0' : 'opacity-100'}`}>
-            <p className="text-muted-foreground/60 text-xs mt-6">
-              Start typing to begin your reflection
-            </p>
+            
+            {/* Response count indicator */}
+            {responses.length > 0 && (
+              <p className="text-muted-foreground/50 text-xs mt-4">
+                {responses.length} reflection{responses.length !== 1 ? 's' : ''} captured
+              </p>
+            )}
           </div>
         </div>
       </main>
       
-      {/* Breathing indicator - subtle life */}
+      {/* Breathing indicator */}
       <div className="relative z-10 flex justify-center pb-10">
         <div className="w-1 h-1 rounded-full bg-primary/40 animate-pulse" />
       </div>
