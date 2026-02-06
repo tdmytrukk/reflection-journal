@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Copy, FileText, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronRight, Copy, FileText, Sparkles, RefreshCw } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMonthlyReview } from '@/hooks/useMonthlyReview';
 import { toast } from 'sonner';
-import type { Entry } from '@/types';
+import type { Entry, MonthlyReviewAchievement } from '@/types';
 
 type Timeframe = 'week' | 'month' | 'quarter';
 
@@ -40,6 +39,28 @@ function getEntriesForTimeframe(entries: Entry[], timeframe: Timeframe): Entry[]
   }
   
   return entries.filter(e => new Date(e.date) >= start);
+}
+
+// Shorten text to signal-level language
+function toSignal(text: string): string {
+  return text
+    // Remove emotional qualifiers
+    .replace(/\b(very|really|quite|extremely|absolutely|definitely|incredibly|particularly|especially)\s+/gi, '')
+    // Remove filler phrases
+    .replace(/\b(a|an)\s+(difficult|steady|calm|clear)\s+(and\s+)?/gi, '')
+    .replace(/\bwith\s+great\s+/gi, 'with ')
+    .replace(/\bin\s+a\s+(clear|calm|thoughtful)\s+(and\s+\w+\s+)?manner\b/gi, '')
+    // Trim length - aim for ~60-80 chars max
+    .trim();
+}
+
+// Group achievements by category
+function groupAchievements(achievements: MonthlyReviewAchievement[]) {
+  const newItems = achievements.filter(a => a.isNew);
+  const reinforced = achievements.filter(a => !a.isNew && a.impact !== 'high');
+  const impact = achievements.filter(a => !a.isNew && a.impact === 'high');
+  
+  return { newItems, reinforced, impact };
 }
 
 export function ReviewScreen({ entries }: ReviewScreenProps) {
@@ -98,25 +119,49 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
   };
 
   const hasEnoughData = entriesCount >= 3;
+  const grouped = reviewData ? groupAchievements(reviewData.achievements) : null;
 
   return (
     <div className="min-h-[calc(100vh-80px)] px-6 py-8">
       <div className="max-w-2xl mx-auto">
-        {/* Timeframe selector */}
-        <div className="flex items-center gap-2 mb-8">
-          {(['week', 'month', 'quarter'] as Timeframe[]).map((tf) => (
-            <button
-              key={tf}
-              onClick={() => setTimeframe(tf)}
-              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                timeframe === tf
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-              }`}
-            >
-              {getTimeframeLabel(tf)}
-            </button>
-          ))}
+        {/* Header row: Timeframe selector + actions */}
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-2">
+            {(['week', 'month', 'quarter'] as Timeframe[]).map((tf) => (
+              <button
+                key={tf}
+                onClick={() => setTimeframe(tf)}
+                className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                  timeframe === tf
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                }`}
+              >
+                {getTimeframeLabel(tf)}
+              </button>
+            ))}
+          </div>
+          
+          {/* Actions moved to top-right */}
+          {reviewData && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={generateReview}
+                disabled={isGenerating}
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                title="Regenerate"
+              >
+                <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={handleCopyToClipboard}
+                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+                title="Copy"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Not enough data state */}
@@ -134,70 +179,122 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
         
         {/* Growth summary */}
         {(hasEnoughData || reviewData) && (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* Generate button if no AI review yet */}
             {!reviewData && (
               <div className="flex justify-center">
-                <Button
+                <button
                   onClick={generateReview}
                   disabled={isGenerating || !canGenerate}
-                  className="gap-2"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
                   <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-pulse' : ''}`} />
                   {isGenerating ? 'Generating...' : 'Generate insights'}
-                </Button>
+                </button>
               </div>
             )}
             
-            {/* Main summary section */}
-            {reviewData && (
+            {/* Main summary section - wrapped in visual container */}
+            {reviewData && grouped && (
               <>
-                <section>
-                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">
+                <section className="bg-accent/40 rounded-2xl p-6 border border-border/30">
+                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-5">
                     {getTimeframeLabel(timeframe)}'s growth
                   </h2>
-                  <ul className="space-y-3">
-                    {reviewData.achievements.slice(0, 4).map((achievement, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <span className="text-primary/80 text-sm font-medium flex-shrink-0 w-20">
-                          {achievement.isNew ? 'New' : achievement.impact === 'high' ? 'Impact' : 'Reinforced'}:
+                  
+                  <div className="space-y-5">
+                    {/* New items grouped */}
+                    {grouped.newItems.length > 0 && (
+                      <div>
+                        <span className="text-primary/90 text-xs font-medium uppercase tracking-wide">
+                          New {grouped.newItems.length > 1 ? `(${grouped.newItems.length})` : ''}
                         </span>
-                        <span className="text-foreground/90 text-sm leading-relaxed">
-                          {achievement.text}
+                        <ul className="mt-2 space-y-2">
+                          {grouped.newItems.slice(0, 3).map((achievement, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-primary/60 mt-1">•</span>
+                              <span className="text-foreground/90 text-sm leading-relaxed">
+                                {toSignal(achievement.text)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Reinforced items grouped */}
+                    {grouped.reinforced.length > 0 && (
+                      <div>
+                        <span className="text-foreground/60 text-xs font-medium uppercase tracking-wide">
+                          Reinforced {grouped.reinforced.length > 1 ? `(${grouped.reinforced.length})` : ''}
                         </span>
-                      </li>
-                    ))}
-                  </ul>
+                        <ul className="mt-2 space-y-2">
+                          {grouped.reinforced.slice(0, 3).map((achievement, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-muted-foreground mt-1">•</span>
+                              <span className="text-foreground/80 text-sm leading-relaxed">
+                                {toSignal(achievement.text)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Impact items grouped */}
+                    {grouped.impact.length > 0 && (
+                      <div>
+                        <span className="text-foreground/70 text-xs font-medium uppercase tracking-wide">
+                          Impact {grouped.impact.length > 1 ? `(${grouped.impact.length})` : ''}
+                        </span>
+                        <ul className="mt-2 space-y-2">
+                          {grouped.impact.slice(0, 2).map((achievement, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <span className="text-muted-foreground mt-1">•</span>
+                              <span className="text-foreground/85 text-sm leading-relaxed">
+                                {toSignal(achievement.text)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </section>
                 
-                {/* Patterns section */}
+                {/* Divider */}
+                <div className="h-px bg-border/40" />
+                
+                {/* Patterns section - visually demoted */}
                 {reviewData.growth.length > 0 && (
                   <section>
-                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">
+                    <h2 className="text-xs text-muted-foreground/70 uppercase tracking-wide mb-3">
                       Patterns noticed
                     </h2>
-                    <ul className="space-y-2">
+                    <div className="space-y-1.5 pl-1">
                       {reviewData.growth.slice(0, 3).map((pattern, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-foreground/80 text-sm">{pattern}</span>
-                        </li>
+                        <p key={index} className="text-foreground/60 text-sm leading-relaxed">
+                          – {toSignal(pattern)}
+                        </p>
                       ))}
-                    </ul>
+                    </div>
                   </section>
                 )}
                 
-                {/* Strengths */}
+                {/* Divider */}
+                <div className="h-px bg-border/40" />
+                
+                {/* Strengths - lighter, smaller, max 3 */}
                 {reviewData.strengths.length > 0 && (
                   <section>
-                    <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                      Key strengths
+                    <h2 className="text-xs text-muted-foreground/70 uppercase tracking-wide mb-3">
+                      Strengths emerging
                     </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {reviewData.strengths.map((strength) => (
+                    <div className="flex flex-wrap gap-1.5">
+                      {reviewData.strengths.slice(0, 3).map((strength) => (
                         <span
                           key={strength}
-                          className="px-3 py-1.5 text-xs bg-accent text-accent-foreground rounded-full"
+                          className="px-2.5 py-1 text-xs bg-accent/60 text-accent-foreground/80 rounded-full"
                         >
                           {strength}
                         </span>
@@ -205,36 +302,13 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                     </div>
                   </section>
                 )}
-                
-                {/* Regenerate / Copy actions */}
-                <div className="flex items-center gap-3 pt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={generateReview}
-                    disabled={isGenerating}
-                    className="text-xs"
-                  >
-                    <Sparkles className={`w-3.5 h-3.5 mr-1.5 ${isGenerating ? 'animate-spin' : ''}`} />
-                    Regenerate
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCopyToClipboard}
-                    className="text-xs"
-                  >
-                    <Copy className="w-3.5 h-3.5 mr-1.5" />
-                    Copy
-                  </Button>
-                </div>
               </>
             )}
             
             {/* Outputs section - collapsed by default */}
             {reviewData && (
               <Collapsible open={outputsOpen} onOpenChange={setOutputsOpen}>
-                <CollapsibleTrigger className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors w-full py-3 border-t border-border/50">
+                <CollapsibleTrigger className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors w-full py-3 border-t border-border/40">
                   <span className="text-sm">Generate outputs</span>
                   {outputsOpen ? (
                     <ChevronDown className="w-4 h-4" />
@@ -245,7 +319,7 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                 <CollapsibleContent className="pt-4 space-y-3">
                   <button
                     onClick={handleExportResumeBullets}
-                    className="w-full flex items-center gap-3 p-3 text-left rounded-lg border border-border/50 hover:bg-accent/50 transition-colors"
+                    className="w-full flex items-center gap-3 p-3 text-left rounded-lg border border-border/40 hover:bg-accent/50 transition-colors"
                   >
                     <FileText className="w-4 h-4 text-muted-foreground" />
                     <div>
@@ -255,7 +329,7 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                   </button>
                   <button
                     onClick={handleCopyToClipboard}
-                    className="w-full flex items-center gap-3 p-3 text-left rounded-lg border border-border/50 hover:bg-accent/50 transition-colors"
+                    className="w-full flex items-center gap-3 p-3 text-left rounded-lg border border-border/40 hover:bg-accent/50 transition-colors"
                   >
                     <Copy className="w-4 h-4 text-muted-foreground" />
                     <div>
@@ -268,7 +342,7 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
             )}
             
             {/* History link */}
-            <div className="pt-4 border-t border-border/50">
+            <div className="pt-4 border-t border-border/40">
               <button className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
                 View full timeline
                 <ChevronRight className="w-4 h-4" />
@@ -284,11 +358,11 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
               {entriesCount} reflections captured · {localStats.daysActive} days active
             </p>
             {localStats.strengths.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {localStats.strengths.slice(0, 4).map((strength) => (
+              <div className="flex flex-wrap gap-1.5">
+                {localStats.strengths.slice(0, 3).map((strength) => (
                   <span
                     key={strength}
-                    className="px-3 py-1.5 text-xs bg-accent text-accent-foreground rounded-full"
+                    className="px-2.5 py-1 text-xs bg-accent/60 text-accent-foreground/80 rounded-full"
                   >
                     {strength}
                   </span>
