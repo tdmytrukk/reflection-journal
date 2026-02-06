@@ -41,16 +41,25 @@ function getEntriesForTimeframe(entries: Entry[], timeframe: Timeframe): Entry[]
   return entries.filter(e => new Date(e.date) >= start);
 }
 
-// Shorten text to signal-level language
+// Shorten text to signal-level language - resume-grade, no emotion
 function toSignal(text: string): string {
   return text
-    // Remove emotional qualifiers
-    .replace(/\b(very|really|quite|extremely|absolutely|definitely|incredibly|particularly|especially)\s+/gi, '')
-    // Remove filler phrases
-    .replace(/\b(a|an)\s+(difficult|steady|calm|clear)\s+(and\s+)?/gi, '')
+    // Remove moral framing
+    .replace(/\b(selflessly|bravely|courageously|wisely|thoughtfully)\s+/gi, '')
+    // Remove emotional qualifiers and feelings
+    .replace(/\b(very|really|quite|extremely|absolutely|definitely|incredibly|particularly|especially|steady|emotional|difficult)\s+/gi, '')
+    // Remove internal state language
+    .replace(/\b(felt|feeling|stayed|remained)\s+(focused|calm|steady|confident)\s+(and\s+)?/gi, '')
+    .replace(/\bmaintained\s+a\s+(steady,?\s*)?(calm\s+)?(presence\s+)?(and\s+)?/gi, 'Maintained ')
+    // Simplify verbose phrases
+    .replace(/\bturned?\s+(your\s+)?personal\s+habits\s+into\s+a\s+shared\s+team\s+resource/gi, 'Shared personal workflow habits as a team resource')
     .replace(/\bwith\s+great\s+/gi, 'with ')
     .replace(/\bin\s+a\s+(clear|calm|thoughtful)\s+(and\s+\w+\s+)?manner\b/gi, '')
-    // Trim length - aim for ~60-80 chars max
+    .replace(/\bduring\s+a\s+high-pressure\s+emotional\s+moment\b/gi, 'during a high-pressure interaction')
+    // Remove redundant adjectives
+    .replace(/\b(a|an)\s+(difficult|steady|calm|clear|focused)\s+(and\s+)?/gi, '')
+    // Clean up double spaces and trim
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -179,7 +188,7 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
         
         {/* Growth summary */}
         {(hasEnoughData || reviewData) && (
-          <div className="space-y-10">
+            <div className="space-y-12">
             {/* Generate button if no AI review yet */}
             {!reviewData && (
               <div className="flex justify-center">
@@ -262,18 +271,18 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                   </div>
                 </section>
                 
-                {/* Divider */}
-                <div className="h-px bg-border/40" />
+                {/* Divider - fainter */}
+                <div className="h-px bg-border/25 my-2" />
                 
-                {/* Patterns section - visually demoted */}
+                {/* Patterns section - margin notes style */}
                 {reviewData.growth.length > 0 && (
-                  <section>
-                    <h2 className="text-xs text-muted-foreground/70 uppercase tracking-wide mb-3">
+                  <section className="pt-2">
+                    <h2 className="text-[11px] text-muted-foreground/50 uppercase tracking-wide mb-2.5 font-normal">
                       Patterns noticed
                     </h2>
-                    <div className="space-y-1.5 pl-1">
+                    <div className="space-y-1 pl-1">
                       {reviewData.growth.slice(0, 3).map((pattern, index) => (
-                        <p key={index} className="text-foreground/60 text-sm leading-relaxed">
+                        <p key={index} className="text-foreground/50 text-[13px] leading-relaxed italic">
                           – {toSignal(pattern)}
                         </p>
                       ))}
@@ -281,20 +290,20 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                   </section>
                 )}
                 
-                {/* Divider */}
-                <div className="h-px bg-border/40" />
+                {/* Divider - fainter */}
+                <div className="h-px bg-border/25 my-2" />
                 
-                {/* Strengths - lighter, smaller, max 3 */}
+                {/* Strengths - minimal, earned feel */}
                 {reviewData.strengths.length > 0 && (
-                  <section>
-                    <h2 className="text-xs text-muted-foreground/70 uppercase tracking-wide mb-3">
+                  <section className="pt-2">
+                    <h2 className="text-[11px] text-muted-foreground/50 uppercase tracking-wide mb-2.5 font-normal">
                       Strengths emerging
                     </h2>
                     <div className="flex flex-wrap gap-1.5">
                       {reviewData.strengths.slice(0, 3).map((strength) => (
                         <span
                           key={strength}
-                          className="px-2.5 py-1 text-xs bg-accent/60 text-accent-foreground/80 rounded-full"
+                          className="px-2 py-0.5 text-[11px] bg-accent/40 text-accent-foreground/70 rounded-full"
                         >
                           {strength}
                         </span>
@@ -305,15 +314,15 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
               </>
             )}
             
-            {/* Outputs section - collapsed by default */}
+            {/* Outputs section - collapsed by default, discoverable */}
             {reviewData && (
               <Collapsible open={outputsOpen} onOpenChange={setOutputsOpen}>
-                <CollapsibleTrigger className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors w-full py-3 border-t border-border/40">
-                  <span className="text-sm">Generate outputs</span>
+                <CollapsibleTrigger className="group flex items-center gap-2 text-foreground/60 hover:text-foreground transition-colors w-full py-3 border-t border-border/30">
+                  <span className="text-sm group-hover:underline underline-offset-2">Generate outputs</span>
                   {outputsOpen ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-4 h-4 transition-transform" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   )}
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4 space-y-3">
@@ -362,7 +371,7 @@ Key Strengths: ${reviewData.strengths.join(', ')}`;
                 {localStats.strengths.slice(0, 3).map((strength) => (
                   <span
                     key={strength}
-                    className="px-2.5 py-1 text-xs bg-accent/60 text-accent-foreground/80 rounded-full"
+                    className="px-2 py-0.5 text-[11px] bg-accent/40 text-accent-foreground/70 rounded-full"
                   >
                     {strength}
                   </span>
